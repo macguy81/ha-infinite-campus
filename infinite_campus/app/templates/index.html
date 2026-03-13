@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Campus Monitor</title>
+    <style>
+        :root {
+            --primary: #1976d2;
+            --primary-dark: #1565c0;
+            --success: #2e7d32;
+            --warning: #f57c00;
+            --danger: #c62828;
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #212121;
+            --text-secondary: #757575;
+            --border: #e0e0e0;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .header h1 { font-size: 1.4rem; font-weight: 600; }
+        .header .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .status-badge.online { background: rgba(46,125,50,0.3); }
+        .status-badge.offline { background: rgba(198,40,40,0.3); }
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+        .status-dot.online { background: #4caf50; }
+        .status-dot.offline { background: #ef5350; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .tab {
+            flex: 1;
+            padding: 10px 16px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        .tab:hover:not(.active) { background: #e3f2fd; color: var(--primary); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+        .form-group small {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        input[type="text"], input[type="password"], input[type="number"], select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+            background: white;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(25,118,210,0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px; height: 18px; cursor: pointer;
+        }
+        .checkbox-group label {
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #1b5e20; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover { background: #f5f5f5; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-group { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+        .alert-success { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
+        .alert-error { background: #ffebee; color: #b71c1c; border: 1px solid #ffcdd2; }
+        .alert-info { background: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f8f9fa;
+            border-bottom: 2px solid var(--border);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .data-table tr:hover td { background: #fafafa; }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .grade-a { background: #e8f5e9; color: #2e7d32; }
+        .grade-b { background: #e3f2fd; color: #1565c0; }
+        .grade-c { background: #fff3e0; color: #e65100; }
+        .grade-d { background: #fbe9e7; color: #bf360c; }
+        .grade-f { background: #ffebee; color: #b71c1c; }
+
+        .student-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .student-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        .spinner {
+            display: inline-block;
+            width: 24px; height: 24px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .header { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>&#127891; Infinite Campus Monitor</h1>
+        <div id="statusBadge" class="status-badge offline">
+            <div class="status-dot offline" id="statusDot"></div>
+            <span id="statusText">Disconnected</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab" onclick="switchTab('students')">Students</button>
+            <button class="tab" onclick="switchTab('grades')">Grades</button>
+            <button class="tab" onclick="switchTab('config')">Settings</button>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statStudents">-</div>
+                    <div class="stat-label">Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statCourses">-</div>
+                    <div class="stat-label">Courses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statAssignments">-</div>
+                    <div class="stat-label">Assignments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statPolls">-</div>
+                    <div class="stat-label">Polls</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statNotifications">-</div>
+                    <div class="stat-label">Alerts Sent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statErrors">-</div>
+                    <div class="stat-label">Errors</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>&#9881;&#65039; Quick Actions</h2>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="pollNow()">&#128260; Refresh Data</button>
+                    <button class="btn btn-success" onclick="startService()" id="btnStart">&#9654;&#65039; Start Service</button>
+                    <button class="btn btn-danger" onclick="stopService()" id="btnStop">&#9724;&#65039; Stop Service</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>&#128203; Recent Activity</h2>
+                <div id="recentActivity" class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading data...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Tab -->
+        <div id="tab-students" class="tab-content">
+            <div id="studentsContainer" class="loading">
+                <div class="spinner"></div>
+                <p>Loading students...</p>
+            </div>
+        </div>
+
+        <!-- Grades Tab -->
+        <div id="tab-grades" class="tab-content">
+            <div id="gradesContainer" class="loading">
+                <div class="spinner"></div>
+                <p>Loading grades...</p>
+            </div>
+        </div>
+
+        <!-- Config Tab -->
+        <div id="tab-config" class="tab-content">
+            <div class="card">
+                <h2>&#127979; Infinite Campus Connection</h2>
+                <div class="form-group">
+                    <label>Base URL</label>
+                    <input type="text" id="cfgBaseUrl" placeholder="https://yourdistrict.infinitecampus.org">
+                    <small>Your school district's Infinite Campus URL</small>
+                </div>
+                <div class="form-group">
+                    <label>District (appName)</label>
+                    <input type="text" id="cfgDistrict" placeholder="yourdistrict">
+                    <small>Found in the login page source as the "appName" input value</small>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="cfgUsername" placeholder="parent@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="cfgPassword" placeholder="Your password">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="testConnection()">&#128268; Test Connection</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>&#128242; WhatsApp Notifications (CallMeBot)</h2>
+                <div class="alert alert-info">
+                    <strong>Setup:</strong> Save +34 644 51 95 23 in your contacts, then send
+                    "I allow callmebot to send me messages" to that number on WhatsApp.
+                    You'll receive an API key.
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="cfgPhone" placeholder="+12125551234">
+                        <small>With country code (e.g., +1 for US)</small>
+                    </div>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" id="cfgApiKey" placeholder="Your CallMeBot API key">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="testWhatsApp()">&#128172; Test WhatsApp</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>&#9203; Polling & Notifications</h2>
+                <div class="form-group">
+                    <label>Poll Interval (seconds)</label>
+                    <input type="number" id="cfgInterval" value="900" min="300" max="7200">
+                    <small>How often to check for updates (minimum 300s / 5 min)</small>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Daily Summary Hour (0-23)</label>
+                        <input type="number" id="cfgSummaryHour" value="18" min="0" max="23">
+                        <small>When to send the daily summary (24h format)</small>
+                    </div>
+                    <div class="form-group" style="padding-top: 24px;">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="cfgAutoStart" checked>
+                            <label for="cfgAutoStart">Auto-start on boot</label>
+                        </div>
+                    </div>
+                </div>
+                <hr class="section-divider">
+                <p style="font-weight:600; margin-bottom:12px;">Notification Types</p>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="cfgNotifyGrades" checked>
+                    <label for="cfgNotifyGrades">Grade updates</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="cfgNotifyAssignments" checked>
+                    <label for="cfgNotifyAssignments">New assignments</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="cfgNotifyAttendance" checked>
+                    <label for="cfgNotifyAttendance">Attendance alerts</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="cfgNotifyNotifications" checked>
+                    <label for="cfgNotifyNotifications">School notifications</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="cfgDailySummary" checked>
+                    <label for="cfgDailySummary">Daily summary</label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-success" onclick="saveConfig()">&#128190; Save All Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── State ─────────────────────────────────────────────────
+        let currentConfig = {};
+        let currentData = {};
+        let pollTimer = null;
+
+        // ─── Tab Switching ─────────────────────────────────────────
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tab === 'students') loadStudents();
+            if (tab === 'grades') loadGrades();
+        }
+
+        // ─── Alerts ────────────────────────────────────────────────
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-' + type;
+            alert.textContent = message;
+            container.prepend(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // ─── API Helpers ───────────────────────────────────────────
+        async function apiGet(path) {
+            const resp = await fetch('/api/' + path);
+            return resp.json();
+        }
+
+        async function apiPost(path, data = {}) {
+            const resp = await fetch('/api/' + path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            return resp.json();
+        }
+
+        // ─── Status Polling ────────────────────────────────────────
+        async function updateStatus() {
+            try {
+                const status = await apiGet('status');
+                const badge = document.getElementById('statusBadge');
+                const dot = document.getElementById('statusDot');
+                const text = document.getElementById('statusText');
+
+                if (status.scheduler_running) {
+                    badge.className = 'status-badge online';
+                    dot.className = 'status-dot online';
+                    text.textContent = 'Running';
+                } else if (status.configured) {
+                    badge.className = 'status-badge offline';
+                    dot.className = 'status-dot offline';
+                    text.textContent = 'Stopped';
+                } else {
+                    badge.className = 'status-badge offline';
+                    dot.className = 'status-dot offline';
+                    text.textContent = 'Not Configured';
+                }
+
+                if (status.scheduler) {
+                    const s = status.scheduler;
+                    document.getElementById('statStudents').textContent = s.students_found || 0;
+                    document.getElementById('statPolls').textContent = s.poll_count || 0;
+                    document.getElementById('statNotifications').textContent = s.notifications_sent || 0;
+                    document.getElementById('statErrors').textContent = s.error_count || 0;
+                }
+            } catch (e) {
+                console.error('Status update failed:', e);
+            }
+        }
+
+        async function updateDashboardData() {
+            try {
+                const data = await apiGet('data');
+                if (!data.error) {
+                    currentData = data;
+                    document.getElementById('statCourses').textContent = (data.courses || []).length;
+                    document.getElementById('statAssignments').textContent = (data.assignments || []).length;
+                    updateRecentActivity(data);
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        function updateRecentActivity(data) {
+            const container = document.getElementById('recentActivity');
+            const assignments = (data.assignments || []).slice(0, 10);
+
+            if (assignments.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-secondary)">No recent activity</p>';
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr>';
+            html += '<th>Assignment</th><th>Course</th><th>Due Date</th><th>Score</th>';
+            html += '</tr></thead><tbody>';
+
+            for (const a of assignments) {
+                const score = a.score != null ? a.score + '/' + (a.totalPoints || '?') : '-';
+                html += '<tr>';
+                html += '<td>' + escHtml(a.assignmentName || 'N/A') + '</td>';
+                html += '<td>' + escHtml(a.courseName || 'N/A') + '</td>';
+                html += '<td>' + escHtml(a.dueDate || 'N/A') + '</td>';
+                html += '<td>' + score + '</td>';
+                html += '</tr>';
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // ─── Students Tab ──────────────────────────────────────────
+        async function loadStudents() {
+            const container = document.getElementById('studentsContainer');
+            try {
+                const data = await apiGet('data');
+                if (data.error) {
+                    container.innerHTML = '<p>No student data available. Start the service first.</p>';
+                    return;
+                }
+
+                const students = data.students || [];
+                if (students.length === 0) {
+                    container.innerHTML = '<p>No students found.</p>';
+                    return;
+                }
+
+                let html = '';
+                for (const s of students) {
+                    const name = (s.firstName || '') + ' ' + (s.lastName || '');
+                    const id = s.personID || s.studentID || 'N/A';
+                    const courses = (data.courses || []).filter(c =>
+                        String(c.studentID) === String(id)
+                    );
+
+                    html += '<div class="student-card">';
+                    html += '<div class="student-name">' + escHtml(name.trim() || 'Student ' + id) + '</div>';
+                    html += '<p style="color:var(--text-secondary);font-size:0.85rem">ID: ' + id + ' | Courses: ' + courses.length + '</p>';
+
+                    if (courses.length > 0) {
+                        html += '<table class="data-table" style="margin-top:12px"><thead><tr>';
+                        html += '<th>Course</th><th>Teacher</th><th>Period</th>';
+                        html += '</tr></thead><tbody>';
+                        for (const c of courses) {
+                            html += '<tr>';
+                            html += '<td>' + escHtml(c.courseName || c.name || 'N/A') + '</td>';
+                            html += '<td>' + escHtml(c.teacherName || c.teacher || 'N/A') + '</td>';
+                            html += '<td>' + escHtml(c.period || c.sectionNumber || 'N/A') + '</td>';
+                            html += '</tr>';
+                        }
+                        html += '</tbody></table>';
+                    }
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<p>Error loading students: ' + e.message + '</p>';
+            }
+        }
+
+        // ─── Grades Tab ────────────────────────────────────────────
+        async function loadGrades() {
+            const container = document.getElementById('gradesContainer');
+            try {
+                const data = await apiGet('data');
+                if (data.error) {
+                    container.innerHTML = '<p>No grade data available. Start the service first.</p>';
+                    return;
+                }
+
+                const grades = data.grades || [];
+                const assignments = data.assignments || [];
+                const items = grades.length > 0 ? grades : assignments.filter(a => a.score != null);
+
+                if (items.length === 0) {
+                    container.innerHTML = '<p>No grades available yet.</p>';
+                    return;
+                }
+
+                let html = '<table class="data-table"><thead><tr>';
+                html += '<th>Student</th><th>Course</th><th>Assignment</th><th>Score</th><th>Grade</th>';
+                html += '</tr></thead><tbody>';
+
+                for (const g of items) {
+                    const score = g.score != null ? g.score : '-';
+                    const total = g.totalPoints || '?';
+                    const pct = g.percentage ? g.percentage + '%' : '';
+                    const letter = g.letterGrade || '';
+                    const gradeClass = getGradeClass(letter);
+
+                    html += '<tr>';
+                    html += '<td>' + escHtml(g.studentID || '') + '</td>';
+                    html += '<td>' + escHtml(g.courseName || '') + '</td>';
+                    html += '<td>' + escHtml(g.assignmentName || '') + '</td>';
+                    html += '<td>' + score + '/' + total + (pct ? ' (' + pct + ')' : '') + '</td>';
+                    html += '<td>' + (letter ? '<span class="grade-badge ' + gradeClass + '">' + letter + '</span>' : '-') + '</td>';
+                    html += '</tr>';
+                }
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<p>Error loading grades: ' + e.message + '</p>';
+            }
+        }
+
+        function getGradeClass(letter) {
+            if (!letter) return '';
+            const l = letter.charAt(0).toUpperCase();
+            if (l === 'A') return 'grade-a';
+            if (l === 'B') return 'grade-b';
+            if (l === 'C') return 'grade-c';
+            if (l === 'D') return 'grade-d';
+            if (l === 'F') return 'grade-f';
+            return '';
+        }
+
+        // ─── Config ────────────────────────────────────────────────
+        async function loadConfig() {
+            try {
+                currentConfig = await apiGet('config');
+                document.getElementById('cfgBaseUrl').value = currentConfig.ic_base_url || '';
+                document.getElementById('cfgDistrict').value = currentConfig.ic_district || '';
+                document.getElementById('cfgUsername').value = currentConfig.ic_username || '';
+                document.getElementById('cfgPassword').value = currentConfig.ic_password || '';
+                document.getElementById('cfgPhone').value = currentConfig.whatsapp_phone || '';
+                document.getElementById('cfgApiKey').value = currentConfig.whatsapp_api_key || '';
+                document.getElementById('cfgInterval').value = currentConfig.poll_interval || 900;
+                document.getElementById('cfgSummaryHour').value = currentConfig.daily_summary_hour || 18;
+                document.getElementById('cfgAutoStart').checked = currentConfig.auto_start !== false;
+                document.getElementById('cfgNotifyGrades').checked = currentConfig.notify_grades !== false;
+                document.getElementById('cfgNotifyAssignments').checked = currentConfig.notify_assignments !== false;
+                document.getElementById('cfgNotifyAttendance').checked = currentConfig.notify_attendance !== false;
+                document.getElementById('cfgNotifyNotifications').checked = currentConfig.notify_notifications !== false;
+                document.getElementById('cfgDailySummary').checked = currentConfig.daily_summary !== false;
+            } catch (e) {
+                console.error('Failed to load config:', e);
+            }
+        }
+
+        function getConfigFromForm() {
+            return {
+                ic_base_url: document.getElementById('cfgBaseUrl').value.trim(),
+                ic_district: document.getElementById('cfgDistrict').value.trim(),
+                ic_username: document.getElementById('cfgUsername').value.trim(),
+                ic_password: document.getElementById('cfgPassword').value,
+                whatsapp_phone: document.getElementById('cfgPhone').value.trim(),
+                whatsapp_api_key: document.getElementById('cfgApiKey').value,
+                poll_interval: parseInt(document.getElementById('cfgInterval').value) || 900,
+                daily_summary_hour: parseInt(document.getElementById('cfgSummaryHour').value) || 18,
+                auto_start: document.getElementById('cfgAutoStart').checked,
+                notify_grades: document.getElementById('cfgNotifyGrades').checked,
+                notify_assignments: document.getElementById('cfgNotifyAssignments').checked,
+                notify_attendance: document.getElementById('cfgNotifyAttendance').checked,
+                notify_notifications: document.getElementById('cfgNotifyNotifications').checked,
+                daily_summary: document.getElementById('cfgDailySummary').checked,
+            };
+        }
+
+        async function saveConfig() {
+            try {
+                const result = await apiPost('config', getConfigFromForm());
+                if (result.success) {
+                    showAlert('Settings saved successfully!', 'success');
+                } else {
+                    showAlert('Failed to save: ' + result.error, 'error');
+                }
+            } catch (e) {
+                showAlert('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function testConnection() {
+            showAlert('Testing connection...', 'info');
+            try {
+                const result = await apiPost('test-connection', getConfigFromForm());
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                } else {
+                    showAlert('Connection failed: ' + result.error, 'error');
+                }
+            } catch (e) {
+                showAlert('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function testWhatsApp() {
+            showAlert('Sending test message...', 'info');
+            try {
+                const result = await apiPost('test-whatsapp', getConfigFromForm());
+                if (result.success) {
+                    showAlert('Test message sent! Check your WhatsApp.', 'success');
+                } else {
+                    showAlert('WhatsApp test failed: ' + result.error, 'error');
+                }
+            } catch (e) {
+                showAlert('Error: ' + e.message, 'error');
+            }
+        }
+
+        // ─── Service Controls ──────────────────────────────────────
+        async function pollNow() {
+            showAlert('Refreshing data...', 'info');
+            try {
+                const result = await apiPost('poll');
+                if (result.success) {
+                    showAlert('Data refreshed!', 'success');
+                    await updateDashboardData();
+                } else {
+                    showAlert('Refresh failed: ' + result.error, 'error');
+                }
+            } catch (e) {
+                showAlert('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function startService() {
+            try {
+                const result = await apiPost('start');
+                if (result.success) {
+                    showAlert('Service started!', 'success');
+                } else {
+                    showAlert('Start failed: ' + result.error, 'error');
+                }
+                await updateStatus();
+            } catch (e) {
+                showAlert('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function stopService() {
+            try {
+                const result = await apiPost('stop');
+                if (result.success) {
+                    showAlert('Service stopped.', 'success');
+                } else {
+                    showAlert('Stop failed: ' + result.error, 'error');
+                }
+                await updateStatus();
+            } catch (e) {
+                showAlert('Error: ' + e.message, 'error');
+            }
+        }
+
+        // ─── Helpers ───────────────────────────────────────────────
+        function escHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+
+        // ─── Init ──────────────────────────────────────────────────
+        async function init() {
+            await loadConfig();
+            await updateStatus();
+            await updateDashboardData();
+
+            // Poll status every 30 seconds
+            setInterval(updateStatus, 30000);
+            setInterval(updateDashboardData, 60000);
+        }
+
+        init();
+    </script>
+</body>
+</html>

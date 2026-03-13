@@ -1,0 +1,44 @@
+---
+configuration:
+  ic_base_url:
+    name: "Infinite Campus Base URL"
+    description: "Your school district's Infinite Campus URL (e.g., https://yourdistrict.infinitecampus.org)"
+  ic_district:
+    name: "District (appName)"
+    description: "Your school district identifier. Find it by inspecting the login page for the 'appName' input field."
+  ic_username:
+    name: "Username"
+    description: "Your Infinite Campus parent portal username"
+  ic_password:
+    name: "Password"
+    description: "Your Infinite Campus parent portal password"
+  whatsapp_phone:
+    name: "WhatsApp Phone Number"
+    description: "Your WhatsApp number with country code (e.g., +12125551234)"
+  whatsapp_api_key:
+    name: "WhatsApp API Key (CallMeBot)"
+    description: "API key from CallMeBot. Send 'I allow callmebot to send me messages' to +34 644 51 95 23 on WhatsApp to get one."
+  poll_interval:
+    name: "Poll Interval (seconds)"
+    description: "How often to check for new data (minimum 300 seconds)"
+  notify_grades:
+    name: "Grade Notifications"
+    description: "Send WhatsApp alerts when grades are updated"
+  notify_assignments:
+    name: "Assignment Notifications"
+    description: "Send WhatsApp alerts for new assignments"
+  notify_attendance:
+    name: "Attendance Notifications"
+    description: "Send WhatsApp alerts for attendance changes"
+  notify_notifications:
+    name: "School Notifications"
+    description: "Send WhatsApp alerts for school announcements"
+  daily_summary:
+    name: "Daily Summary"
+    description: "Send a daily summary of all student data"
+  daily_summary_hour:
+    name: "Daily Summary Hour"
+    description: "Hour of day to send the daily summary (0-23, 24-hour format)"
+  auto_start:
+    name: "Auto Start"
+    description: "Automatically start monitoring when the add-on starts"

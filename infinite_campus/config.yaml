@@ -1,0 +1,57 @@
+---
+name: "Infinite Campus Monitor"
+version: "1.0.0"
+slug: "infinite_campus"
+description: "Monitor your children's grades, assignments, attendance, and school notifications from Infinite Campus. Get WhatsApp alerts for changes."
+url: "https://github.com/abinesh/ha-infinite-campus"
+arch:
+  - amd64
+  - aarch64
+  - armv7
+  - armhf
+  - i386
+init: false
+homeassistant_api: false
+ingress: true
+ingress_port: 8099
+panel_icon: "mdi:school"
+panel_title: "Infinite Campus"
+ports:
+  8099/tcp: null
+ports_description:
+  8099/tcp: "Web UI"
+map:
+  - config:rw
+  - share:rw
+options:
+  ic_base_url: ""
+  ic_district: ""
+  ic_username: ""
+  ic_password: ""
+  whatsapp_phone: ""
+  whatsapp_api_key: ""
+  poll_interval: 900
+  notify_grades: true
+  notify_assignments: true
+  notify_attendance: true
+  notify_notifications: true
+  daily_summary: true
+  daily_summary_hour: 18
+  auto_start: true
+schema:
+  ic_base_url: "url?"
+  ic_district: "str?"
+  ic_username: "str?"
+  ic_password: "password?"
+  whatsapp_phone: "str?"
+  whatsapp_api_key: "password?"
+  poll_interval: "int(300,7200)"
+  notify_grades: "bool"
+  notify_assignments: "bool"
+  notify_attendance: "bool"
+  notify_notifications: "bool"
+  daily_summary: "bool"
+  daily_summary_hour: "int(0,23)"
+  auto_start: "bool"
+startup: "application"
+stage: "stable"
