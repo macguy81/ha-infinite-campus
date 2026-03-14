@@ -196,7 +196,7 @@ class InfiniteCampusAPI:
             logger.warning(f"Failed to fetch portal outline: {e}")
 
     async def _fetch_students(self, session: aiohttp.ClientSession) -> None:
-        """Fetch student list from API."""
+        """Fetch student list from API and extract enrollment info."""
         try:
             url = f"{self.base_url}/campus/api/portal/students"
             async with session.get(url) as resp:
@@ -212,6 +212,23 @@ class InfiniteCampusAPI:
                         logger.info(f"Found students via API: {self._student_ids}")
                         if data:
                             logger.info(f"Student data keys: {list(data[0].keys())}")
+
+                        # Extract calendar and school IDs from enrollments
+                        for student in data:
+                            for enrollment in student.get("enrollments", []):
+                                cal_id = str(enrollment.get("calendarID", enrollment.get("calendarId", "")))
+                                school_id = str(enrollment.get("schoolID", enrollment.get("schoolId", "")))
+                                struct_id = str(enrollment.get("structureID", enrollment.get("structureId", "")))
+                                if cal_id and cal_id not in self._calendar_ids:
+                                    self._calendar_ids.append(cal_id)
+                                if school_id and school_id not in self._school_ids:
+                                    self._school_ids.append(school_id)
+                                # Log enrollment keys for debugging
+                                logger.info(f"Enrollment keys: {list(enrollment.keys())}")
+                                logger.info(f"Enrollment data: calendarID={cal_id}, schoolID={school_id}, structureID={struct_id}")
+
+                        logger.info(f"Extracted calendar IDs: {self._calendar_ids}")
+                        logger.info(f"Extracted school IDs: {self._school_ids}")
                         return
         except Exception as e:
             logger.debug(f"API student fetch failed: {e}")
@@ -236,21 +253,32 @@ class InfiniteCampusAPI:
 
     async def _safe_get(self, session: aiohttp.ClientSession, url: str,
                         params: Optional[dict] = None) -> Optional[Any]:
-        """Make a GET request and return JSON or None on failure."""
+        """Make a GET request and return parsed JSON (dict or list) or None on failure.
+        Never returns raw strings — only structured data or None."""
         try:
             async with session.get(url, params=params) as resp:
                 if resp.status == 200:
                     text = await resp.text()
                     try:
-                        return json.loads(text)
+                        data = json.loads(text)
+                        # Only return structured data (dict/list), not primitives
+                        if isinstance(data, (dict, list)):
+                            return data
+                        return None
                     except json.JSONDecodeError:
-                        return text
+                        # Response was HTML or plain text, not JSON
+                        return None
                 elif resp.status == 401:
                     self._authenticated = False
                     await self.authenticate()
                     async with session.get(url, params=params) as resp2:
                         if resp2.status == 200:
-                            return await resp2.json()
+                            try:
+                                data = await resp2.json()
+                                if isinstance(data, (dict, list)):
+                                    return data
+                            except Exception:
+                                pass
                 logger.debug(f"GET {url} returned HTTP {resp.status}")
                 return None
         except Exception as e:
@@ -300,8 +328,37 @@ class InfiniteCampusAPI:
             "api_announcements": f"{self.base_url}/campus/api/portal/announcements",
 
             # Additional patterns
-            "api_displaygrades": (f"{self.base_url}/campus/api/portal/displaygrades/{sid}") if sid else None,
-            "api_gradebook": (f"{self.base_url}/campus/api/portal/gradebook/student/{sid}") if sid else None,
+            "api_displaygrades": f"{self.base_url}/campus/api/portal/displaygrades/{sid}" if sid else None,
+            "api_gradebook": f"{self.base_url}/campus/api/portal/gradebook/student/{sid}" if sid else None,
+
+            # Enrollment-based patterns (newer IC versions)
+            "api_grades_cal": (f"{self.base_url}/campus/api/portal/grades", {"studentID": sid, "calendarID": cal_id}) if sid and cal_id else None,
+            "api_assignments_cal": (f"{self.base_url}/campus/api/portal/assignments", {"studentID": sid, "calendarID": cal_id}) if sid and cal_id else None,
+            "api_schedule_cal": (f"{self.base_url}/campus/api/portal/schedule", {"studentID": sid, "calendarID": cal_id}) if sid and cal_id else None,
+            "api_attendance_cal": (f"{self.base_url}/campus/api/portal/attendance", {"studentID": sid, "calendarID": cal_id}) if sid and cal_id else None,
+
+            # Section-based patterns
+            "api_student_sections": f"{self.base_url}/campus/api/portal/students/{sid}/sections" if sid else None,
+            "api_student_schedule": f"{self.base_url}/campus/api/portal/students/{sid}/schedule" if sid else None,
+
+            # Portal term grades pattern (common in newer IC)
+            "res_grades_portal": (f"{self.base_url}/campus/resources/portal/grades/{sid}") if sid else None,
+
+            # Portals academic plan
+            "api_academic_plan": f"{self.base_url}/campus/api/portal/academic-plan/{sid}" if sid else None,
+
+            # Course history
+            "api_course_history": f"{self.base_url}/campus/api/portal/students/{sid}/courseHistory" if sid else None,
+
+            # Direct student enrollment info
+            "api_student_enrollments": f"{self.base_url}/campus/api/portal/students/{sid}/enrollments" if sid else None,
+        }
+
+        # Also log the IDs we're working with
+        results["_context"] = {
+            "student_ids": self._student_ids,
+            "calendar_ids": self._calendar_ids,
+            "school_ids": self._school_ids,
         }
 
         for name, spec in endpoints.items():

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo "=== Infinite Campus Monitor v1.2.2 Starting ==="
+echo "=== Infinite Campus Monitor v1.2.3 Starting ==="
 
 # Install Python dependencies at runtime (fallback if Docker build missed them)
 echo "Checking/installing Python dependencies..."
