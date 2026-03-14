@@ -362,102 +362,36 @@
 
         <!-- Config Tab -->
         <div id="tab-config" class="tab-content">
-            <div class="card">
-                <h2>&#127979; Infinite Campus Connection</h2>
-                <div class="form-group">
-                    <label>Base URL</label>
-                    <input type="text" id="cfgBaseUrl" placeholder="https://yourdistrict.infinitecampus.org">
-                    <small>Your school district's Infinite Campus URL</small>
-                </div>
-                <div class="form-group">
-                    <label>District (appName)</label>
-                    <input type="text" id="cfgDistrict" placeholder="yourdistrict">
-                    <small>Found in the login page source as the "appName" input value</small>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="cfgUsername" placeholder="parent@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="cfgPassword" placeholder="Your password">
-                    </div>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="testConnection()">&#128268; Test Connection</button>
-                </div>
+            <div class="alert alert-info">
+                All settings are managed from the HA add-on <strong>Configuration</strong> tab.
+                After changing settings there, restart the add-on for changes to take effect.
             </div>
 
             <div class="card">
-                <h2>&#128242; WhatsApp Notifications (CallMeBot)</h2>
-                <div class="alert alert-info">
-                    <strong>Setup:</strong> Save +34 644 51 95 23 in your contacts, then send
-                    "I allow callmebot to send me messages" to that number on WhatsApp.
-                    You'll receive an API key.
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Phone Number</label>
-                        <input type="text" id="cfgPhone" placeholder="+12125551234">
-                        <small>With country code (e.g., +1 for US)</small>
-                    </div>
-                    <div class="form-group">
-                        <label>API Key</label>
-                        <input type="password" id="cfgApiKey" placeholder="Your CallMeBot API key">
-                    </div>
-                </div>
+                <h2>&#127979; Current Configuration</h2>
+                <table class="data-table">
+                    <tbody>
+                        <tr><td style="font-weight:600;width:200px">Base URL</td><td id="cfgShowUrl">-</td></tr>
+                        <tr><td style="font-weight:600">District</td><td id="cfgShowDistrict">-</td></tr>
+                        <tr><td style="font-weight:600">Username</td><td id="cfgShowUsername">-</td></tr>
+                        <tr><td style="font-weight:600">WhatsApp</td><td id="cfgShowWhatsapp">-</td></tr>
+                        <tr><td style="font-weight:600">Poll Interval</td><td id="cfgShowInterval">-</td></tr>
+                    </tbody>
+                </table>
                 <div class="btn-group">
+                    <button class="btn btn-primary" onclick="testConnection()">&#128268; Test IC Connection</button>
                     <button class="btn btn-primary" onclick="testWhatsApp()">&#128172; Test WhatsApp</button>
                 </div>
             </div>
 
             <div class="card">
-                <h2>&#9203; Polling & Notifications</h2>
-                <div class="form-group">
-                    <label>Poll Interval (seconds)</label>
-                    <input type="number" id="cfgInterval" value="900" min="300" max="7200">
-                    <small>How often to check for updates (minimum 300s / 5 min)</small>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Daily Summary Hour (0-23)</label>
-                        <input type="number" id="cfgSummaryHour" value="18" min="0" max="23">
-                        <small>When to send the daily summary (24h format)</small>
-                    </div>
-                    <div class="form-group" style="padding-top: 24px;">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="cfgAutoStart" checked>
-                            <label for="cfgAutoStart">Auto-start on boot</label>
-                        </div>
-                    </div>
-                </div>
-                <hr class="section-divider">
-                <p style="font-weight:600; margin-bottom:12px;">Notification Types</p>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="cfgNotifyGrades" checked>
-                    <label for="cfgNotifyGrades">Grade updates</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="cfgNotifyAssignments" checked>
-                    <label for="cfgNotifyAssignments">New assignments</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="cfgNotifyAttendance" checked>
-                    <label for="cfgNotifyAttendance">Attendance alerts</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="cfgNotifyNotifications" checked>
-                    <label for="cfgNotifyNotifications">School notifications</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="cfgDailySummary" checked>
-                    <label for="cfgDailySummary">Daily summary</label>
-                </div>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-success" onclick="saveConfig()">&#128190; Save All Settings</button>
+                <h2>&#128242; WhatsApp Setup (CallMeBot - Free)</h2>
+                <p style="margin-bottom:12px">To enable WhatsApp notifications:</p>
+                <ol style="margin-left:20px;margin-bottom:12px;font-size:0.9rem">
+                    <li>Save <strong>+34 644 51 95 23</strong> in your phone contacts</li>
+                    <li>Send <strong>"I allow callmebot to send me messages"</strong> to that number on WhatsApp</li>
+                    <li>You'll receive an API key — enter it in the HA Configuration tab</li>
+                </ol>
             </div>
         </div>
     </div>
@@ -684,65 +618,24 @@
             return '';
         }
 
-        // ─── Config ────────────────────────────────────────────────
+        // ─── Config (read-only, managed via HA Configuration tab) ──
         async function loadConfig() {
             try {
                 currentConfig = await apiGet('config');
-                document.getElementById('cfgBaseUrl').value = currentConfig.ic_base_url || '';
-                document.getElementById('cfgDistrict').value = currentConfig.ic_district || '';
-                document.getElementById('cfgUsername').value = currentConfig.ic_username || '';
-                document.getElementById('cfgPassword').value = currentConfig.ic_password || '';
-                document.getElementById('cfgPhone').value = currentConfig.whatsapp_phone || '';
-                document.getElementById('cfgApiKey').value = currentConfig.whatsapp_api_key || '';
-                document.getElementById('cfgInterval').value = currentConfig.poll_interval || 900;
-                document.getElementById('cfgSummaryHour').value = currentConfig.daily_summary_hour || 18;
-                document.getElementById('cfgAutoStart').checked = currentConfig.auto_start !== false;
-                document.getElementById('cfgNotifyGrades').checked = currentConfig.notify_grades !== false;
-                document.getElementById('cfgNotifyAssignments').checked = currentConfig.notify_assignments !== false;
-                document.getElementById('cfgNotifyAttendance').checked = currentConfig.notify_attendance !== false;
-                document.getElementById('cfgNotifyNotifications').checked = currentConfig.notify_notifications !== false;
-                document.getElementById('cfgDailySummary').checked = currentConfig.daily_summary !== false;
+                document.getElementById('cfgShowUrl').textContent = currentConfig.ic_base_url || 'Not set';
+                document.getElementById('cfgShowDistrict').textContent = currentConfig.ic_district || 'Not set';
+                document.getElementById('cfgShowUsername').textContent = currentConfig.ic_username || 'Not set';
+                document.getElementById('cfgShowWhatsapp').textContent = currentConfig.whatsapp_phone || 'Not configured';
+                document.getElementById('cfgShowInterval').textContent = (currentConfig.poll_interval || 900) + ' seconds';
             } catch (e) {
                 console.error('Failed to load config:', e);
-            }
-        }
-
-        function getConfigFromForm() {
-            return {
-                ic_base_url: document.getElementById('cfgBaseUrl').value.trim(),
-                ic_district: document.getElementById('cfgDistrict').value.trim(),
-                ic_username: document.getElementById('cfgUsername').value.trim(),
-                ic_password: document.getElementById('cfgPassword').value,
-                whatsapp_phone: document.getElementById('cfgPhone').value.trim(),
-                whatsapp_api_key: document.getElementById('cfgApiKey').value,
-                poll_interval: parseInt(document.getElementById('cfgInterval').value) || 900,
-                daily_summary_hour: parseInt(document.getElementById('cfgSummaryHour').value) || 18,
-                auto_start: document.getElementById('cfgAutoStart').checked,
-                notify_grades: document.getElementById('cfgNotifyGrades').checked,
-                notify_assignments: document.getElementById('cfgNotifyAssignments').checked,
-                notify_attendance: document.getElementById('cfgNotifyAttendance').checked,
-                notify_notifications: document.getElementById('cfgNotifyNotifications').checked,
-                daily_summary: document.getElementById('cfgDailySummary').checked,
-            };
-        }
-
-        async function saveConfig() {
-            try {
-                const result = await apiPost('config', getConfigFromForm());
-                if (result.success) {
-                    showAlert('Settings saved successfully!', 'success');
-                } else {
-                    showAlert('Failed to save: ' + result.error, 'error');
-                }
-            } catch (e) {
-                showAlert('Error: ' + e.message, 'error');
             }
         }
 
         async function testConnection() {
             showAlert('Testing connection...', 'info');
             try {
-                const result = await apiPost('test-connection', getConfigFromForm());
+                const result = await apiPost('test-connection', {});
                 if (result.success) {
                     showAlert(result.message, 'success');
                 } else {
@@ -756,7 +649,7 @@
         async function testWhatsApp() {
             showAlert('Sending test message...', 'info');
             try {
-                const result = await apiPost('test-whatsapp', getConfigFromForm());
+                const result = await apiPost('test-whatsapp', {});
                 if (result.success) {
                     showAlert('Test message sent! Check your WhatsApp.', 'success');
                 } else {

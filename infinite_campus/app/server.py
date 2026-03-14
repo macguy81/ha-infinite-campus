@@ -1,8 +1,8 @@
 """
 Web Server for the Infinite Campus HA Add-on.
 
-Provides a configuration UI, status dashboard, and REST API
-for managing the Infinite Campus monitoring service.
+Provides a status dashboard, data views, and REST API.
+All configuration is done via the HA add-on Configuration tab.
 """
 
 import asyncio
@@ -24,32 +24,20 @@ logger = logging.getLogger(__name__)
 
 # Paths
 DATA_DIR = Path("/data")
-CONFIG_FILE = DATA_DIR / "options.json"
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 STATIC_DIR = Path(__file__).parent / "static"
 
 
 def load_config() -> dict:
-    """Load configuration from HA add-on options or local file."""
-    # First try HA add-on options (injected by HA Supervisor)
+    """Load configuration from HA add-on options (injected by Supervisor)."""
     ha_options = Path("/data/options.json")
     if ha_options.exists():
         with open(ha_options) as f:
-            return json.load(f)
-
-    # Fallback to local config
-    if CONFIG_FILE.exists():
-        with open(CONFIG_FILE) as f:
-            return json.load(f)
-
+            config = json.load(f)
+            logger.info(f"Loaded config from HA options: {list(config.keys())}")
+            return config
+    logger.warning("No /data/options.json found - add-on not configured yet")
     return {}
-
-
-def save_config(config: dict) -> None:
-    """Save configuration to file."""
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    with open(CONFIG_FILE, "w") as f:
-        json.dump(config, f, indent=2)
 
 
 class ICWebServer:
@@ -69,7 +57,6 @@ class ICWebServer:
         self.app.router.add_get("/api/status", self.handle_status)
         self.app.router.add_get("/api/data", self.handle_data)
         self.app.router.add_get("/api/data/{category}", self.handle_data_category)
-        self.app.router.add_post("/api/config", self.handle_save_config)
         self.app.router.add_get("/api/config", self.handle_get_config)
         self.app.router.add_post("/api/test-connection", self.handle_test_connection)
         self.app.router.add_post("/api/test-whatsapp", self.handle_test_whatsapp)
@@ -95,6 +82,13 @@ class ICWebServer:
                 self.config.get("whatsapp_phone") and self.config.get("whatsapp_api_key")
             ),
             "scheduler": self.scheduler.get_status() if self.scheduler else None,
+            "config_summary": {
+                "base_url": self.config.get("ic_base_url", "Not set"),
+                "district": self.config.get("ic_district", "Not set"),
+                "username": self.config.get("ic_username", "Not set"),
+                "whatsapp": "Configured" if self.config.get("whatsapp_phone") else "Not set",
+                "poll_interval": self.config.get("poll_interval", 900),
+            },
             "timestamp": datetime.now().isoformat(),
         }
         return web.json_response(status)
@@ -115,48 +109,31 @@ class ICWebServer:
         return web.json_response({"error": f"No {category} data available"}, status=404)
 
     async def handle_get_config(self, request: web.Request) -> web.Response:
-        """Return current config (with password masked)."""
-        safe_config = dict(self.config)
-        if "ic_password" in safe_config:
-            safe_config["ic_password"] = "********"
-        if "whatsapp_api_key" in safe_config:
-            safe_config["whatsapp_api_key"] = "********"
+        """Return current config summary (passwords masked)."""
+        safe_config = {
+            "ic_base_url": self.config.get("ic_base_url", ""),
+            "ic_district": self.config.get("ic_district", ""),
+            "ic_username": self.config.get("ic_username", ""),
+            "whatsapp_phone": self.config.get("whatsapp_phone", ""),
+            "poll_interval": self.config.get("poll_interval", 900),
+            "notify_grades": self.config.get("notify_grades", True),
+            "notify_assignments": self.config.get("notify_assignments", True),
+            "notify_attendance": self.config.get("notify_attendance", True),
+            "notify_notifications": self.config.get("notify_notifications", True),
+            "daily_summary": self.config.get("daily_summary", True),
+            "daily_summary_hour": self.config.get("daily_summary_hour", 18),
+            "auto_start": self.config.get("auto_start", True),
+        }
         return web.json_response(safe_config)
 
-    async def handle_save_config(self, request: web.Request) -> web.Response:
-        """Save configuration and restart services."""
-        try:
-            new_config = await request.json()
-
-            # Don't overwrite passwords with masked values
-            if new_config.get("ic_password") == "********":
-                new_config["ic_password"] = self.config.get("ic_password", "")
-            if new_config.get("whatsapp_api_key") == "********":
-                new_config["whatsapp_api_key"] = self.config.get("whatsapp_api_key", "")
-
-            self.config.update(new_config)
-            save_config(self.config)
-
-            # Restart services with new config
-            await self._stop_services()
-            await self._init_services()
-
-            return web.json_response({"success": True, "message": "Configuration saved"})
-        except Exception as e:
-            return web.json_response({"success": False, "error": str(e)}, status=400)
-
     async def handle_test_connection(self, request: web.Request) -> web.Response:
-        """Test the Infinite Campus connection."""
+        """Test the Infinite Campus connection using HA config."""
         try:
-            config = await request.json()
-
             test_api = InfiniteCampusAPI(
-                base_url=config.get("ic_base_url", self.config.get("ic_base_url", "")),
-                district=config.get("ic_district", self.config.get("ic_district", "")),
-                username=config.get("ic_username", self.config.get("ic_username", "")),
-                password=config.get("ic_password", self.config.get("ic_password", ""))
-                if config.get("ic_password") != "********"
-                else self.config.get("ic_password", ""),
+                base_url=self.config.get("ic_base_url", ""),
+                district=self.config.get("ic_district", ""),
+                username=self.config.get("ic_username", ""),
+                password=self.config.get("ic_password", ""),
             )
 
             await test_api.authenticate()
@@ -178,13 +155,16 @@ class ICWebServer:
             return web.json_response({"success": False, "error": str(e)}, status=400)
 
     async def handle_test_whatsapp(self, request: web.Request) -> web.Response:
-        """Test the WhatsApp notification."""
+        """Test the WhatsApp notification using HA config."""
         try:
-            config = await request.json()
-            phone = config.get("whatsapp_phone", self.config.get("whatsapp_phone", ""))
-            api_key = config.get("whatsapp_api_key", self.config.get("whatsapp_api_key", ""))
-            if config.get("whatsapp_api_key") == "********":
-                api_key = self.config.get("whatsapp_api_key", "")
+            phone = self.config.get("whatsapp_phone", "")
+            api_key = self.config.get("whatsapp_api_key", "")
+
+            if not phone or not api_key:
+                return web.json_response({
+                    "success": False,
+                    "error": "WhatsApp not configured. Set phone and API key in the HA Configuration tab."
+                }, status=400)
 
             test_notifier = WhatsAppNotifier(phone_number=phone, api_key=api_key)
             result = await test_notifier.test_connection()
@@ -198,7 +178,7 @@ class ICWebServer:
         """Trigger an immediate data poll."""
         if not self.scheduler:
             return web.json_response(
-                {"error": "Service not started"}, status=400
+                {"error": "Service not started. Click Start Service."}, status=400
             )
         try:
             data = await self.scheduler.poll_now()
@@ -212,6 +192,8 @@ class ICWebServer:
     async def handle_start(self, request: web.Request) -> web.Response:
         """Start the polling scheduler."""
         try:
+            # Reload config from HA options in case it was updated
+            self.config = load_config()
             await self._init_services()
             if self.scheduler:
                 await self.scheduler.start()
@@ -225,11 +207,11 @@ class ICWebServer:
         return web.json_response({"success": True, "message": "Service stopped"})
 
     async def _init_services(self) -> None:
-        """Initialize API client, notifier, and scheduler from config."""
+        """Initialize API client, notifier, and scheduler from HA config."""
         config = self.config
 
         if not config.get("ic_base_url"):
-            logger.warning("Infinite Campus not configured yet")
+            logger.warning("Infinite Campus not configured. Set credentials in HA Configuration tab.")
             return
 
         # Initialize IC API client
