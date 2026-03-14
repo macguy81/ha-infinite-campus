@@ -342,6 +342,17 @@
                     <p>Loading data...</p>
                 </div>
             </div>
+
+            <div class="card">
+                <h2>&#128269; API Endpoint Discovery</h2>
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px">
+                    Tests which Infinite Campus API endpoints work for your district.
+                </p>
+                <button class="btn btn-primary" onclick="discoverEndpoints()" id="btnDiscover">Run Discovery</button>
+                <div id="discoverResults" style="margin-top:12px;display:none">
+                    <pre id="discoverOutput" style="background:#f8f9fa;padding:16px;border-radius:8px;font-size:0.75rem;overflow-x:auto;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all"></pre>
+                </div>
+            </div>
         </div>
 
         <!-- Students Tab -->
@@ -631,6 +642,42 @@
             } catch (e) {
                 console.error('Failed to load config:', e);
             }
+        }
+
+        // ─── Endpoint Discovery ─────────────────────────────────────
+        async function discoverEndpoints() {
+            const btn = document.getElementById('btnDiscover');
+            const resultsDiv = document.getElementById('discoverResults');
+            const output = document.getElementById('discoverOutput');
+            btn.disabled = true;
+            btn.textContent = 'Discovering...';
+            resultsDiv.style.display = 'block';
+            output.textContent = 'Running endpoint discovery (this may take 10-20 seconds)...';
+            try {
+                const resp = await fetch('/api/discover');
+                const data = await resp.json();
+                // Format nicely: show working endpoints first
+                let working = [];
+                let failed = [];
+                let context = null;
+                for (const [name, info] of Object.entries(data)) {
+                    if (name === '_context') { context = info; continue; }
+                    if (info.status === 200) {
+                        working.push(name + ': ' + (info.data || 'OK') + (info.sample ? '\n  Sample: ' + info.sample.substring(0, 200) : ''));
+                    } else {
+                        failed.push(name + ': ' + (info.status || 'error') + (info.reason ? ' (' + info.reason + ')' : ''));
+                    }
+                }
+                let text = '';
+                if (context) text += 'IDs: students=' + JSON.stringify(context.student_ids) + ' calendars=' + JSON.stringify(context.calendar_ids) + ' schools=' + JSON.stringify(context.school_ids) + '\n\n';
+                text += '=== WORKING ENDPOINTS (' + working.length + ') ===\n' + (working.length ? working.join('\n\n') : 'None found') + '\n\n';
+                text += '=== FAILED ENDPOINTS (' + failed.length + ') ===\n' + failed.join('\n');
+                output.textContent = text;
+            } catch (e) {
+                output.textContent = 'Error: ' + e.message;
+            }
+            btn.disabled = false;
+            btn.textContent = 'Run Discovery';
         }
 
         // ─── Service Controls ──────────────────────────────────────
