@@ -1,18 +1,14 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-# Install build dependencies and Python packages
-RUN apk add --no-cache \
-    gcc \
-    musl-dev \
-    python3-dev \
-    && pip3 install --no-cache-dir --break-system-packages \
-    aiohttp==3.9.5 \
-    beautifulsoup4==4.12.3 \
-    && apk del gcc musl-dev python3-dev
+# Install pip if not present
+RUN apk add --no-cache py3-pip || true
 
 # Copy application code
 COPY app/ /app/
+
+# Make run script executable
+RUN chmod +x /app/run.sh
 
 # Create data directory
 RUN mkdir -p /data
@@ -24,7 +20,7 @@ LABEL \
     io.hass.name="Infinite Campus Monitor" \
     io.hass.description="Monitor student grades, assignments, and attendance from Infinite Campus with WhatsApp notifications" \
     io.hass.type="addon" \
-    io.hass.version="1.0.2"
+    io.hass.version="1.0.3"
 
-# Run the web server
-CMD ["python3", "/app/server.py"]
+# Run via startup script which installs deps then starts server
+CMD ["/app/run.sh"]

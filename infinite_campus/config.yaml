@@ -1,6 +1,6 @@
 ---
 name: "Infinite Campus Monitor"
-version: "1.0.2"
+version: "1.0.3"
 slug: "infinite_campus"
 description: "Monitor your children's grades, assignments, attendance, and school notifications from Infinite Campus. Get WhatsApp alerts for changes."
 url: "https://github.com/macguy81/ha-infinite-campus"
