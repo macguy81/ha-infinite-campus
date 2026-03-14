@@ -2,6 +2,27 @@
 
 Monitor your children's grades, assignments, attendance, and school notifications from Infinite Campus — right inside Home Assistant. Get instant WhatsApp alerts when grades are posted, assignments are due or missing, and attendance changes. Automatically creates HA sensors for building your own automations.
 
+## Screenshots
+
+### Dashboard
+Overview with stats, quick actions, and recent assignments with scores and status badges.
+
+![Dashboard](screenshots/dashboard.svg)
+
+### Grades & Insights
+Filter by student and term. Grade trends across marking periods, distribution charts, and expandable course cards with individual assessments. Supports both percentage-based and standards-based grading (G/NY marks).
+
+![Grades](screenshots/grades.svg)
+
+### Mobile View
+Fully responsive — tables become card layouts on mobile for a native app feel.
+
+<p align="center">
+  <img src="screenshots/mobile.svg" width="375" alt="Mobile View">
+</p>
+
+*Screenshots use sample data — no real student information.*
+
 ## Features
 
 ### Real-Time Monitoring
@@ -31,11 +52,12 @@ Monitor your children's grades, assignments, attendance, and school notification
 - **Last Updated Sensor**: `sensor.infinite_campus_last_updated` — timestamp with data counts
 
 ### Web Dashboard (Ingress)
-- **Dashboard**: Overview stats, quick actions, recent assignments with scores and status badges
-- **Students Tab**: Student profiles with enrollment info, courses, teachers, rooms
-- **Grades Tab**: All course grades with student filter, letter grades, percentages
+- **Dashboard**: Overview stats, quick actions, recent assignments sorted by most recent
+- **Students Tab**: Tabbed per-student view with enrollment info, courses, teachers, rooms
+- **Grades Tab**: Student and term filters, grade trend charts across marking periods, expandable course cards with per-assignment drill-down, supports both percentage-based and standards-based grading (G/NY/E marks)
 - **Assignments Tab**: Full assignment list sorted by due date with status badges (Missing/Late/Turned In/Graded)
-- **Settings Tab**: Connection status, WhatsApp setup guide, debug tools
+- **Settings Tab**: Connection status, WhatsApp setup guide
+- **Mobile-First**: Responsive design — tables become card layouts on phones for a native app feel
 
 ## Installation
 
@@ -221,7 +243,7 @@ The add-on tries multiple patterns and uses whichever works for your district:
 
 **No data showing**: Click "Refresh Data" in the dashboard. Check logs for "Poll complete" messages.
 
-**Grades empty**: Use the API Endpoint Discovery (Settings → Debug Tools) to see which endpoints return data.
+**Grades empty**: Check the add-on Log tab for messages about which API endpoints are returning data.
 
 **WhatsApp not sending**: Complete the CallMeBot setup. Phone number must include country code (`+1` for US).
 
