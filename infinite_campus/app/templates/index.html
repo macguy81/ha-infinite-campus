@@ -433,12 +433,12 @@
 
         // ─── API Helpers ───────────────────────────────────────────
         async function apiGet(path) {
-            const resp = await fetch('/api/' + path);
+            const resp = await fetch('api/' + path);
             return resp.json();
         }
 
         async function apiPost(path, data = {}) {
-            const resp = await fetch('/api/' + path, {
+            const resp = await fetch('api/' + path, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -654,7 +654,7 @@
             resultsDiv.style.display = 'block';
             output.textContent = 'Running endpoint discovery (this may take 10-20 seconds)...';
             try {
-                const resp = await fetch('/api/discover');
+                const resp = await fetch('api/discover');
                 const data = await resp.json();
                 // Format nicely: show working endpoints first
                 let working = [];
