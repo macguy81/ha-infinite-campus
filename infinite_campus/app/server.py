@@ -88,6 +88,10 @@ class ICWebServer:
                 "whatsapp": "Configured" if self.config.get("whatsapp_phone") else "Not set",
                 "poll_interval": self.config.get("poll_interval", 900),
             },
+            "ha_entities_count": (
+                self.scheduler.get_status().get("ha_entities_count", 0)
+                if self.scheduler else 0
+            ),
             "timestamp": datetime.now().isoformat(),
         }
         return web.json_response(status)
@@ -122,6 +126,7 @@ class ICWebServer:
             "daily_summary": self.config.get("daily_summary", True),
             "daily_summary_hour": self.config.get("daily_summary_hour", 18),
             "auto_start": self.config.get("auto_start", True),
+            "whatsapp_phone_2": self.config.get("whatsapp_phone_2", ""),
         }
         return web.json_response(safe_config)
 

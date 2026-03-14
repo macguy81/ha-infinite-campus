@@ -6,743 +6,737 @@
     <title>Infinite Campus Monitor</title>
     <style>
         :root {
-            --primary: #1976d2;
-            --primary-dark: #1565c0;
-            --success: #2e7d32;
-            --warning: #f57c00;
-            --danger: #c62828;
-            --bg: #f5f5f5;
-            --card-bg: #ffffff;
-            --text: #212121;
-            --text-secondary: #757575;
-            --border: #e0e0e0;
-            --radius: 12px;
+            --bg: #f5f5f7;
+            --card: #ffffff;
+            --text: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent: #0071e3;
+            --accent-hover: #0077ED;
+            --green: #34c759;
+            --orange: #ff9500;
+            --red: #ff3b30;
+            --yellow: #ffcc00;
+            --border: rgba(0,0,0,0.06);
+            --shadow: 0 2px 12px rgba(0,0,0,0.06);
+            --shadow-lg: 0 4px 24px rgba(0,0,0,0.08);
+            --radius: 16px;
+            --radius-sm: 10px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background: var(--bg);
             color: var(--text);
-            line-height: 1.6;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
+        /* ── Header ── */
         .header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 20px 24px;
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 0.5px solid rgba(0,0,0,0.1);
+            padding: 16px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .header h1 { font-size: 1.4rem; font-weight: 600; }
-        .header .status-badge {
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        .status-pill {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            padding: 5px 14px;
+            border-radius: 100px;
+            font-size: 0.8rem;
             font-weight: 500;
+            background: rgba(52,199,89,0.12);
+            color: #248a3d;
         }
-        .status-badge.online { background: rgba(46,125,50,0.3); }
-        .status-badge.offline { background: rgba(198,40,40,0.3); }
-        .status-dot {
-            width: 8px; height: 8px; border-radius: 50%;
+        .status-pill.offline { background: rgba(255,59,48,0.12); color: #d70015; }
+        .status-pill .dot {
+            width: 7px; height: 7px; border-radius: 50%; background: var(--green);
         }
-        .status-dot.online { background: #4caf50; }
-        .status-dot.offline { background: #ef5350; }
+        .status-pill.offline .dot { background: var(--red); }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        /* ── Container ── */
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px 16px 40px; }
 
+        /* ── Tabs ── */
         .tabs {
             display: flex;
-            gap: 4px;
-            margin-bottom: 20px;
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            gap: 2px;
+            margin-bottom: 24px;
+            background: rgba(118,118,128,0.12);
+            border-radius: 10px;
+            padding: 2px;
         }
         .tab {
             flex: 1;
-            padding: 10px 16px;
+            padding: 8px 12px;
             text-align: center;
             border: none;
             background: transparent;
             cursor: pointer;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.82rem;
             font-weight: 500;
-            color: var(--text-secondary);
-            transition: all 0.2s;
+            color: var(--text);
+            transition: all 0.15s ease;
         }
         .tab.active {
-            background: var(--primary);
-            color: white;
+            background: var(--card);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0.5px 1px rgba(0,0,0,0.06);
+            font-weight: 600;
         }
-        .tab:hover:not(.active) { background: #e3f2fd; color: var(--primary); }
+        .tab:hover:not(.active) { color: var(--accent); }
 
-        .tab-content { display: none; }
+        .tab-content { display: none; animation: fadeIn 0.25s ease; }
         .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* ── Cards ── */
         .card {
-            background: var(--card-bg);
+            background: var(--card);
             border-radius: var(--radius);
             padding: 20px;
             margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow);
         }
         .card h2 {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
+            font-weight: 600;
             margin-bottom: 16px;
+            letter-spacing: -0.01em;
             color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
+        /* ── Stat Grid ── */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         .stat-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 16px;
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px 16px;
             text-align: center;
+            box-shadow: var(--shadow);
         }
-        .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
-        .stat-label { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
-
-        .form-group { margin-bottom: 16px; }
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 6px;
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
             color: var(--text);
+            line-height: 1.1;
         }
-        .form-group small {
-            display: block;
-            font-size: 0.75rem;
+        .stat-label {
+            font-size: 0.72rem;
+            font-weight: 500;
             color: var(--text-secondary);
-            margin-top: 4px;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
-        input[type="text"], input[type="password"], input[type="number"], select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: border-color 0.2s;
-            background: white;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(25,118,210,0.1);
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .checkbox-group input[type="checkbox"] {
-            width: 18px; height: 18px; cursor: pointer;
-        }
-        .checkbox-group label {
-            font-size: 0.9rem;
-            cursor: pointer;
-            margin: 0;
-        }
-
+        /* ── Buttons ── */
         .btn {
             padding: 10px 20px;
             border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { background: #1b5e20; }
-        .btn-warning { background: var(--warning); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--accent-hover); transform: scale(1.02); }
+        .btn-green { background: var(--green); color: white; }
+        .btn-red { background: var(--red); color: white; }
+        .btn-secondary {
+            background: rgba(0,113,227,0.08);
+            color: var(--accent);
         }
-        .btn-outline:hover { background: #f5f5f5; }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-group { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+        .btn-secondary:hover { background: rgba(0,113,227,0.14); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
 
+        /* ── Alerts ── */
         .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
             margin-bottom: 16px;
-            font-size: 0.9rem;
-        }
-        .alert-success { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
-        .alert-error { background: #ffebee; color: #b71c1c; border: 1px solid #ffcdd2; }
-        .alert-info { background: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
             font-size: 0.85rem;
+            font-weight: 400;
         }
+        .alert-success { background: rgba(52,199,89,0.1); color: #248a3d; }
+        .alert-error { background: rgba(255,59,48,0.1); color: #d70015; }
+        .alert-info { background: rgba(0,113,227,0.08); color: #0071e3; }
+
+        /* ── Tables ── */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
         .data-table th {
             text-align: left;
-            padding: 10px 12px;
-            background: #f8f9fa;
-            border-bottom: 2px solid var(--border);
+            padding: 10px 14px;
             font-weight: 600;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
             color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
         }
         .data-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 12px 14px;
+            border-bottom: 0.5px solid var(--border);
+            color: var(--text);
         }
-        .data-table tr:hover td { background: #fafafa; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tbody tr { transition: background 0.1s; }
+        .data-table tbody tr:hover td { background: rgba(0,0,0,0.02); }
+
+        /* ── Badges ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .badge-missing { background: rgba(255,59,48,0.1); color: #d70015; }
+        .badge-late { background: rgba(255,149,0,0.12); color: #c93400; }
+        .badge-turned-in { background: rgba(52,199,89,0.1); color: #248a3d; }
+        .badge-graded { background: rgba(0,113,227,0.08); color: #0071e3; }
 
         .grade-badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.82rem;
         }
-        .grade-a { background: #e8f5e9; color: #2e7d32; }
-        .grade-b { background: #e3f2fd; color: #1565c0; }
-        .grade-c { background: #fff3e0; color: #e65100; }
-        .grade-d { background: #fbe9e7; color: #bf360c; }
-        .grade-f { background: #ffebee; color: #b71c1c; }
+        .grade-a { background: rgba(52,199,89,0.12); color: #248a3d; }
+        .grade-b { background: rgba(0,113,227,0.1); color: #0071e3; }
+        .grade-c { background: rgba(255,149,0,0.12); color: #c93400; }
+        .grade-d { background: rgba(255,59,48,0.08); color: #d70015; }
+        .grade-f { background: rgba(255,59,48,0.15); color: #d70015; }
 
+        /* ── Student cards ── */
         .student-card {
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 12px;
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+        .student-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 4px;
         }
         .student-name {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            color: var(--primary);
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+        .student-meta {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary);
+        /* ── Filter Pills ── */
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-pill {
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            background: var(--card);
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all 0.15s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
+        .filter-pill.active {
+            background: var(--text);
+            color: white;
+            border-color: var(--text);
+        }
+        .filter-pill:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Loading ── */
+        .loading { text-align: center; padding: 48px; color: var(--text-secondary); }
         .spinner {
             display: inline-block;
             width: 24px; height: 24px;
-            border: 3px solid var(--border);
-            border-top-color: var(--primary);
+            border: 2.5px solid var(--border);
+            border-top-color: var(--accent);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .section-divider {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 20px 0;
-        }
-
+        /* ── Responsive ── */
         @media (max-width: 768px) {
-            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .stat-card { padding: 14px 10px; }
+            .stat-value { font-size: 1.5rem; }
+            .header { padding: 12px 16px; }
+            .tabs .tab { font-size: 0.75rem; padding: 8px 6px; }
+        }
+        @media (max-width: 480px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .header { flex-direction: column; gap: 10px; text-align: center; }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>&#127891; Infinite Campus Monitor</h1>
-        <div id="statusBadge" class="status-badge offline">
-            <div class="status-dot offline" id="statusDot"></div>
-            <span id="statusText">Disconnected</span>
+        <h1>Infinite Campus</h1>
+        <div id="statusBadge" class="status-pill offline">
+            <div class="dot"></div>
+            <span id="statusText">Connecting</span>
         </div>
     </div>
 
     <div class="container">
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
-            <button class="tab" onclick="switchTab('students')">Students</button>
-            <button class="tab" onclick="switchTab('grades')">Grades</button>
-            <button class="tab" onclick="switchTab('config')">Settings</button>
+            <button class="tab active" onclick="switchTab('dashboard', this)">Dashboard</button>
+            <button class="tab" onclick="switchTab('students', this)">Students</button>
+            <button class="tab" onclick="switchTab('grades', this)">Grades</button>
+            <button class="tab" onclick="switchTab('assignments', this)">Assignments</button>
+            <button class="tab" onclick="switchTab('config', this)">Settings</button>
         </div>
 
         <div id="alertContainer"></div>
 
-        <!-- Dashboard Tab -->
+        <!-- ── Dashboard ── -->
         <div id="tab-dashboard" class="tab-content active">
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="statStudents">-</div>
-                    <div class="stat-label">Students</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statCourses">-</div>
-                    <div class="stat-label">Courses</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statAssignments">-</div>
-                    <div class="stat-label">Assignments</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statPolls">-</div>
-                    <div class="stat-label">Polls</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statNotifications">-</div>
-                    <div class="stat-label">Alerts Sent</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statErrors">-</div>
-                    <div class="stat-label">Errors</div>
-                </div>
+                <div class="stat-card"><div class="stat-value" id="statStudents">-</div><div class="stat-label">Students</div></div>
+                <div class="stat-card"><div class="stat-value" id="statCourses">-</div><div class="stat-label">Courses</div></div>
+                <div class="stat-card"><div class="stat-value" id="statGrades">-</div><div class="stat-label">Grades</div></div>
+                <div class="stat-card"><div class="stat-value" id="statAssignments">-</div><div class="stat-label">Assignments</div></div>
+                <div class="stat-card"><div class="stat-value" id="statAlerts">-</div><div class="stat-label">Alerts Sent</div></div>
+                <div class="stat-card"><div class="stat-value" id="statLastPoll">-</div><div class="stat-label">Last Update</div></div>
             </div>
 
             <div class="card">
-                <h2>&#9881;&#65039; Quick Actions</h2>
+                <h2>Quick Actions</h2>
                 <div class="btn-group">
-                    <button class="btn btn-primary" onclick="pollNow()">&#128260; Refresh Data</button>
-                    <button class="btn btn-success" onclick="startService()" id="btnStart">&#9654;&#65039; Start Service</button>
-                    <button class="btn btn-danger" onclick="stopService()" id="btnStop">&#9724;&#65039; Stop Service</button>
+                    <button class="btn btn-primary" onclick="pollNow()">Refresh Data</button>
+                    <button class="btn btn-green" onclick="startService()">Start Service</button>
+                    <button class="btn btn-red" onclick="stopService()">Stop Service</button>
                 </div>
             </div>
 
             <div class="card">
-                <h2>&#128203; Recent Activity</h2>
+                <h2>Recent Assignments</h2>
                 <div id="recentActivity" class="loading">
                     <div class="spinner"></div>
-                    <p>Loading data...</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>&#128269; API Endpoint Discovery</h2>
-                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px">
-                    Tests which Infinite Campus API endpoints work for your district.
-                </p>
-                <button class="btn btn-primary" onclick="discoverEndpoints()" id="btnDiscover">Run Discovery</button>
-                <div id="discoverResults" style="margin-top:12px;display:none">
-                    <pre id="discoverOutput" style="background:#f8f9fa;padding:16px;border-radius:8px;font-size:0.75rem;overflow-x:auto;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all"></pre>
+                    <p style="margin-top:8px;font-size:0.85rem">Loading...</p>
                 </div>
             </div>
         </div>
 
-        <!-- Students Tab -->
+        <!-- ── Students ── -->
         <div id="tab-students" class="tab-content">
             <div id="studentsContainer" class="loading">
                 <div class="spinner"></div>
-                <p>Loading students...</p>
+                <p style="margin-top:8px;font-size:0.85rem">Loading students...</p>
             </div>
         </div>
 
-        <!-- Grades Tab -->
+        <!-- ── Grades ── -->
         <div id="tab-grades" class="tab-content">
+            <div id="gradesFilter" class="filter-bar"></div>
             <div id="gradesContainer" class="loading">
                 <div class="spinner"></div>
-                <p>Loading grades...</p>
             </div>
         </div>
 
-        <!-- Config Tab -->
+        <!-- ── Assignments ── -->
+        <div id="tab-assignments" class="tab-content">
+            <div id="assignmentsFilter" class="filter-bar"></div>
+            <div id="assignmentsContainer" class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <!-- ── Settings ── -->
         <div id="tab-config" class="tab-content">
             <div class="alert alert-info">
-                All settings are managed from the HA add-on <strong>Configuration</strong> tab.
-                After changing settings there, restart the add-on for changes to take effect.
+                All settings are managed in the Home Assistant add-on <strong>Configuration</strong> tab. Restart the add-on after making changes.
             </div>
 
             <div class="card">
-                <h2>&#127979; Connection Status</h2>
+                <h2>Connection</h2>
                 <table class="data-table">
                     <tbody>
-                        <tr><td style="font-weight:600;width:200px">Base URL</td><td id="cfgShowUrl">-</td></tr>
-                        <tr><td style="font-weight:600">District</td><td id="cfgShowDistrict">-</td></tr>
-                        <tr><td style="font-weight:600">Username</td><td id="cfgShowUsername">-</td></tr>
-                        <tr><td style="font-weight:600">Students Found</td><td id="cfgShowStudents">-</td></tr>
-                        <tr><td style="font-weight:600">WhatsApp</td><td id="cfgShowWhatsapp">-</td></tr>
-                        <tr><td style="font-weight:600">Poll Interval</td><td id="cfgShowInterval">-</td></tr>
+                        <tr><td style="font-weight:600;width:180px;color:var(--text-secondary)">Base URL</td><td id="cfgUrl">-</td></tr>
+                        <tr><td style="font-weight:600;color:var(--text-secondary)">District</td><td id="cfgDistrict">-</td></tr>
+                        <tr><td style="font-weight:600;color:var(--text-secondary)">Username</td><td id="cfgUser">-</td></tr>
+                        <tr><td style="font-weight:600;color:var(--text-secondary)">Students</td><td id="cfgStudents">-</td></tr>
+                        <tr><td style="font-weight:600;color:var(--text-secondary)">WhatsApp</td><td id="cfgWhatsapp">-</td></tr>
+                        <tr><td style="font-weight:600;color:var(--text-secondary)">HA Sensors</td><td id="cfgEntities">-</td></tr>
+                        <tr><td style="font-weight:600;color:var(--text-secondary)">Poll Interval</td><td id="cfgInterval">-</td></tr>
                     </tbody>
                 </table>
             </div>
 
             <div class="card">
-                <h2>&#128242; WhatsApp Setup (CallMeBot - Free)</h2>
-                <p style="margin-bottom:12px">To enable WhatsApp notifications:</p>
-                <ol style="margin-left:20px;margin-bottom:12px;font-size:0.9rem">
-                    <li>Save <strong>+34 644 51 95 23</strong> in your phone contacts</li>
-                    <li>Send <strong>"I allow callmebot to send me messages"</strong> to that number on WhatsApp</li>
-                    <li>You'll receive an API key — enter it in the HA Configuration tab</li>
+                <h2>WhatsApp Setup (Free via CallMeBot)</h2>
+                <ol style="margin-left:18px;font-size:0.85rem;color:var(--text-secondary);line-height:1.8">
+                    <li>Save <strong style="color:var(--text)">+34 644 51 95 23</strong> in your phone</li>
+                    <li>Send <strong style="color:var(--text)">"I allow callmebot to send me messages"</strong> via WhatsApp</li>
+                    <li>Enter the API key you receive into the HA Configuration tab</li>
+                    <li>Repeat for the second phone number if desired</li>
                 </ol>
+            </div>
+
+            <div class="card">
+                <h2>Debug</h2>
+                <button class="btn btn-secondary" onclick="discoverEndpoints()">Run API Discovery</button>
+                <div id="discoverResults" style="margin-top:12px;display:none">
+                    <pre id="discoverOutput" style="background:var(--bg);padding:16px;border-radius:var(--radius-sm);font-size:0.72rem;overflow-x:auto;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;font-family:'SF Mono',SFMono-Regular,Menlo,monospace"></pre>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // ─── State ─────────────────────────────────────────────────
-        let currentConfig = {};
-        let currentData = {};
-        let pollTimer = null;
+<script>
+// ── State ──
+let currentData = {};
+let nameMap = {};
 
-        // ─── Tab Switching ─────────────────────────────────────────
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            event.target.classList.add('active');
+// ── Tab Switching ──
+function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (tab === 'students') renderStudents();
+    if (tab === 'grades') renderGrades();
+    if (tab === 'assignments') renderAssignments();
+}
 
-            if (tab === 'students') loadStudents();
-            if (tab === 'grades') loadGrades();
+// ── Alerts ──
+function showAlert(msg, type='info') {
+    const c = document.getElementById('alertContainer');
+    const d = document.createElement('div');
+    d.className = 'alert alert-' + type;
+    d.textContent = msg;
+    c.prepend(d);
+    setTimeout(() => d.remove(), 4000);
+}
+
+// ── API ──
+async function apiGet(p) { return (await fetch('api/' + p)).json(); }
+async function apiPost(p) { return (await fetch('api/' + p, { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' })).json(); }
+
+// ── Helpers ──
+function esc(s) { const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+function fmtDate(d) { if (!d) return '-'; try { const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); } catch { return d; } }
+function getName(id) { return nameMap[String(id)] || ('Student ' + id); }
+
+function letterGrade(pct) {
+    const p = parseFloat(pct);
+    if (isNaN(p)) return '';
+    if (p >= 93) return 'A'; if (p >= 90) return 'A-';
+    if (p >= 87) return 'B+'; if (p >= 83) return 'B'; if (p >= 80) return 'B-';
+    if (p >= 77) return 'C+'; if (p >= 73) return 'C'; if (p >= 70) return 'C-';
+    if (p >= 67) return 'D+'; if (p >= 60) return 'D'; return 'F';
+}
+
+function gradeClass(l) {
+    if (!l) return '';
+    const c = l[0].toUpperCase();
+    return c==='A'?'grade-a':c==='B'?'grade-b':c==='C'?'grade-c':c==='D'?'grade-d':c==='F'?'grade-f':'';
+}
+
+function buildNameMap(students) {
+    nameMap = {};
+    for (const s of students) {
+        const id = String(s.personID||s.studentID||'');
+        nameMap[id] = ((s.firstName||'') + ' ' + (s.lastName||'')).trim() || ('Student '+id);
+    }
+}
+
+function statusBadge(a) {
+    if (a.missing) return '<span class="badge badge-missing">Missing</span>';
+    if (a.late) return '<span class="badge badge-late">Late</span>';
+    if (a.turnedIn) return '<span class="badge badge-turned-in">Turned In</span>';
+    if (a.score != null && a.score !== '') return '<span class="badge badge-graded">Graded</span>';
+    return '';
+}
+
+// ── Filter pills ──
+function renderFilter(containerId, callback) {
+    const el = document.getElementById(containerId);
+    const students = currentData.students || [];
+    let html = '<button class="filter-pill active" data-sid="" onclick="selectFilter(this,\''+containerId+'\','+callback+')">All</button>';
+    for (const s of students) {
+        const id = String(s.personID||s.studentID||'');
+        html += '<button class="filter-pill" data-sid="'+id+'" onclick="selectFilter(this,\''+containerId+'\','+callback+')">'+esc(getName(id))+'</button>';
+    }
+    el.innerHTML = html;
+}
+function selectFilter(btn, cid, cb) {
+    document.getElementById(cid).querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    cb(btn.dataset.sid);
+}
+
+// ── Status ──
+async function updateStatus() {
+    try {
+        const s = await apiGet('status');
+        const badge = document.getElementById('statusBadge');
+        const text = document.getElementById('statusText');
+        if (s.scheduler_running) {
+            badge.className = 'status-pill'; text.textContent = 'Running';
+        } else if (s.configured) {
+            badge.className = 'status-pill offline'; text.textContent = 'Stopped';
+        } else {
+            badge.className = 'status-pill offline'; text.textContent = 'Not Configured';
         }
-
-        // ─── Alerts ────────────────────────────────────────────────
-        function showAlert(message, type = 'info') {
-            const container = document.getElementById('alertContainer');
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-' + type;
-            alert.textContent = message;
-            container.prepend(alert);
-            setTimeout(() => alert.remove(), 5000);
-        }
-
-        // ─── API Helpers ───────────────────────────────────────────
-        async function apiGet(path) {
-            const resp = await fetch('api/' + path);
-            return resp.json();
-        }
-
-        async function apiPost(path, data = {}) {
-            const resp = await fetch('api/' + path, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            return resp.json();
-        }
-
-        // ─── Status Polling ────────────────────────────────────────
-        async function updateStatus() {
-            try {
-                const status = await apiGet('status');
-                const badge = document.getElementById('statusBadge');
-                const dot = document.getElementById('statusDot');
-                const text = document.getElementById('statusText');
-
-                if (status.scheduler_running) {
-                    badge.className = 'status-badge online';
-                    dot.className = 'status-dot online';
-                    text.textContent = 'Running';
-                } else if (status.configured) {
-                    badge.className = 'status-badge offline';
-                    dot.className = 'status-dot offline';
-                    text.textContent = 'Stopped';
-                } else {
-                    badge.className = 'status-badge offline';
-                    dot.className = 'status-dot offline';
-                    text.textContent = 'Not Configured';
-                }
-
-                if (status.scheduler) {
-                    const s = status.scheduler;
-                    document.getElementById('statStudents').textContent = s.students_found || 0;
-                    document.getElementById('statPolls').textContent = s.poll_count || 0;
-                    document.getElementById('statNotifications').textContent = s.notifications_sent || 0;
-                    document.getElementById('statErrors').textContent = s.error_count || 0;
-                }
-            } catch (e) {
-                console.error('Status update failed:', e);
+        if (s.scheduler) {
+            document.getElementById('statStudents').textContent = s.scheduler.students_found || 0;
+            document.getElementById('statAlerts').textContent = s.scheduler.notifications_sent || 0;
+            if (s.scheduler.last_poll) {
+                const d = new Date(s.scheduler.last_poll);
+                document.getElementById('statLastPoll').textContent = d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
             }
         }
+    } catch(e) {}
+}
 
-        async function updateDashboardData() {
-            try {
-                const data = await apiGet('data');
-                if (!data.error) {
-                    currentData = data;
-                    document.getElementById('statCourses').textContent = (data.courses || []).length;
-                    document.getElementById('statAssignments').textContent = (data.assignments || []).length;
-                    updateRecentActivity(data);
-                }
-            } catch (e) { /* ignore */ }
+async function loadData() {
+    try {
+        const data = await apiGet('data');
+        if (!data.error) {
+            currentData = data;
+            buildNameMap(data.students || []);
+            document.getElementById('statCourses').textContent = (data.courses||[]).length;
+            document.getElementById('statAssignments').textContent = (data.assignments||[]).length;
+            document.getElementById('statGrades').textContent = (data.grades||[]).length;
+            renderRecent(data);
+        }
+    } catch(e) {}
+}
+
+// ── Dashboard: Recent ──
+function renderRecent(data) {
+    const c = document.getElementById('recentActivity');
+    const items = (data.assignments||[]).slice(0, 12);
+    if (!items.length) { c.innerHTML = '<p style="color:var(--text-secondary)">No data yet. Click Refresh Data.</p>'; return; }
+
+    let h = '<table class="data-table"><thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Due</th><th>Score</th><th>Status</th></tr></thead><tbody>';
+    for (const a of items) {
+        const sid = String(a.studentID||a.personID||'');
+        const score = a.score!=null && a.score!=='' ? a.score+'/'+(a.totalPoints||'?') : '-';
+        const pct = a.scorePercentage!=null ? ' ('+Math.round(a.scorePercentage)+'%)' : '';
+        h += '<tr><td>'+esc(getName(sid))+'</td><td>'+esc(a.assignmentName||'')+'</td><td>'+esc(a.courseName||'')+'</td><td>'+fmtDate(a.dueDate)+'</td><td>'+score+pct+'</td><td>'+statusBadge(a)+'</td></tr>';
+    }
+    h += '</tbody></table>';
+    c.innerHTML = h;
+}
+
+// ── Students ──
+function renderStudents() {
+    const c = document.getElementById('studentsContainer');
+    const students = currentData.students || [];
+    const courses = currentData.courses || [];
+    if (!students.length) { c.innerHTML = '<p style="color:var(--text-secondary)">No students loaded. Start the service and refresh.</p>'; return; }
+
+    let html = '';
+    for (const s of students) {
+        const id = String(s.personID||s.studentID||'');
+        const name = getName(id);
+        const enrollments = s.enrollments || [];
+        let meta = 'Student #' + (s.studentNumber||id);
+        if (enrollments.length) {
+            const e = enrollments[0];
+            if (e.schoolName) meta += ' · ' + e.schoolName;
+            if (e.grade) meta += ' · Grade ' + e.grade;
         }
 
-        function updateRecentActivity(data) {
-            const container = document.getElementById('recentActivity');
-            const assignments = (data.assignments || []).slice(0, 10);
+        const sc = courses.filter(c => String(c.personID||c.studentID||'')=== id);
 
-            if (assignments.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-secondary)">No recent activity</p>';
-                return;
-            }
+        html += '<div class="student-card">';
+        html += '<div class="student-header"><span class="student-name">'+esc(name)+'</span></div>';
+        html += '<div class="student-meta">'+esc(meta)+' · '+sc.length+' courses</div>';
 
-            let html = '<table class="data-table"><thead><tr>';
-            html += '<th>Assignment</th><th>Course</th><th>Due Date</th><th>Score</th>';
-            html += '</tr></thead><tbody>';
-
-            for (const a of assignments) {
-                const score = a.score != null ? a.score + '/' + (a.totalPoints || '?') : '-';
+        if (sc.length) {
+            html += '<table class="data-table"><thead><tr><th>Course</th><th>Teacher</th><th>Room</th><th>Period</th></tr></thead><tbody>';
+            for (const c of sc) {
                 html += '<tr>';
-                html += '<td>' + escHtml(a.assignmentName || 'N/A') + '</td>';
-                html += '<td>' + escHtml(a.courseName || 'N/A') + '</td>';
-                html += '<td>' + escHtml(a.dueDate || 'N/A') + '</td>';
-                html += '<td>' + score + '</td>';
+                html += '<td style="font-weight:500">'+esc(c.courseName||'')+'</td>';
+                html += '<td>'+esc(c.teacherDisplay||c.teacherName||'-')+'</td>';
+                html += '<td>'+esc(c.roomName||'-')+'</td>';
+                html += '<td>'+esc(c.sectionNumber||c.period||'-')+'</td>';
                 html += '</tr>';
             }
-
             html += '</tbody></table>';
-            container.innerHTML = html;
         }
+        html += '</div>';
+    }
+    c.innerHTML = html;
+}
 
-        // ─── Students Tab ──────────────────────────────────────────
-        async function loadStudents() {
-            const container = document.getElementById('studentsContainer');
-            try {
-                const data = await apiGet('data');
-                if (data.error) {
-                    container.innerHTML = '<p>No student data available. Start the service first.</p>';
-                    return;
-                }
+// ── Grades ──
+let gradesSid = '';
+function setGradeFilter(sid) { gradesSid = sid; renderGrades(); }
+function renderGrades() {
+    const c = document.getElementById('gradesContainer');
+    renderFilter('gradesFilter', setGradeFilter);
 
-                const students = data.students || [];
-                if (students.length === 0) {
-                    container.innerHTML = '<p>No students found.</p>';
-                    return;
-                }
+    const grades = currentData.grades || [];
+    const filtered = gradesSid ? grades.filter(g => String(g.studentID||'') === gradesSid) : grades;
 
-                let html = '';
-                for (const s of students) {
-                    const name = (s.firstName || '') + ' ' + (s.lastName || '');
-                    const id = s.personID || s.studentID || 'N/A';
-                    const courses = (data.courses || []).filter(c =>
-                        String(c.studentID) === String(id)
-                    );
+    if (!filtered.length) { c.innerHTML = '<p style="color:var(--text-secondary)">No grades available.</p>'; return; }
 
-                    html += '<div class="student-card">';
-                    html += '<div class="student-name">' + escHtml(name.trim() || 'Student ' + id) + '</div>';
-                    html += '<p style="color:var(--text-secondary);font-size:0.85rem">ID: ' + id + ' | Courses: ' + courses.length + '</p>';
+    let h = '<div class="card" style="padding:0;overflow:hidden"><table class="data-table"><thead><tr><th>Student</th><th>Course</th><th>Term</th><th>Score</th><th>Percent</th><th>Grade</th></tr></thead><tbody>';
+    for (const g of filtered) {
+        const name = getName(g.studentID||'');
+        const score = g.progressScore||g.score||'';
+        const pct = g.progressPercent||g.percent||g.percentage||'';
+        const total = g.progressTotalPoints||g.totalPoints||'';
+        const earned = g.progressPointsEarned||g.pointsEarned||'';
+        const letter = g.letterGrade||g.grade||(pct?letterGrade(pct):'');
+        const gc = gradeClass(letter);
 
-                    if (courses.length > 0) {
-                        html += '<table class="data-table" style="margin-top:12px"><thead><tr>';
-                        html += '<th>Course</th><th>Teacher</th><th>Period</th>';
-                        html += '</tr></thead><tbody>';
-                        for (const c of courses) {
-                            html += '<tr>';
-                            html += '<td>' + escHtml(c.courseName || c.name || 'N/A') + '</td>';
-                            html += '<td>' + escHtml(c.teacherName || c.teacher || 'N/A') + '</td>';
-                            html += '<td>' + escHtml(c.period || c.sectionNumber || 'N/A') + '</td>';
-                            html += '</tr>';
-                        }
-                        html += '</tbody></table>';
-                    }
-                    html += '</div>';
-                }
+        let scoreStr = earned && total ? earned+'/'+total : score || '-';
+        let pctStr = pct ? parseFloat(pct).toFixed(1)+'%' : '-';
 
-                container.innerHTML = html;
-            } catch (e) {
-                container.innerHTML = '<p>Error loading students: ' + e.message + '</p>';
-            }
+        h += '<tr>';
+        h += '<td>'+esc(name)+'</td>';
+        h += '<td style="font-weight:500">'+esc(g.courseName||'')+'</td>';
+        h += '<td>'+esc(g.termName||'')+'</td>';
+        h += '<td>'+scoreStr+'</td>';
+        h += '<td>'+pctStr+'</td>';
+        h += '<td>'+(letter?'<span class="grade-badge '+gc+'">'+esc(letter)+'</span>':'-')+'</td>';
+        h += '</tr>';
+    }
+    h += '</tbody></table></div>';
+    c.innerHTML = h;
+}
+
+// ── Assignments ──
+let assignSid = '';
+function setAssignFilter(sid) { assignSid = sid; renderAssignments(); }
+function renderAssignments() {
+    const c = document.getElementById('assignmentsContainer');
+    renderFilter('assignmentsFilter', setAssignFilter);
+
+    const all = currentData.assignments || [];
+    const filtered = assignSid ? all.filter(a => String(a.studentID||a.personID||'') === assignSid) : all;
+
+    if (!filtered.length) { c.innerHTML = '<p style="color:var(--text-secondary)">No assignments available.</p>'; return; }
+
+    const sorted = [...filtered].sort((a,b) => (b.dueDate||'').localeCompare(a.dueDate||''));
+
+    let h = '<div class="card" style="padding:0;overflow:hidden"><table class="data-table"><thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Due</th><th>Score</th><th>Status</th></tr></thead><tbody>';
+    for (const a of sorted) {
+        const sid = String(a.studentID||a.personID||'');
+        const score = a.score!=null && a.score!=='' ? a.score+'/'+(a.totalPoints||'?') : '-';
+        const pct = a.scorePercentage!=null ? ' ('+Math.round(a.scorePercentage)+'%)' : '';
+
+        h += '<tr>';
+        h += '<td>'+esc(getName(sid))+'</td>';
+        h += '<td style="font-weight:500">'+esc(a.assignmentName||'')+'</td>';
+        h += '<td>'+esc(a.courseName||'')+'</td>';
+        h += '<td>'+fmtDate(a.dueDate)+'</td>';
+        h += '<td>'+score+pct+'</td>';
+        h += '<td>'+statusBadge(a)+'</td>';
+        h += '</tr>';
+    }
+    h += '</tbody></table></div>';
+    c.innerHTML = h;
+}
+
+// ── Settings ──
+async function loadConfig() {
+    try {
+        const cfg = await apiGet('config');
+        const sts = await apiGet('status');
+        document.getElementById('cfgUrl').textContent = cfg.ic_base_url || 'Not set';
+        document.getElementById('cfgDistrict').textContent = cfg.ic_district || 'Not set';
+        document.getElementById('cfgUser').textContent = cfg.ic_username || 'Not set';
+        document.getElementById('cfgStudents').textContent = sts.authenticated
+            ? (sts.scheduler?.students_found||0)+' student(s)' : 'Not connected';
+        document.getElementById('cfgWhatsapp').textContent = cfg.whatsapp_phone
+            ? cfg.whatsapp_phone + (cfg.whatsapp_phone_2 ? ' + '+cfg.whatsapp_phone_2 : '') : 'Not configured';
+        document.getElementById('cfgEntities').textContent = (sts.ha_entities_count||0)+' sensors';
+        document.getElementById('cfgInterval').textContent = (cfg.poll_interval||900)+' seconds';
+    } catch(e) {}
+}
+
+// ── Discovery ──
+async function discoverEndpoints() {
+    const out = document.getElementById('discoverOutput');
+    const div = document.getElementById('discoverResults');
+    div.style.display = 'block';
+    out.textContent = 'Running...';
+    try {
+        const data = await (await fetch('api/discover')).json();
+        let w=[],f=[],ctx=null;
+        for (const [n,i] of Object.entries(data)) {
+            if (n==='_context'){ctx=i;continue;}
+            if (i.status===200) w.push(n+': '+i.data+(i.sample?'\n  '+i.sample.substring(0,300):''));
+            else f.push(n+': '+(i.status||'err'));
         }
+        let t='';
+        if (ctx) t+='Students: '+JSON.stringify(ctx.student_ids)+'\n\n';
+        t+='WORKING ('+w.length+')\n'+w.join('\n\n')+'\n\nFAILED ('+f.length+')\n'+f.join('\n');
+        out.textContent=t;
+    } catch(e) { out.textContent='Error: '+e.message; }
+}
 
-        // ─── Grades Tab ────────────────────────────────────────────
-        async function loadGrades() {
-            const container = document.getElementById('gradesContainer');
-            try {
-                const data = await apiGet('data');
-                if (data.error) {
-                    container.innerHTML = '<p>No grade data available. Start the service first.</p>';
-                    return;
-                }
+// ── Controls ──
+async function pollNow() {
+    showAlert('Refreshing...','info');
+    try { const r=await apiPost('poll'); r.success?(showAlert('Done!','success'),await loadData()):showAlert(r.error,'error'); }
+    catch(e){showAlert(e.message,'error');}
+}
+async function startService() {
+    try { const r=await apiPost('start'); showAlert(r.success?'Started!':r.error, r.success?'success':'error'); await updateStatus(); }
+    catch(e){showAlert(e.message,'error');}
+}
+async function stopService() {
+    try { const r=await apiPost('stop'); showAlert(r.success?'Stopped.':r.error, r.success?'success':'error'); await updateStatus(); }
+    catch(e){showAlert(e.message,'error');}
+}
 
-                const grades = data.grades || [];
-                const assignments = data.assignments || [];
-                const items = grades.length > 0 ? grades : assignments.filter(a => a.score != null);
-
-                if (items.length === 0) {
-                    container.innerHTML = '<p>No grades available yet.</p>';
-                    return;
-                }
-
-                let html = '<table class="data-table"><thead><tr>';
-                html += '<th>Student</th><th>Course</th><th>Assignment</th><th>Score</th><th>Grade</th>';
-                html += '</tr></thead><tbody>';
-
-                for (const g of items) {
-                    const score = g.score != null ? g.score : '-';
-                    const total = g.totalPoints || '?';
-                    const pct = g.percentage ? g.percentage + '%' : '';
-                    const letter = g.letterGrade || '';
-                    const gradeClass = getGradeClass(letter);
-
-                    html += '<tr>';
-                    html += '<td>' + escHtml(g.studentID || '') + '</td>';
-                    html += '<td>' + escHtml(g.courseName || '') + '</td>';
-                    html += '<td>' + escHtml(g.assignmentName || '') + '</td>';
-                    html += '<td>' + score + '/' + total + (pct ? ' (' + pct + ')' : '') + '</td>';
-                    html += '<td>' + (letter ? '<span class="grade-badge ' + gradeClass + '">' + letter + '</span>' : '-') + '</td>';
-                    html += '</tr>';
-                }
-
-                html += '</tbody></table>';
-                container.innerHTML = html;
-            } catch (e) {
-                container.innerHTML = '<p>Error loading grades: ' + e.message + '</p>';
-            }
-        }
-
-        function getGradeClass(letter) {
-            if (!letter) return '';
-            const l = letter.charAt(0).toUpperCase();
-            if (l === 'A') return 'grade-a';
-            if (l === 'B') return 'grade-b';
-            if (l === 'C') return 'grade-c';
-            if (l === 'D') return 'grade-d';
-            if (l === 'F') return 'grade-f';
-            return '';
-        }
-
-        // ─── Config (read-only, managed via HA Configuration tab) ──
-        async function loadConfig() {
-            try {
-                currentConfig = await apiGet('config');
-                const status = await apiGet('status');
-                document.getElementById('cfgShowUrl').textContent = currentConfig.ic_base_url || 'Not set';
-                document.getElementById('cfgShowDistrict').textContent = currentConfig.ic_district || 'Not set';
-                document.getElementById('cfgShowUsername').textContent = currentConfig.ic_username || 'Not set';
-                document.getElementById('cfgShowStudents').textContent = status.authenticated
-                    ? (status.scheduler?.students_found || 0) + ' student(s) connected'
-                    : 'Not connected';
-                document.getElementById('cfgShowWhatsapp').textContent = currentConfig.whatsapp_phone || 'Not configured';
-                document.getElementById('cfgShowInterval').textContent = (currentConfig.poll_interval || 900) + ' seconds';
-            } catch (e) {
-                console.error('Failed to load config:', e);
-            }
-        }
-
-        // ─── Endpoint Discovery ─────────────────────────────────────
-        async function discoverEndpoints() {
-            const btn = document.getElementById('btnDiscover');
-            const resultsDiv = document.getElementById('discoverResults');
-            const output = document.getElementById('discoverOutput');
-            btn.disabled = true;
-            btn.textContent = 'Discovering...';
-            resultsDiv.style.display = 'block';
-            output.textContent = 'Running endpoint discovery (this may take 10-20 seconds)...';
-            try {
-                const resp = await fetch('api/discover');
-                const data = await resp.json();
-                // Format nicely: show working endpoints first
-                let working = [];
-                let failed = [];
-                let context = null;
-                for (const [name, info] of Object.entries(data)) {
-                    if (name === '_context') { context = info; continue; }
-                    if (info.status === 200) {
-                        working.push(name + ': ' + (info.data || 'OK') + (info.sample ? '\n  Sample: ' + info.sample.substring(0, 200) : ''));
-                    } else {
-                        failed.push(name + ': ' + (info.status || 'error') + (info.reason ? ' (' + info.reason + ')' : ''));
-                    }
-                }
-                let text = '';
-                if (context) text += 'IDs: students=' + JSON.stringify(context.student_ids) + ' calendars=' + JSON.stringify(context.calendar_ids) + ' schools=' + JSON.stringify(context.school_ids) + '\n\n';
-                text += '=== WORKING ENDPOINTS (' + working.length + ') ===\n' + (working.length ? working.join('\n\n') : 'None found') + '\n\n';
-                text += '=== FAILED ENDPOINTS (' + failed.length + ') ===\n' + failed.join('\n');
-                output.textContent = text;
-            } catch (e) {
-                output.textContent = 'Error: ' + e.message;
-            }
-            btn.disabled = false;
-            btn.textContent = 'Run Discovery';
-        }
-
-        // ─── Service Controls ──────────────────────────────────────
-        async function pollNow() {
-            showAlert('Refreshing data...', 'info');
-            try {
-                const result = await apiPost('poll');
-                if (result.success) {
-                    showAlert('Data refreshed!', 'success');
-                    await updateDashboardData();
-                } else {
-                    showAlert('Refresh failed: ' + result.error, 'error');
-                }
-            } catch (e) {
-                showAlert('Error: ' + e.message, 'error');
-            }
-        }
-
-        async function startService() {
-            try {
-                const result = await apiPost('start');
-                if (result.success) {
-                    showAlert('Service started!', 'success');
-                } else {
-                    showAlert('Start failed: ' + result.error, 'error');
-                }
-                await updateStatus();
-            } catch (e) {
-                showAlert('Error: ' + e.message, 'error');
-            }
-        }
-
-        async function stopService() {
-            try {
-                const result = await apiPost('stop');
-                if (result.success) {
-                    showAlert('Service stopped.', 'success');
-                } else {
-                    showAlert('Stop failed: ' + result.error, 'error');
-                }
-                await updateStatus();
-            } catch (e) {
-                showAlert('Error: ' + e.message, 'error');
-            }
-        }
-
-        // ─── Helpers ───────────────────────────────────────────────
-        function escHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str || '';
-            return div.innerHTML;
-        }
-
-        // ─── Init ──────────────────────────────────────────────────
-        async function init() {
-            await loadConfig();
-            await updateStatus();
-            await updateDashboardData();
-
-            // Poll status every 30 seconds
-            setInterval(updateStatus, 30000);
-            setInterval(updateDashboardData, 60000);
-        }
-
-        init();
-    </script>
+// ── Init ──
+async function init() {
+    await loadConfig(); await updateStatus(); await loadData();
+    setInterval(updateStatus, 30000);
+    setInterval(loadData, 60000);
+}
+init();
+</script>
 </body>
 </html>
