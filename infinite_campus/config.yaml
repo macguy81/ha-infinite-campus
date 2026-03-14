@@ -1,6 +1,6 @@
 ---
 name: "Infinite Campus Monitor"
-version: "1.0.3"
+version: "1.1.1"
 slug: "infinite_campus"
 description: "Monitor your children's grades, assignments, attendance, and school notifications from Infinite Campus. Get WhatsApp alerts for changes."
 url: "https://github.com/macguy81/ha-infinite-campus"
@@ -39,7 +39,7 @@ options:
   daily_summary_hour: 18
   auto_start: true
 schema:
-  ic_base_url: "url?"
+  ic_base_url: "str?"
   ic_district: "str?"
   ic_username: "str?"
   ic_password: "password?"
