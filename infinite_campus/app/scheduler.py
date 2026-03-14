@@ -9,7 +9,7 @@ Home Assistant entities.
 import asyncio
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -188,7 +188,7 @@ class ICScheduler:
         try:
             data = await self.api.get_all_data()
             self.latest_data = data
-            self._last_poll = datetime.now()
+            self._last_poll = datetime.now(timezone.utc)
 
             # Build student name lookup
             for student in data.get("students", []):

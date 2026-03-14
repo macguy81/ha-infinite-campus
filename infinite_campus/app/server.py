@@ -59,7 +59,6 @@ class ICWebServer:
         self.app.router.add_get("/api/data/{category}", self.handle_data_category)
         self.app.router.add_get("/api/config", self.handle_get_config)
         self.app.router.add_post("/api/poll", self.handle_poll_now)
-        self.app.router.add_get("/api/discover", self.handle_discover)
         self.app.router.add_post("/api/start", self.handle_start)
         self.app.router.add_post("/api/stop", self.handle_stop)
         self.app.router.add_static("/static", STATIC_DIR)
@@ -129,16 +128,6 @@ class ICWebServer:
             "whatsapp_phone_2": self.config.get("whatsapp_phone_2", ""),
         }
         return web.json_response(safe_config)
-
-    async def handle_discover(self, request: web.Request) -> web.Response:
-        """Discover which IC API endpoints work for this district."""
-        if not self.api:
-            return web.json_response({"error": "API not initialized"}, status=400)
-        try:
-            results = await self.api.discover_endpoints()
-            return web.json_response(results, dumps=lambda x: json.dumps(x, default=str, indent=2))
-        except Exception as e:
-            return web.json_response({"error": str(e)}, status=500)
 
     async def handle_poll_now(self, request: web.Request) -> web.Response:
         """Trigger an immediate data poll."""

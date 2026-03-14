@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Infinite Campus Monitor</title>
     <style>
         :root {
@@ -21,6 +23,7 @@
             --shadow-lg: 0 4px 24px rgba(0,0,0,0.08);
             --radius: 16px;
             --radius-sm: 10px;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,6 +35,8 @@
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: var(--safe-bottom);
         }
 
         /* ── Header ── */
@@ -40,7 +45,7 @@
             backdrop-filter: saturate(180%) blur(20px);
             -webkit-backdrop-filter: saturate(180%) blur(20px);
             border-bottom: 0.5px solid rgba(0,0,0,0.1);
-            padding: 16px 24px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -49,51 +54,56 @@
             z-index: 100;
         }
         .header h1 {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 600;
             letter-spacing: -0.02em;
         }
         .status-pill {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 5px 14px;
+            gap: 5px;
+            padding: 4px 12px;
             border-radius: 100px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 500;
             background: rgba(52,199,89,0.12);
             color: #248a3d;
         }
         .status-pill.offline { background: rgba(255,59,48,0.12); color: #d70015; }
         .status-pill .dot {
-            width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+            width: 6px; height: 6px; border-radius: 50%; background: var(--green);
         }
         .status-pill.offline .dot { background: var(--red); }
 
         /* ── Container ── */
-        .container { max-width: 1100px; margin: 0 auto; padding: 20px 16px 40px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 12px 12px 32px; }
 
-        /* ── Tabs ── */
+        /* ── Main Tabs ── */
         .tabs {
             display: flex;
             gap: 2px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             background: rgba(118,118,128,0.12);
             border-radius: 10px;
             padding: 2px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
+        .tabs::-webkit-scrollbar { display: none; }
         .tab {
             flex: 1;
-            padding: 8px 12px;
+            min-width: 0;
+            padding: 8px 6px;
             text-align: center;
             border: none;
             background: transparent;
             cursor: pointer;
             border-radius: 8px;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             font-weight: 500;
             color: var(--text);
             transition: all 0.15s ease;
+            white-space: nowrap;
         }
         .tab.active {
             background: var(--card);
@@ -110,14 +120,14 @@
         .card {
             background: var(--card);
             border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
             box-shadow: var(--shadow);
         }
         .card h2 {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             letter-spacing: -0.01em;
             color: var(--text);
         }
@@ -125,84 +135,85 @@
         /* ── Stat Grid ── */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
         }
         .stat-card {
             background: var(--card);
             border-radius: var(--radius);
-            padding: 20px 16px;
+            padding: 14px 10px;
             text-align: center;
             box-shadow: var(--shadow);
         }
         .stat-value {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             letter-spacing: -0.03em;
             color: var(--text);
             line-height: 1.1;
         }
         .stat-label {
-            font-size: 0.72rem;
+            font-size: 0.65rem;
             font-weight: 500;
             color: var(--text-secondary);
-            margin-top: 6px;
+            margin-top: 4px;
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
 
         /* ── Buttons ── */
         .btn {
-            padding: 10px 20px;
+            padding: 10px 18px;
             border: none;
             border-radius: 100px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.15s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            -webkit-tap-highlight-color: transparent;
         }
         .btn-primary { background: var(--accent); color: white; }
-        .btn-primary:hover { background: var(--accent-hover); transform: scale(1.02); }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-primary:active { transform: scale(0.97); }
         .btn-green { background: var(--green); color: white; }
         .btn-red { background: var(--red); color: white; }
         .btn-secondary {
             background: rgba(0,113,227,0.08);
             color: var(--accent);
         }
-        .btn-secondary:hover { background: rgba(0,113,227,0.14); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
 
         /* ── Alerts ── */
         .alert {
-            padding: 14px 18px;
+            padding: 12px 16px;
             border-radius: var(--radius-sm);
-            margin-bottom: 16px;
-            font-size: 0.85rem;
+            margin-bottom: 12px;
+            font-size: 0.82rem;
             font-weight: 400;
         }
         .alert-success { background: rgba(52,199,89,0.1); color: #248a3d; }
         .alert-error { background: rgba(255,59,48,0.1); color: #d70015; }
         .alert-info { background: rgba(0,113,227,0.08); color: #0071e3; }
 
-        /* ── Tables ── */
-        .data-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+        /* ── Tables (desktop) ── */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
         .data-table th {
             text-align: left;
-            padding: 10px 14px;
+            padding: 8px 10px;
             font-weight: 600;
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             text-transform: uppercase;
             letter-spacing: 0.04em;
             color: var(--text-secondary);
             border-bottom: 1px solid var(--border);
         }
         .data-table td {
-            padding: 12px 14px;
+            padding: 10px;
             border-bottom: 0.5px solid var(--border);
             color: var(--text);
         }
@@ -210,15 +221,49 @@
         .data-table tbody tr { transition: background 0.1s; }
         .data-table tbody tr:hover td { background: rgba(0,0,0,0.02); }
 
+        /* ── Mobile card list (replaces tables on mobile) ── */
+        .mobile-list { display: none; }
+        .mobile-item {
+            background: var(--card);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .mobile-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+        .mobile-item-title {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--text);
+            flex: 1;
+            margin-right: 8px;
+        }
+        .mobile-item-meta {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .mobile-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         /* ── Badges ── */
         .badge {
             display: inline-flex;
             align-items: center;
             padding: 3px 10px;
             border-radius: 100px;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 600;
             letter-spacing: 0.02em;
+            white-space: nowrap;
         }
         .badge-missing { background: rgba(255,59,48,0.1); color: #d70015; }
         .badge-late { background: rgba(255,149,0,0.12); color: #c93400; }
@@ -229,11 +274,11 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 32px;
+            min-width: 30px;
             padding: 3px 10px;
             border-radius: 8px;
             font-weight: 700;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
         }
         .grade-a { background: rgba(52,199,89,0.12); color: #248a3d; }
         .grade-b { background: rgba(0,113,227,0.1); color: #0071e3; }
@@ -241,44 +286,60 @@
         .grade-d { background: rgba(255,59,48,0.08); color: #d70015; }
         .grade-f { background: rgba(255,59,48,0.15); color: #d70015; }
 
-        /* ── Student cards ── */
-        .student-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 24px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-        }
-        .student-header {
+        /* ── Student sub-tabs (within Students tab) ── */
+        .student-tabs {
             display: flex;
-            align-items: baseline;
-            gap: 12px;
-            margin-bottom: 4px;
-        }
-        .student-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            color: var(--text);
-        }
-        .student-meta {
-            font-size: 0.82rem;
-            color: var(--text-secondary);
+            gap: 0;
             margin-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
+        .student-tabs::-webkit-scrollbar { display: none; }
+        .student-tab {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .student-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            font-weight: 600;
+        }
+        .student-tab:hover:not(.active) { color: var(--text); }
+        .student-panel { display: none; animation: fadeIn 0.2s ease; }
+        .student-panel.active { display: block; }
 
         /* ── Filter Pills ── */
-        .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 2px;
+        }
         .filter-pill {
-            padding: 7px 16px;
+            padding: 6px 14px;
             border: 1px solid var(--border);
             border-radius: 100px;
             background: var(--card);
             cursor: pointer;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             font-weight: 500;
             transition: all 0.15s;
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         .filter-pill.active {
             background: var(--text);
@@ -287,8 +348,54 @@
         }
         .filter-pill:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
 
+        .filter-section { margin-bottom: 6px; }
+        .filter-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        /* ── Progress Bar ── */
+        .progress-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(0,0,0,0.06);
+            border-radius: 100px;
+            overflow: hidden;
+            min-width: 50px;
+            max-width: 120px;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 0.4s ease;
+        }
+        .pct-text {
+            font-size: 0.78rem;
+            font-weight: 600;
+            min-width: 44px;
+            text-align: right;
+        }
+
+        /* ── Insights Grid ── */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
         /* ── Loading ── */
-        .loading { text-align: center; padding: 48px; color: var(--text-secondary); }
+        .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
         .spinner {
             display: inline-block;
             width: 24px; height: 24px;
@@ -299,14 +406,44 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── Responsive ── */
-        @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-            .stat-card { padding: 14px 10px; }
-            .stat-value { font-size: 1.5rem; }
-            .header { padding: 12px 16px; }
-            .tabs .tab { font-size: 0.75rem; padding: 8px 6px; }
+        /* ── Config table on mobile ── */
+        .config-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 0.5px solid var(--border);
+            font-size: 0.84rem;
         }
+        .config-row:last-child { border-bottom: none; }
+        .config-label { font-weight: 600; color: var(--text-secondary); flex-shrink: 0; margin-right: 12px; }
+        .config-value { text-align: right; word-break: break-all; }
+
+        /* ═══ Desktop (>768px) ═══ */
+        @media (min-width: 769px) {
+            .container { padding: 20px 24px 40px; }
+            .header { padding: 14px 24px; }
+            .header h1 { font-size: 1.2rem; }
+            .stats-grid { grid-template-columns: repeat(6, 1fr); gap: 12px; }
+            .stat-card { padding: 20px 14px; }
+            .stat-value { font-size: 2rem; }
+            .stat-label { font-size: 0.72rem; }
+            .card { padding: 20px; margin-bottom: 16px; }
+            .card h2 { font-size: 0.95rem; margin-bottom: 16px; }
+            .tab { font-size: 0.82rem; padding: 8px 12px; }
+            .insights-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+            .desktop-table { display: table; }
+            .mobile-list { display: none !important; }
+        }
+
+        /* ═══ Mobile (<768px) ═══ */
+        @media (max-width: 768px) {
+            .desktop-table { display: none; }
+            .mobile-list { display: block; }
+            .progress-bar { max-width: 80px; }
+            .filter-bar { flex-wrap: nowrap; overflow-x: auto; }
+            .student-tab { padding: 10px 16px; font-size: 0.84rem; }
+        }
+
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -356,22 +493,30 @@
                 <h2>Recent Assignments</h2>
                 <div id="recentActivity" class="loading">
                     <div class="spinner"></div>
-                    <p style="margin-top:8px;font-size:0.85rem">Loading...</p>
+                    <p style="margin-top:8px;font-size:0.82rem">Loading...</p>
                 </div>
             </div>
         </div>
 
-        <!-- ── Students ── -->
+        <!-- ── Students (tabbed per student) ── -->
         <div id="tab-students" class="tab-content">
             <div id="studentsContainer" class="loading">
                 <div class="spinner"></div>
-                <p style="margin-top:8px;font-size:0.85rem">Loading students...</p>
+                <p style="margin-top:8px;font-size:0.82rem">Loading students...</p>
             </div>
         </div>
 
         <!-- ── Grades ── -->
         <div id="tab-grades" class="tab-content">
-            <div id="gradesFilter" class="filter-bar"></div>
+            <div class="filter-section">
+                <span class="filter-label">Student</span>
+                <div id="gradesStudentFilter" class="filter-bar"></div>
+            </div>
+            <div class="filter-section">
+                <span class="filter-label">Term</span>
+                <div id="gradesTermFilter" class="filter-bar"></div>
+            </div>
+            <div id="gradesSummary"></div>
             <div id="gradesContainer" class="loading">
                 <div class="spinner"></div>
             </div>
@@ -393,35 +538,23 @@
 
             <div class="card">
                 <h2>Connection</h2>
-                <table class="data-table">
-                    <tbody>
-                        <tr><td style="font-weight:600;width:180px;color:var(--text-secondary)">Base URL</td><td id="cfgUrl">-</td></tr>
-                        <tr><td style="font-weight:600;color:var(--text-secondary)">District</td><td id="cfgDistrict">-</td></tr>
-                        <tr><td style="font-weight:600;color:var(--text-secondary)">Username</td><td id="cfgUser">-</td></tr>
-                        <tr><td style="font-weight:600;color:var(--text-secondary)">Students</td><td id="cfgStudents">-</td></tr>
-                        <tr><td style="font-weight:600;color:var(--text-secondary)">WhatsApp</td><td id="cfgWhatsapp">-</td></tr>
-                        <tr><td style="font-weight:600;color:var(--text-secondary)">HA Sensors</td><td id="cfgEntities">-</td></tr>
-                        <tr><td style="font-weight:600;color:var(--text-secondary)">Poll Interval</td><td id="cfgInterval">-</td></tr>
-                    </tbody>
-                </table>
+                <div class="config-row"><span class="config-label">Base URL</span><span class="config-value" id="cfgUrl">-</span></div>
+                <div class="config-row"><span class="config-label">District</span><span class="config-value" id="cfgDistrict">-</span></div>
+                <div class="config-row"><span class="config-label">Username</span><span class="config-value" id="cfgUser">-</span></div>
+                <div class="config-row"><span class="config-label">Students</span><span class="config-value" id="cfgStudents">-</span></div>
+                <div class="config-row"><span class="config-label">WhatsApp</span><span class="config-value" id="cfgWhatsapp">-</span></div>
+                <div class="config-row"><span class="config-label">HA Sensors</span><span class="config-value" id="cfgEntities">-</span></div>
+                <div class="config-row"><span class="config-label">Poll Interval</span><span class="config-value" id="cfgInterval">-</span></div>
             </div>
 
             <div class="card">
                 <h2>WhatsApp Setup (Free via CallMeBot)</h2>
-                <ol style="margin-left:18px;font-size:0.85rem;color:var(--text-secondary);line-height:1.8">
+                <ol style="margin-left:18px;font-size:0.84rem;color:var(--text-secondary);line-height:1.9">
                     <li>Save <strong style="color:var(--text)">+34 644 51 95 23</strong> in your phone</li>
                     <li>Send <strong style="color:var(--text)">"I allow callmebot to send me messages"</strong> via WhatsApp</li>
                     <li>Enter the API key you receive into the HA Configuration tab</li>
                     <li>Repeat for the second phone number if desired</li>
                 </ol>
-            </div>
-
-            <div class="card">
-                <h2>Debug</h2>
-                <button class="btn btn-secondary" onclick="discoverEndpoints()">Run API Discovery</button>
-                <div id="discoverResults" style="margin-top:12px;display:none">
-                    <pre id="discoverOutput" style="background:var(--bg);padding:16px;border-radius:var(--radius-sm);font-size:0.72rem;overflow-x:auto;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;font-family:'SF Mono',SFMono-Regular,Menlo,monospace"></pre>
-                </div>
             </div>
         </div>
     </div>
@@ -430,11 +563,12 @@
 // ── State ──
 let currentData = {};
 let nameMap = {};
+let activeStudentTab = 0;
 
 // ── Tab Switching ──
 function switchTab(tab, btn) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tabs .tab').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
     if (btn) btn.classList.add('active');
     if (tab === 'students') renderStudents();
@@ -442,7 +576,6 @@ function switchTab(tab, btn) {
     if (tab === 'assignments') renderAssignments();
 }
 
-// ── Alerts ──
 function showAlert(msg, type='info') {
     const c = document.getElementById('alertContainer');
     const d = document.createElement('div');
@@ -454,265 +587,520 @@ function showAlert(msg, type='info') {
 
 // ── API ──
 async function apiGet(p) { return (await fetch('api/' + p)).json(); }
-async function apiPost(p) { return (await fetch('api/' + p, { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' })).json(); }
+async function apiPost(p) { return (await fetch('api/' + p, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' })).json(); }
 
 // ── Helpers ──
-function esc(s) { const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
-function fmtDate(d) { if (!d) return '-'; try { const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); } catch { return d; } }
-function getName(id) { return nameMap[String(id)] || ('Student ' + id); }
+function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+function fmtDate(d) { if(!d) return '-'; try { const dt=new Date(d); return isNaN(dt)?d:dt.toLocaleDateString('en-US',{month:'short',day:'numeric'}); } catch{return d;} }
+function getName(id) { return nameMap[String(id)]||('Student '+id); }
 
 function letterGrade(pct) {
-    const p = parseFloat(pct);
-    if (isNaN(p)) return '';
-    if (p >= 93) return 'A'; if (p >= 90) return 'A-';
-    if (p >= 87) return 'B+'; if (p >= 83) return 'B'; if (p >= 80) return 'B-';
-    if (p >= 77) return 'C+'; if (p >= 73) return 'C'; if (p >= 70) return 'C-';
-    if (p >= 67) return 'D+'; if (p >= 60) return 'D'; return 'F';
+    const p=parseFloat(pct); if(isNaN(p)) return '';
+    if(p>=93) return 'A'; if(p>=90) return 'A-';
+    if(p>=87) return 'B+'; if(p>=83) return 'B'; if(p>=80) return 'B-';
+    if(p>=77) return 'C+'; if(p>=73) return 'C'; if(p>=70) return 'C-';
+    if(p>=67) return 'D+'; if(p>=60) return 'D'; return 'F';
 }
 
 function gradeClass(l) {
-    if (!l) return '';
-    const c = l[0].toUpperCase();
+    if(!l) return '';
+    const c=l[0].toUpperCase();
     return c==='A'?'grade-a':c==='B'?'grade-b':c==='C'?'grade-c':c==='D'?'grade-d':c==='F'?'grade-f':'';
+}
+
+function progressColor(pct) {
+    if(pct>=90) return 'var(--green)';
+    if(pct>=80) return 'var(--accent)';
+    if(pct>=70) return 'var(--orange)';
+    return 'var(--red)';
 }
 
 function buildNameMap(students) {
     nameMap = {};
-    for (const s of students) {
-        const id = String(s.personID||s.studentID||'');
-        nameMap[id] = ((s.firstName||'') + ' ' + (s.lastName||'')).trim() || ('Student '+id);
+    for(const s of students) {
+        const id=String(s.personID||s.studentID||'');
+        nameMap[id]=((s.firstName||'')+' '+(s.lastName||'')).trim()||('Student '+id);
     }
 }
 
 function statusBadge(a) {
-    if (a.missing) return '<span class="badge badge-missing">Missing</span>';
-    if (a.late) return '<span class="badge badge-late">Late</span>';
-    if (a.turnedIn) return '<span class="badge badge-turned-in">Turned In</span>';
-    if (a.score != null && a.score !== '') return '<span class="badge badge-graded">Graded</span>';
+    if(a.missing) return '<span class="badge badge-missing">Missing</span>';
+    if(a.late) return '<span class="badge badge-late">Late</span>';
+    if(a.turnedIn) return '<span class="badge badge-turned-in">Turned In</span>';
+    if(a.score!=null && a.score!=='') return '<span class="badge badge-graded">Graded</span>';
     return '';
 }
 
-// ── Filter pills ──
-function renderFilter(containerId, callback) {
-    const el = document.getElementById(containerId);
-    const students = currentData.students || [];
-    let html = '<button class="filter-pill active" data-sid="" onclick="selectFilter(this,\''+containerId+'\','+callback+')">All</button>';
-    for (const s of students) {
-        const id = String(s.personID||s.studentID||'');
-        html += '<button class="filter-pill" data-sid="'+id+'" onclick="selectFilter(this,\''+containerId+'\','+callback+')">'+esc(getName(id))+'</button>';
-    }
-    el.innerHTML = html;
+function getPct(g) {
+    const v = g.progressPercent||g.percent||g.percentage||'';
+    return v ? parseFloat(v) : NaN;
 }
-function selectFilter(btn, cid, cb) {
+
+// ── Generic filter pills ──
+function renderStudentFilter(containerId, callback) {
+    const el=document.getElementById(containerId);
+    const students=currentData.students||[];
+    let h='<button class="filter-pill active" data-v="" onclick="pickFilter(this,\''+containerId+'\','+callback+')">All</button>';
+    for(const s of students) {
+        const id=String(s.personID||s.studentID||'');
+        const first=(s.firstName||'').split(' ')[0];
+        h+='<button class="filter-pill" data-v="'+id+'" onclick="pickFilter(this,\''+containerId+'\','+callback+')">'+esc(first||getName(id))+'</button>';
+    }
+    el.innerHTML=h;
+}
+function renderTermFilter(containerId, terms, callback) {
+    const el=document.getElementById(containerId);
+    let h='<button class="filter-pill active" data-v="" onclick="pickFilter(this,\''+containerId+'\','+callback+')">All Terms</button>';
+    for(const t of terms) {
+        h+='<button class="filter-pill" data-v="'+esc(t)+'" onclick="pickFilter(this,\''+containerId+'\','+callback+')">'+esc(t)+'</button>';
+    }
+    el.innerHTML=h;
+}
+function pickFilter(btn,cid,cb) {
     document.getElementById(cid).querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    cb(btn.dataset.sid);
+    cb(btn.dataset.v);
+}
+
+// ── SVG helpers ──
+function svgDonut(segments, size=80, strokeWidth=10) {
+    const r=(size-strokeWidth)/2, cx=size/2, cy=size/2, circ=2*Math.PI*r;
+    let offset=0, paths='';
+    for(const seg of segments) {
+        const len=circ*seg.pct/100;
+        paths+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="${strokeWidth}" stroke-dasharray="${len} ${circ-len}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"/>`;
+        offset+=len;
+    }
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0">${paths}</svg>`;
+}
+
+function svgBarChart(bars, width=300, height=140) {
+    if(!bars.length) return '';
+    const pad=30, barW=Math.min(36, (width-pad*2)/bars.length-4);
+    const maxVal=Math.max(...bars.map(b=>b.val),1);
+    const chartH=height-pad-20;
+    let svg=`<svg width="100%" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="display:block;max-width:${width}px">`;
+    for(let i=0;i<=4;i++) {
+        const y=pad+chartH*(1-i/4);
+        svg+=`<line x1="${pad}" y1="${y}" x2="${width-10}" y2="${y}" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>`;
+        svg+=`<text x="${pad-4}" y="${y+4}" text-anchor="end" fill="#86868b" font-size="10">${Math.round(maxVal*i/4)}</text>`;
+    }
+    bars.forEach((b,i)=> {
+        const x=pad+i*(barW+4)+2;
+        const bh=chartH*b.val/maxVal;
+        const y=pad+chartH-bh;
+        svg+=`<rect x="${x}" y="${y}" width="${barW}" height="${bh}" rx="4" fill="${b.color||'var(--accent)'}"/>`;
+        svg+=`<text x="${x+barW/2}" y="${height-4}" text-anchor="middle" fill="#86868b" font-size="8" transform="rotate(-35 ${x+barW/2} ${height-4})">${esc(b.label.substring(0,10))}</text>`;
+    });
+    svg+='</svg>';
+    return svg;
 }
 
 // ── Status ──
 async function updateStatus() {
     try {
-        const s = await apiGet('status');
-        const badge = document.getElementById('statusBadge');
-        const text = document.getElementById('statusText');
-        if (s.scheduler_running) {
-            badge.className = 'status-pill'; text.textContent = 'Running';
-        } else if (s.configured) {
-            badge.className = 'status-pill offline'; text.textContent = 'Stopped';
-        } else {
-            badge.className = 'status-pill offline'; text.textContent = 'Not Configured';
-        }
-        if (s.scheduler) {
-            document.getElementById('statStudents').textContent = s.scheduler.students_found || 0;
-            document.getElementById('statAlerts').textContent = s.scheduler.notifications_sent || 0;
-            if (s.scheduler.last_poll) {
-                const d = new Date(s.scheduler.last_poll);
-                document.getElementById('statLastPoll').textContent = d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        const s=await apiGet('status');
+        const badge=document.getElementById('statusBadge');
+        const text=document.getElementById('statusText');
+        if(s.scheduler_running) { badge.className='status-pill'; text.textContent='Running'; }
+        else if(s.configured) { badge.className='status-pill offline'; text.textContent='Stopped'; }
+        else { badge.className='status-pill offline'; text.textContent='Not Configured'; }
+        if(s.scheduler) {
+            document.getElementById('statStudents').textContent=s.scheduler.students_found||0;
+            document.getElementById('statAlerts').textContent=s.scheduler.notifications_sent||0;
+            if(s.scheduler.last_poll) {
+                let ts=s.scheduler.last_poll;
+                if(!ts.endsWith('Z') && !ts.includes('+')) ts+='Z';
+                const d=new Date(ts);
+                if(!isNaN(d)) document.getElementById('statLastPoll').textContent=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
             }
         }
-    } catch(e) {}
+    } catch(e){}
 }
 
 async function loadData() {
     try {
-        const data = await apiGet('data');
-        if (!data.error) {
-            currentData = data;
-            buildNameMap(data.students || []);
-            document.getElementById('statCourses').textContent = (data.courses||[]).length;
-            document.getElementById('statAssignments').textContent = (data.assignments||[]).length;
-            document.getElementById('statGrades').textContent = (data.grades||[]).length;
+        const data=await apiGet('data');
+        if(!data.error) {
+            currentData=data;
+            buildNameMap(data.students||[]);
+            document.getElementById('statCourses').textContent=(data.courses||[]).length;
+            document.getElementById('statAssignments').textContent=(data.assignments||[]).length;
+            document.getElementById('statGrades').textContent=(data.grades||[]).length;
             renderRecent(data);
         }
-    } catch(e) {}
+    } catch(e){}
 }
 
 // ── Dashboard: Recent ──
 function renderRecent(data) {
-    const c = document.getElementById('recentActivity');
-    const items = (data.assignments||[]).slice(0, 12);
-    if (!items.length) { c.innerHTML = '<p style="color:var(--text-secondary)">No data yet. Click Refresh Data.</p>'; return; }
+    const c=document.getElementById('recentActivity');
+    const sorted=[...(data.assignments||[])].sort((a,b)=>(b.modifiedDate||b.dueDate||'').localeCompare(a.modifiedDate||a.dueDate||''));
+    const items=sorted.slice(0,15);
+    if(!items.length) { c.innerHTML='<p style="color:var(--text-secondary)">No data yet. Click Refresh Data.</p>'; return; }
 
-    let h = '<table class="data-table"><thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Due</th><th>Score</th><th>Status</th></tr></thead><tbody>';
-    for (const a of items) {
-        const sid = String(a.studentID||a.personID||'');
-        const score = a.score!=null && a.score!=='' ? a.score+'/'+(a.totalPoints||'?') : '-';
-        const pct = a.scorePercentage!=null ? ' ('+Math.round(a.scorePercentage)+'%)' : '';
-        h += '<tr><td>'+esc(getName(sid))+'</td><td>'+esc(a.assignmentName||'')+'</td><td>'+esc(a.courseName||'')+'</td><td>'+fmtDate(a.dueDate)+'</td><td>'+score+pct+'</td><td>'+statusBadge(a)+'</td></tr>';
+    // Desktop table
+    let h='<table class="data-table desktop-table"><thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Due</th><th>Score</th><th>Status</th></tr></thead><tbody>';
+    for(const a of items) {
+        const sid=String(a.studentID||a.personID||'');
+        const score=a.score!=null&&a.score!==''?a.score+'/'+(a.totalPoints||'?'):'-';
+        const pct=a.scorePercentage!=null?' ('+Math.round(a.scorePercentage)+'%)':'';
+        h+='<tr><td>'+esc(getName(sid))+'</td><td>'+esc(a.assignmentName||'')+'</td><td>'+esc(a.courseName||'')+'</td><td>'+fmtDate(a.dueDate)+'</td><td>'+score+pct+'</td><td>'+statusBadge(a)+'</td></tr>';
     }
-    h += '</tbody></table>';
-    c.innerHTML = h;
+    h+='</tbody></table>';
+
+    // Mobile card list
+    h+='<div class="mobile-list">';
+    for(const a of items) {
+        const sid=String(a.studentID||a.personID||'');
+        const score=a.score!=null&&a.score!==''?a.score+'/'+(a.totalPoints||'?'):'';
+        const pct=a.scorePercentage!=null?' ('+Math.round(a.scorePercentage)+'%)':'';
+        h+='<div class="mobile-item">';
+        h+='<div class="mobile-item-header"><span class="mobile-item-title">'+esc(a.assignmentName||'')+'</span>'+statusBadge(a)+'</div>';
+        h+='<div class="mobile-item-meta">';
+        h+=esc(getName(sid))+' &middot; '+esc(a.courseName||'')+'<br>';
+        h+='Due '+fmtDate(a.dueDate);
+        if(score) h+=' &middot; '+score+pct;
+        h+='</div></div>';
+    }
+    h+='</div>';
+    c.innerHTML=h;
 }
 
-// ── Students ──
+// ── Students (tabbed view) ──
+function switchStudentTab(idx) {
+    activeStudentTab=idx;
+    document.querySelectorAll('.student-tab').forEach((t,i)=>{
+        t.classList.toggle('active', i===idx);
+    });
+    document.querySelectorAll('.student-panel').forEach((p,i)=>{
+        p.classList.toggle('active', i===idx);
+    });
+}
+
 function renderStudents() {
-    const c = document.getElementById('studentsContainer');
-    const students = currentData.students || [];
-    const courses = currentData.courses || [];
-    if (!students.length) { c.innerHTML = '<p style="color:var(--text-secondary)">No students loaded. Start the service and refresh.</p>'; return; }
+    const c=document.getElementById('studentsContainer');
+    const students=currentData.students||[];
+    const courses=currentData.courses||[];
+    if(!students.length) { c.innerHTML='<p style="color:var(--text-secondary)">No students loaded. Start the service and refresh.</p>'; return; }
 
-    let html = '';
-    for (const s of students) {
-        const id = String(s.personID||s.studentID||'');
-        const name = getName(id);
-        const enrollments = s.enrollments || [];
-        let meta = 'Student #' + (s.studentNumber||id);
-        if (enrollments.length) {
-            const e = enrollments[0];
-            if (e.schoolName) meta += ' · ' + e.schoolName;
-            if (e.grade) meta += ' · Grade ' + e.grade;
-        }
+    // Student tabs
+    let tabsHtml='<div class="student-tabs">';
+    students.forEach((s,i)=>{
+        const id=String(s.personID||s.studentID||'');
+        const first=(s.firstName||getName(id)).split(' ')[0];
+        tabsHtml+='<button class="student-tab'+(i===activeStudentTab?' active':'')+'" onclick="switchStudentTab('+i+')">'+esc(first)+'</button>';
+    });
+    tabsHtml+='</div>';
 
-        const sc = courses.filter(c => String(c.personID||c.studentID||'')=== id);
+    // Panels
+    let panelsHtml='';
+    students.forEach((s,i)=>{
+        const id=String(s.personID||s.studentID||'');
+        const name=getName(id);
+        const enrollments=s.enrollments||[];
+        let meta='Student #'+(s.studentNumber||id);
+        if(enrollments.length) { const e=enrollments[0]; if(e.schoolName) meta+=' &middot; '+e.schoolName; if(e.grade) meta+=' &middot; Grade '+e.grade; }
+        const sc=courses.filter(c=>String(c.personID||c.studentID||'')===id);
 
-        html += '<div class="student-card">';
-        html += '<div class="student-header"><span class="student-name">'+esc(name)+'</span></div>';
-        html += '<div class="student-meta">'+esc(meta)+' · '+sc.length+' courses</div>';
+        panelsHtml+='<div class="student-panel'+(i===activeStudentTab?' active':'')+'">';
+        panelsHtml+='<div class="card">';
+        panelsHtml+='<div style="margin-bottom:4px"><span style="font-size:1.15rem;font-weight:600;letter-spacing:-0.02em">'+esc(name)+'</span></div>';
+        panelsHtml+='<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:14px">'+meta+' &middot; '+sc.length+' courses</div>';
 
-        if (sc.length) {
-            html += '<table class="data-table"><thead><tr><th>Course</th><th>Teacher</th><th>Room</th><th>Period</th></tr></thead><tbody>';
-            for (const c of sc) {
-                html += '<tr>';
-                html += '<td style="font-weight:500">'+esc(c.courseName||'')+'</td>';
-                html += '<td>'+esc(c.teacherDisplay||c.teacherName||'-')+'</td>';
-                html += '<td>'+esc(c.roomName||'-')+'</td>';
-                html += '<td>'+esc(c.sectionNumber||c.period||'-')+'</td>';
-                html += '</tr>';
+        if(sc.length) {
+            // Desktop table
+            panelsHtml+='<table class="data-table desktop-table"><thead><tr><th>Course</th><th>Teacher</th><th>Room</th><th>Period</th></tr></thead><tbody>';
+            for(const cr of sc) {
+                panelsHtml+='<tr><td style="font-weight:500">'+esc(cr.courseName||'')+'</td><td>'+esc(cr.teacherDisplay||cr.teacherName||'-')+'</td><td>'+esc(cr.roomName||'-')+'</td><td>'+esc(cr.sectionNumber||cr.period||'-')+'</td></tr>';
             }
-            html += '</tbody></table>';
+            panelsHtml+='</tbody></table>';
+
+            // Mobile list
+            panelsHtml+='<div class="mobile-list">';
+            for(const cr of sc) {
+                panelsHtml+='<div class="mobile-item">';
+                panelsHtml+='<div class="mobile-item-title">'+esc(cr.courseName||'')+'</div>';
+                panelsHtml+='<div class="mobile-item-meta">';
+                panelsHtml+=esc(cr.teacherDisplay||cr.teacherName||'-');
+                panelsHtml+=' &middot; Room '+esc(cr.roomName||'-');
+                panelsHtml+=' &middot; Period '+esc(cr.sectionNumber||cr.period||'-');
+                panelsHtml+='</div></div>';
+            }
+            panelsHtml+='</div>';
         }
-        html += '</div>';
-    }
-    c.innerHTML = html;
+        panelsHtml+='</div></div>';
+    });
+
+    c.innerHTML=tabsHtml+panelsHtml;
 }
 
-// ── Grades ──
-let gradesSid = '';
-function setGradeFilter(sid) { gradesSid = sid; renderGrades(); }
+// ══════════════════════════════════════════
+// ── GRADES TAB ──
+// ══════════════════════════════════════════
+let gradesSid='', gradesTerm='';
+function setGradeStudent(v) { gradesSid=v; renderGrades(); }
+function setGradeTerm(v) { gradesTerm=v; renderGrades(); }
+
 function renderGrades() {
-    const c = document.getElementById('gradesContainer');
-    renderFilter('gradesFilter', setGradeFilter);
+    const c=document.getElementById('gradesContainer');
+    const summary=document.getElementById('gradesSummary');
+    const grades=currentData.grades||[];
 
-    const grades = currentData.grades || [];
-    const filtered = gradesSid ? grades.filter(g => String(g.studentID||'') === gradesSid) : grades;
+    renderStudentFilter('gradesStudentFilter', setGradeStudent);
 
-    if (!filtered.length) { c.innerHTML = '<p style="color:var(--text-secondary)">No grades available.</p>'; return; }
+    let filtered=gradesSid?grades.filter(g=>String(g.studentID||'')===gradesSid):grades;
 
-    let h = '<div class="card" style="padding:0;overflow:hidden"><table class="data-table"><thead><tr><th>Student</th><th>Course</th><th>Term</th><th>Score</th><th>Percent</th><th>Grade</th></tr></thead><tbody>';
-    for (const g of filtered) {
-        const name = getName(g.studentID||'');
-        const score = g.progressScore||g.score||'';
-        const pct = g.progressPercent||g.percent||g.percentage||'';
-        const total = g.progressTotalPoints||g.totalPoints||'';
-        const earned = g.progressPointsEarned||g.pointsEarned||'';
-        const letter = g.letterGrade||g.grade||(pct?letterGrade(pct):'');
-        const gc = gradeClass(letter);
+    const termSet=new Set();
+    filtered.forEach(g=>{ if(g.termName) termSet.add(g.termName); });
+    const allTerms=[...termSet].sort().reverse();
 
-        let scoreStr = earned && total ? earned+'/'+total : score || '-';
-        let pctStr = pct ? parseFloat(pct).toFixed(1)+'%' : '-';
+    renderTermFilter('gradesTermFilter', allTerms, setGradeTerm);
 
-        h += '<tr>';
-        h += '<td>'+esc(name)+'</td>';
-        h += '<td style="font-weight:500">'+esc(g.courseName||'')+'</td>';
-        h += '<td>'+esc(g.termName||'')+'</td>';
-        h += '<td>'+scoreStr+'</td>';
-        h += '<td>'+pctStr+'</td>';
-        h += '<td>'+(letter?'<span class="grade-badge '+gc+'">'+esc(letter)+'</span>':'-')+'</td>';
-        h += '</tr>';
+    if(gradesTerm) filtered=filtered.filter(g=>g.termName===gradesTerm);
+
+    filtered.sort((a,b)=>{
+        const ta=a.termName||'', tb=b.termName||'';
+        if(ta!==tb) return tb.localeCompare(ta);
+        return (a.courseName||'').localeCompare(b.courseName||'');
+    });
+
+    if(!filtered.length) {
+        summary.innerHTML='';
+        c.innerHTML='<p style="color:var(--text-secondary)">No grades available.</p>';
+        return;
     }
-    h += '</tbody></table></div>';
-    c.innerHTML = h;
+
+    summary.innerHTML=renderGradeInsights(filtered);
+
+    // Desktop table
+    let h='<div class="card" style="padding:0;overflow:hidden"><table class="data-table desktop-table"><thead><tr><th>Student</th><th>Course</th><th>Term</th><th>Progress</th><th>Score</th><th>Grade</th></tr></thead><tbody>';
+    for(const g of filtered) {
+        const name=getName(g.studentID||'');
+        const pct=getPct(g);
+        const earned=g.progressPointsEarned||g.pointsEarned||'';
+        const total=g.progressTotalPoints||g.totalPoints||'';
+        const score=g.progressScore||g.score||'';
+        const letter=g.letterGrade||g.grade||(!isNaN(pct)?letterGrade(pct):'');
+        const gc=gradeClass(letter);
+        let scoreStr=earned&&total?earned+'/'+total:score||'-';
+        let progressHtml='-';
+        if(!isNaN(pct)) {
+            const clr=progressColor(pct);
+            progressHtml=`<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(pct,100)}%;background:${clr}"></div></div><span class="pct-text" style="color:${clr}">${pct.toFixed(1)}%</span></div>`;
+        }
+        h+='<tr><td>'+esc(name)+'</td><td style="font-weight:500">'+esc(g.courseName||'')+'</td><td>'+esc(g.termName||'')+'</td><td style="min-width:140px">'+progressHtml+'</td><td>'+scoreStr+'</td><td>'+(letter?'<span class="grade-badge '+gc+'">'+esc(letter)+'</span>':'-')+'</td></tr>';
+    }
+    h+='</tbody></table></div>';
+
+    // Mobile list
+    h+='<div class="mobile-list">';
+    for(const g of filtered) {
+        const name=getName(g.studentID||'');
+        const pct=getPct(g);
+        const earned=g.progressPointsEarned||g.pointsEarned||'';
+        const total=g.progressTotalPoints||g.totalPoints||'';
+        const score=g.progressScore||g.score||'';
+        const letter=g.letterGrade||g.grade||(!isNaN(pct)?letterGrade(pct):'');
+        const gc=gradeClass(letter);
+        let scoreStr=earned&&total?earned+'/'+total:score||'';
+        const clr=!isNaN(pct)?progressColor(pct):'var(--text-secondary)';
+
+        h+='<div class="mobile-item">';
+        h+='<div class="mobile-item-header"><span class="mobile-item-title">'+esc(g.courseName||'')+'</span>';
+        if(letter) h+='<span class="grade-badge '+gc+'">'+esc(letter)+'</span>';
+        h+='</div>';
+        h+='<div class="mobile-item-meta">';
+        h+=esc(name)+' &middot; '+esc(g.termName||'');
+        if(!isNaN(pct)) {
+            h+='<div class="progress-wrap" style="margin-top:6px"><div class="progress-bar" style="max-width:none"><div class="progress-fill" style="width:'+Math.min(pct,100)+'%;background:'+clr+'"></div></div><span class="pct-text" style="color:'+clr+'">'+pct.toFixed(1)+'%</span></div>';
+        }
+        if(scoreStr) h+='<div style="margin-top:2px">Score: '+scoreStr+'</div>';
+        h+='</div></div>';
+    }
+    h+='</div>';
+    c.innerHTML=h;
+}
+
+function renderGradeInsights(grades) {
+    let h='<div class="insights-grid">';
+
+    // 1. Grade Distribution
+    const dist={A:0,B:0,C:0,D:0,F:0,NA:0};
+    grades.forEach(g=>{
+        const p=getPct(g);
+        if(isNaN(p)){dist.NA++;return;}
+        const l=letterGrade(p);
+        const k=l[0]; if(dist[k]!==undefined) dist[k]++; else dist.NA++;
+    });
+    const total=dist.A+dist.B+dist.C+dist.D+dist.F;
+    if(total>0) {
+        const segs=[
+            {pct:dist.A/total*100,color:'var(--green)'},
+            {pct:dist.B/total*100,color:'var(--accent)'},
+            {pct:dist.C/total*100,color:'var(--orange)'},
+            {pct:dist.D/total*100,color:'#ff6b6b'},
+            {pct:dist.F/total*100,color:'var(--red)'},
+        ].filter(s=>s.pct>0);
+        h+='<div class="card" style="text-align:center">';
+        h+='<h2 style="text-align:left">Grade Distribution</h2>';
+        h+='<div style="display:flex;align-items:center;justify-content:center;gap:20px">';
+        h+=svgDonut(segs,90,12);
+        h+='<div style="text-align:left;font-size:0.82rem;line-height:1.8">';
+        if(dist.A) h+='<div><span class="grade-badge grade-a">A</span> '+dist.A+'</div>';
+        if(dist.B) h+='<div><span class="grade-badge grade-b">B</span> '+dist.B+'</div>';
+        if(dist.C) h+='<div><span class="grade-badge grade-c">C</span> '+dist.C+'</div>';
+        if(dist.D) h+='<div><span class="grade-badge grade-d">D</span> '+dist.D+'</div>';
+        if(dist.F) h+='<div><span class="grade-badge grade-f">F</span> '+dist.F+'</div>';
+        h+='</div></div></div>';
+    }
+
+    // 2. Average by Course
+    const courseAvg={};
+    grades.forEach(g=>{
+        const p=getPct(g);
+        if(isNaN(p)||!g.courseName) return;
+        if(!courseAvg[g.courseName]) courseAvg[g.courseName]={sum:0,count:0};
+        courseAvg[g.courseName].sum+=p;
+        courseAvg[g.courseName].count++;
+    });
+    const bars=Object.entries(courseAvg).map(([name,v])=>({
+        label:name, val:v.sum/v.count, color:progressColor(v.sum/v.count)
+    })).sort((a,b)=>b.val-a.val);
+    if(bars.length>1) {
+        h+='<div class="card">';
+        h+='<h2>Average by Course</h2>';
+        h+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">';
+        h+=svgBarChart(bars, Math.min(bars.length*44+60, 500), 150);
+        h+='</div></div>';
+    }
+
+    // 3. Per-student stats
+    const studentStats={};
+    grades.forEach(g=>{
+        const sid=g.studentID||'';
+        const p=getPct(g);
+        if(isNaN(p)) return;
+        if(!studentStats[sid]) studentStats[sid]={sum:0,count:0,high:0,low:100,name:getName(sid)};
+        studentStats[sid].sum+=p;
+        studentStats[sid].count++;
+        if(p>studentStats[sid].high) studentStats[sid].high=p;
+        if(p<studentStats[sid].low) studentStats[sid].low=p;
+    });
+    const studentArr=Object.values(studentStats).filter(s=>s.count>0);
+    if(studentArr.length>0) {
+        h+='<div class="card">';
+        h+='<h2>Student Overview</h2>';
+        for(const s of studentArr) {
+            const avg=s.sum/s.count;
+            const clr=progressColor(avg);
+            h+='<div style="margin-bottom:14px">';
+            h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+            h+='<span style="font-weight:600;font-size:0.86rem">'+esc(s.name)+'</span>';
+            h+='<span style="font-weight:700;color:'+clr+';font-size:0.86rem">'+avg.toFixed(1)+'%</span>';
+            h+='</div>';
+            h+='<div class="progress-bar" style="max-width:none"><div class="progress-fill" style="width:'+Math.min(avg,100)+'%;background:'+clr+'"></div></div>';
+            h+='<div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-secondary);margin-top:3px">';
+            h+='<span>'+s.count+' courses</span>';
+            h+='<span>Low: '+s.low.toFixed(1)+'% &middot; High: '+s.high.toFixed(1)+'%</span>';
+            h+='</div></div>';
+        }
+        h+='</div>';
+    }
+
+    // 4. Assignment status
+    const assignments=currentData.assignments||[];
+    const assgnByStudent={};
+    assignments.forEach(a=>{
+        const sid=String(a.studentID||a.personID||'');
+        if(gradesSid && sid!==gradesSid) return;
+        if(!assgnByStudent[sid]) assgnByStudent[sid]={graded:0,missing:0,late:0,pending:0,total:0,name:getName(sid)};
+        assgnByStudent[sid].total++;
+        if(a.missing) assgnByStudent[sid].missing++;
+        else if(a.late) assgnByStudent[sid].late++;
+        else if(a.score!=null && a.score!=='') assgnByStudent[sid].graded++;
+        else assgnByStudent[sid].pending++;
+    });
+    const asArr=Object.values(assgnByStudent).filter(a=>a.total>0);
+    if(asArr.length>0) {
+        h+='<div class="card">';
+        h+='<h2>Assignment Status</h2>';
+        for(const s of asArr) {
+            const segs2=[
+                {pct:s.graded/s.total*100,color:'var(--green)'},
+                {pct:s.pending/s.total*100,color:'#ddd'},
+                {pct:s.late/s.total*100,color:'var(--orange)'},
+                {pct:s.missing/s.total*100,color:'var(--red)'},
+            ].filter(x=>x.pct>0);
+            h+='<div style="margin-bottom:14px">';
+            h+='<div style="font-weight:600;font-size:0.86rem;margin-bottom:6px">'+esc(s.name)+'</div>';
+            h+='<div style="display:flex;align-items:center;gap:14px">';
+            h+=svgDonut(segs2,64,10);
+            h+='<div style="font-size:0.78rem;line-height:1.8">';
+            h+='<div><span style="color:var(--green);font-weight:600">'+s.graded+'</span> graded</div>';
+            if(s.pending) h+='<div><span style="color:#999;font-weight:600">'+s.pending+'</span> pending</div>';
+            if(s.late) h+='<div><span style="color:var(--orange);font-weight:600">'+s.late+'</span> late</div>';
+            if(s.missing) h+='<div><span style="color:var(--red);font-weight:600">'+s.missing+'</span> missing</div>';
+            h+='</div></div></div>';
+        }
+        h+='</div>';
+    }
+
+    h+='</div>';
+    return h;
 }
 
 // ── Assignments ──
-let assignSid = '';
-function setAssignFilter(sid) { assignSid = sid; renderAssignments(); }
+let assignSid='';
+function setAssignFilter(sid) { assignSid=sid; renderAssignments(); }
 function renderAssignments() {
-    const c = document.getElementById('assignmentsContainer');
-    renderFilter('assignmentsFilter', setAssignFilter);
+    const c=document.getElementById('assignmentsContainer');
+    renderStudentFilter('assignmentsFilter', setAssignFilter);
+    const all=currentData.assignments||[];
+    const filtered=assignSid?all.filter(a=>String(a.studentID||a.personID||'')===assignSid):all;
+    if(!filtered.length) { c.innerHTML='<p style="color:var(--text-secondary)">No assignments available.</p>'; return; }
+    const sorted=[...filtered].sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
 
-    const all = currentData.assignments || [];
-    const filtered = assignSid ? all.filter(a => String(a.studentID||a.personID||'') === assignSid) : all;
-
-    if (!filtered.length) { c.innerHTML = '<p style="color:var(--text-secondary)">No assignments available.</p>'; return; }
-
-    const sorted = [...filtered].sort((a,b) => (b.dueDate||'').localeCompare(a.dueDate||''));
-
-    let h = '<div class="card" style="padding:0;overflow:hidden"><table class="data-table"><thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Due</th><th>Score</th><th>Status</th></tr></thead><tbody>';
-    for (const a of sorted) {
-        const sid = String(a.studentID||a.personID||'');
-        const score = a.score!=null && a.score!=='' ? a.score+'/'+(a.totalPoints||'?') : '-';
-        const pct = a.scorePercentage!=null ? ' ('+Math.round(a.scorePercentage)+'%)' : '';
-
-        h += '<tr>';
-        h += '<td>'+esc(getName(sid))+'</td>';
-        h += '<td style="font-weight:500">'+esc(a.assignmentName||'')+'</td>';
-        h += '<td>'+esc(a.courseName||'')+'</td>';
-        h += '<td>'+fmtDate(a.dueDate)+'</td>';
-        h += '<td>'+score+pct+'</td>';
-        h += '<td>'+statusBadge(a)+'</td>';
-        h += '</tr>';
+    // Desktop
+    let h='<div class="card" style="padding:0;overflow:hidden"><table class="data-table desktop-table"><thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Due</th><th>Score</th><th>Status</th></tr></thead><tbody>';
+    for(const a of sorted) {
+        const sid=String(a.studentID||a.personID||'');
+        const score=a.score!=null&&a.score!==''?a.score+'/'+(a.totalPoints||'?'):'-';
+        const pct=a.scorePercentage!=null?' ('+Math.round(a.scorePercentage)+'%)':'';
+        h+='<tr><td>'+esc(getName(sid))+'</td><td style="font-weight:500">'+esc(a.assignmentName||'')+'</td><td>'+esc(a.courseName||'')+'</td><td>'+fmtDate(a.dueDate)+'</td><td>'+score+pct+'</td><td>'+statusBadge(a)+'</td></tr>';
     }
-    h += '</tbody></table></div>';
-    c.innerHTML = h;
+    h+='</tbody></table></div>';
+
+    // Mobile
+    h+='<div class="mobile-list">';
+    for(const a of sorted) {
+        const sid=String(a.studentID||a.personID||'');
+        const score=a.score!=null&&a.score!==''?a.score+'/'+(a.totalPoints||'?'):'';
+        const pct=a.scorePercentage!=null?' ('+Math.round(a.scorePercentage)+'%)':'';
+        h+='<div class="mobile-item">';
+        h+='<div class="mobile-item-header"><span class="mobile-item-title">'+esc(a.assignmentName||'')+'</span>'+statusBadge(a)+'</div>';
+        h+='<div class="mobile-item-meta">';
+        h+=esc(getName(sid))+' &middot; '+esc(a.courseName||'');
+        h+='<br>Due '+fmtDate(a.dueDate);
+        if(score) h+=' &middot; '+score+pct;
+        h+='</div></div>';
+    }
+    h+='</div>';
+    c.innerHTML=h;
 }
 
 // ── Settings ──
 async function loadConfig() {
     try {
-        const cfg = await apiGet('config');
-        const sts = await apiGet('status');
-        document.getElementById('cfgUrl').textContent = cfg.ic_base_url || 'Not set';
-        document.getElementById('cfgDistrict').textContent = cfg.ic_district || 'Not set';
-        document.getElementById('cfgUser').textContent = cfg.ic_username || 'Not set';
-        document.getElementById('cfgStudents').textContent = sts.authenticated
-            ? (sts.scheduler?.students_found||0)+' student(s)' : 'Not connected';
-        document.getElementById('cfgWhatsapp').textContent = cfg.whatsapp_phone
-            ? cfg.whatsapp_phone + (cfg.whatsapp_phone_2 ? ' + '+cfg.whatsapp_phone_2 : '') : 'Not configured';
-        document.getElementById('cfgEntities').textContent = (sts.ha_entities_count||0)+' sensors';
-        document.getElementById('cfgInterval').textContent = (cfg.poll_interval||900)+' seconds';
-    } catch(e) {}
-}
-
-// ── Discovery ──
-async function discoverEndpoints() {
-    const out = document.getElementById('discoverOutput');
-    const div = document.getElementById('discoverResults');
-    div.style.display = 'block';
-    out.textContent = 'Running...';
-    try {
-        const data = await (await fetch('api/discover')).json();
-        let w=[],f=[],ctx=null;
-        for (const [n,i] of Object.entries(data)) {
-            if (n==='_context'){ctx=i;continue;}
-            if (i.status===200) w.push(n+': '+i.data+(i.sample?'\n  '+i.sample.substring(0,300):''));
-            else f.push(n+': '+(i.status||'err'));
-        }
-        let t='';
-        if (ctx) t+='Students: '+JSON.stringify(ctx.student_ids)+'\n\n';
-        t+='WORKING ('+w.length+')\n'+w.join('\n\n')+'\n\nFAILED ('+f.length+')\n'+f.join('\n');
-        out.textContent=t;
-    } catch(e) { out.textContent='Error: '+e.message; }
+        const cfg=await apiGet('config'); const sts=await apiGet('status');
+        document.getElementById('cfgUrl').textContent=cfg.ic_base_url||'Not set';
+        document.getElementById('cfgDistrict').textContent=cfg.ic_district||'Not set';
+        document.getElementById('cfgUser').textContent=cfg.ic_username||'Not set';
+        document.getElementById('cfgStudents').textContent=sts.authenticated?(sts.scheduler?.students_found||0)+' student(s)':'Not connected';
+        document.getElementById('cfgWhatsapp').textContent=cfg.whatsapp_phone?cfg.whatsapp_phone+(cfg.whatsapp_phone_2?' + '+cfg.whatsapp_phone_2:''):'Not configured';
+        document.getElementById('cfgEntities').textContent=(sts.ha_entities_count||0)+' sensors';
+        document.getElementById('cfgInterval').textContent=(cfg.poll_interval||900)+' seconds';
+    } catch(e){}
 }
 
 // ── Controls ──
@@ -722,19 +1110,19 @@ async function pollNow() {
     catch(e){showAlert(e.message,'error');}
 }
 async function startService() {
-    try { const r=await apiPost('start'); showAlert(r.success?'Started!':r.error, r.success?'success':'error'); await updateStatus(); }
+    try { const r=await apiPost('start'); showAlert(r.success?'Started!':r.error,r.success?'success':'error'); await updateStatus(); }
     catch(e){showAlert(e.message,'error');}
 }
 async function stopService() {
-    try { const r=await apiPost('stop'); showAlert(r.success?'Stopped.':r.error, r.success?'success':'error'); await updateStatus(); }
+    try { const r=await apiPost('stop'); showAlert(r.success?'Stopped.':r.error,r.success?'success':'error'); await updateStatus(); }
     catch(e){showAlert(e.message,'error');}
 }
 
 // ── Init ──
 async function init() {
     await loadConfig(); await updateStatus(); await loadData();
-    setInterval(updateStatus, 30000);
-    setInterval(loadData, 60000);
+    setInterval(updateStatus,30000);
+    setInterval(loadData,60000);
 }
 init();
 </script>
