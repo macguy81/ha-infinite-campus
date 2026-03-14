@@ -39,8 +39,8 @@ class InfiniteCampusAPI:
     """
     Async client for the Infinite Campus Parent Portal.
 
-    Authenticates via the parent portal login and scrapes/fetches
-    data from the portal API endpoints.
+    Authenticates via the parent portal login and fetches data
+    using prism API endpoints and REST API endpoints.
     """
 
     def __init__(
@@ -60,10 +60,13 @@ class InfiniteCampusAPI:
         self._authenticated = False
         self._person_id: Optional[str] = None
         self._student_ids: list[str] = []
+        self._student_data: list[dict] = []
+        self._calendar_ids: list[str] = []
+        self._school_ids: list[str] = []
         self._cookies: Optional[aiohttp.CookieJar] = None
         self._auth_headers: dict[str, str] = {}
         self._last_auth: Optional[datetime] = None
-        self._api_base: Optional[str] = None
+        self._portal_outline: Optional[dict] = None
 
     async def _ensure_session(self) -> aiohttp.ClientSession:
         """Create or return the aiohttp session."""
@@ -85,29 +88,20 @@ class InfiniteCampusAPI:
     async def authenticate(self) -> bool:
         """
         Authenticate with the Infinite Campus parent portal.
-
-        Uses form-based login to establish a session, then
-        extracts necessary tokens and IDs for API calls.
         """
         session = await self._ensure_session()
 
         try:
-            # Step 1: Load the login page to get CSRF tokens and form structure
+            # Step 1: Load the login page
             login_url = f"{self.base_url}/campus/portal/parents/{self.district}.jsp"
             logger.info(f"Loading login page: {login_url}")
 
             async with session.get(login_url, allow_redirects=True) as resp:
                 if resp.status != 200:
-                    # Try alternate login URL format
-                    login_url = f"{self.base_url}/campus/portal/parents/{self.district}.jsp"
-                    async with session.get(login_url, allow_redirects=True) as resp2:
-                        if resp2.status != 200:
-                            raise AuthenticationError(
-                                f"Failed to load login page: HTTP {resp2.status}"
-                            )
-                        login_html = await resp2.text()
-                else:
-                    login_html = await resp.text()
+                    raise AuthenticationError(
+                        f"Failed to load login page: HTTP {resp.status}"
+                    )
+                login_html = await resp.text()
 
             # Step 2: Submit login credentials
             auth_url = f"{self.base_url}/campus/verify.jsp"
@@ -125,14 +119,12 @@ class InfiniteCampusAPI:
                 allow_redirects=True,
             ) as resp:
                 auth_html = await resp.text()
-                final_url = str(resp.url)
 
                 if resp.status != 200:
                     raise AuthenticationError(
                         f"Login request failed: HTTP {resp.status}"
                     )
 
-                # Check for login failure indicators
                 if any(
                     indicator in auth_html.lower()
                     for indicator in [
@@ -143,21 +135,21 @@ class InfiniteCampusAPI:
                         "authentication failed",
                     ]
                 ):
-                    raise AuthenticationError(
-                        "Invalid username or password"
-                    )
+                    raise AuthenticationError("Invalid username or password")
 
-            # Step 3: Navigate to the portal home to establish full session
+            # Step 3: Navigate to portal home
             portal_url = f"{self.base_url}/campus/portal/students/portal.html"
             async with session.get(portal_url, allow_redirects=True) as resp:
                 portal_html = await resp.text()
 
-            # Try to extract person ID and student info from the portal
-            await self._extract_session_info(session, portal_html)
+            # Step 4: Get portal outline (contains students, terms, calendars)
+            await self._fetch_portal_outline(session)
+
+            # Step 5: Get student list from API
+            await self._fetch_students(session)
 
             self._authenticated = True
             self._last_auth = datetime.now()
-            self._api_base = f"{self.base_url}/campus/api/portal"
 
             logger.info(
                 f"Authentication successful. Found {len(self._student_ids)} student(s)"
@@ -170,72 +162,67 @@ class InfiniteCampusAPI:
             logger.error(f"Authentication error: {e}")
             raise AuthenticationError(f"Authentication failed: {e}")
 
-    async def _extract_session_info(
-        self, session: aiohttp.ClientSession, html: str
-    ) -> None:
-        """Extract person ID and student IDs from portal session."""
-        # Try multiple methods to get student info
-
-        # Method 1: Check the portal API for student list
+    async def _fetch_portal_outline(self, session: aiohttp.ClientSession) -> None:
+        """Fetch the portal outline which contains calendar/term info."""
         try:
-            students_url = f"{self.base_url}/campus/api/portal/students"
-            async with session.get(students_url) as resp:
+            url = f"{self.base_url}/campus/prism?x=portal.PortalOutline&lang=en"
+            async with session.get(url) as resp:
+                if resp.status == 200:
+                    text = await resp.text()
+                    try:
+                        self._portal_outline = json.loads(text)
+                        logger.info(f"Portal outline keys: {list(self._portal_outline.keys()) if isinstance(self._portal_outline, dict) else 'not a dict'}")
+
+                        # Extract calendar IDs and school IDs
+                        if isinstance(self._portal_outline, dict):
+                            for student in self._portal_outline.get("StudentList", []):
+                                for school in student.get("SchoolList", []):
+                                    school_id = str(school.get("schoolID", ""))
+                                    if school_id and school_id not in self._school_ids:
+                                        self._school_ids.append(school_id)
+                                    for calendar in school.get("CalendarList", []):
+                                        cal_id = str(calendar.get("calendarID", ""))
+                                        if cal_id and cal_id not in self._calendar_ids:
+                                            self._calendar_ids.append(cal_id)
+
+                            logger.info(f"Found calendar IDs: {self._calendar_ids}")
+                            logger.info(f"Found school IDs: {self._school_ids}")
+                    except json.JSONDecodeError:
+                        logger.warning("Portal outline response was not JSON")
+                        logger.debug(f"Portal outline text: {text[:500]}")
+                else:
+                    logger.warning(f"Portal outline returned HTTP {resp.status}")
+        except Exception as e:
+            logger.warning(f"Failed to fetch portal outline: {e}")
+
+    async def _fetch_students(self, session: aiohttp.ClientSession) -> None:
+        """Fetch student list from API."""
+        try:
+            url = f"{self.base_url}/campus/api/portal/students"
+            async with session.get(url) as resp:
                 if resp.status == 200:
                     data = await resp.json()
                     if isinstance(data, list):
+                        self._student_data = data
                         self._student_ids = [
                             str(s.get("personID", s.get("studentID", "")))
                             for s in data
                             if s.get("personID") or s.get("studentID")
                         ]
-                        logger.info(
-                            f"Found students via API: {self._student_ids}"
-                        )
+                        logger.info(f"Found students via API: {self._student_ids}")
+                        if data:
+                            logger.info(f"Student data keys: {list(data[0].keys())}")
                         return
         except Exception as e:
             logger.debug(f"API student fetch failed: {e}")
 
-        # Method 2: Try the prism API endpoint
-        try:
-            prism_url = f"{self.base_url}/campus/prism?x=portal.PortalOutline&lang=en"
-            async with session.get(prism_url) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    students = data.get("StudentList", [])
-                    if students:
-                        self._student_ids = [
-                            str(s.get("personID", "")) for s in students
-                        ]
-                        logger.info(
-                            f"Found students via prism: {self._student_ids}"
-                        )
-                        return
-        except Exception as e:
-            logger.debug(f"Prism student fetch failed: {e}")
-
-        # Method 3: Parse HTML for student data
-        try:
-            soup = BeautifulSoup(html, "html.parser")
-            # Look for student selectors or embedded JSON
-            scripts = soup.find_all("script")
-            for script in scripts:
-                text = script.string or ""
-                # Look for student data patterns
-                patterns = [
-                    r'"personID"\s*:\s*(\d+)',
-                    r'"studentID"\s*:\s*(\d+)',
-                    r"personID=(\d+)",
-                ]
-                for pattern in patterns:
-                    matches = re.findall(pattern, text)
-                    if matches:
-                        self._student_ids = list(set(matches))
-                        logger.info(
-                            f"Found students via HTML: {self._student_ids}"
-                        )
-                        return
-        except Exception as e:
-            logger.debug(f"HTML student extraction failed: {e}")
+        # Fallback: extract from portal outline
+        if self._portal_outline and isinstance(self._portal_outline, dict):
+            students = self._portal_outline.get("StudentList", [])
+            if students:
+                self._student_ids = [str(s.get("personID", "")) for s in students]
+                logger.info(f"Found students via outline: {self._student_ids}")
+                return
 
         logger.warning("Could not extract student IDs automatically")
 
@@ -247,298 +234,465 @@ class InfiniteCampusAPI:
         ):
             await self.authenticate()
 
-    async def _api_get(
-        self, endpoint: str, params: Optional[dict] = None
-    ) -> Any:
-        """Make an authenticated GET request to the campus API."""
-        await self._ensure_authenticated()
-        session = await self._ensure_session()
-
-        url = f"{self.base_url}/campus/api/portal/{endpoint}"
-        logger.debug(f"API GET: {url}")
-
+    async def _safe_get(self, session: aiohttp.ClientSession, url: str,
+                        params: Optional[dict] = None) -> Optional[Any]:
+        """Make a GET request and return JSON or None on failure."""
         try:
             async with session.get(url, params=params) as resp:
-                if resp.status == 401:
-                    # Session expired, re-auth and retry
+                if resp.status == 200:
+                    text = await resp.text()
+                    try:
+                        return json.loads(text)
+                    except json.JSONDecodeError:
+                        return text
+                elif resp.status == 401:
                     self._authenticated = False
                     await self.authenticate()
                     async with session.get(url, params=params) as resp2:
-                        if resp2.status != 200:
-                            raise APIError(
-                                f"API request failed: HTTP {resp2.status}"
-                            )
-                        return await resp2.json()
+                        if resp2.status == 200:
+                            return await resp2.json()
+                logger.debug(f"GET {url} returned HTTP {resp.status}")
+                return None
+        except Exception as e:
+            logger.debug(f"GET {url} failed: {e}")
+            return None
 
-                if resp.status != 200:
-                    text = await resp.text()
-                    raise APIError(
-                        f"API request failed: HTTP {resp.status} - {text[:200]}"
-                    )
-                return await resp.json()
-        except (aiohttp.ClientError, json.JSONDecodeError) as e:
-            raise APIError(f"API request error: {e}")
+    # ─── Endpoint Discovery ──────────────────────────────────────
 
-    async def _prism_get(self, action: str, params: Optional[dict] = None) -> Any:
-        """Make an authenticated GET request to the campus prism API."""
+    async def discover_endpoints(self) -> dict[str, Any]:
+        """
+        Try multiple known IC API endpoint patterns and report which ones work.
+        This helps debug which endpoints are available for this district.
+        """
         await self._ensure_authenticated()
         session = await self._ensure_session()
+        results = {}
 
-        url = f"{self.base_url}/campus/prism"
-        all_params = {"x": action, "lang": "en"}
-        if params:
-            all_params.update(params)
+        sid = self._student_ids[0] if self._student_ids else ""
+        cal_id = self._calendar_ids[0] if self._calendar_ids else ""
+        school_id = self._school_ids[0] if self._school_ids else ""
 
-        logger.debug(f"Prism GET: {url} with action {action}")
+        # List of endpoints to try
+        endpoints = {
+            # REST API patterns
+            "api_students": f"{self.base_url}/campus/api/portal/students",
+            "api_student_detail": f"{self.base_url}/campus/api/portal/students/{sid}" if sid else None,
 
-        try:
-            async with session.get(url, params=all_params) as resp:
-                if resp.status == 401:
-                    self._authenticated = False
-                    await self.authenticate()
-                    async with session.get(url, params=all_params) as resp2:
-                        if resp2.status != 200:
-                            raise APIError(f"Prism request failed: HTTP {resp2.status}")
-                        return await resp2.json()
-                if resp.status != 200:
-                    text = await resp.text()
-                    raise APIError(f"Prism request failed: HTTP {resp.status} - {text[:200]}")
-                return await resp.json()
-        except (aiohttp.ClientError, json.JSONDecodeError) as e:
-            raise APIError(f"Prism request error: {e}")
+            # Prism API patterns (most universal)
+            "prism_outline": (f"{self.base_url}/campus/prism", {"x": "portal.PortalOutline", "lang": "en"}),
+            "prism_grades": (f"{self.base_url}/campus/prism", {"x": "portal.PortalGrades", "studentID": sid, "lang": "en"}) if sid else None,
+            "prism_grades_cal": (f"{self.base_url}/campus/prism", {"x": "portal.PortalGrades", "studentID": sid, "calendarID": cal_id, "lang": "en"}) if sid and cal_id else None,
+            "prism_assignments": (f"{self.base_url}/campus/prism", {"x": "portal.PortalAssignments", "studentID": sid, "lang": "en"}) if sid else None,
+            "prism_attendance": (f"{self.base_url}/campus/prism", {"x": "portal.PortalAttendance", "studentID": sid, "lang": "en"}) if sid else None,
+            "prism_schedule": (f"{self.base_url}/campus/prism", {"x": "portal.PortalSchedule", "studentID": sid, "lang": "en"}) if sid else None,
+            "prism_notifications": (f"{self.base_url}/campus/prism", {"x": "portal.PortalNotifications", "lang": "en"}),
 
-    async def _resource_get(self, path: str, params: Optional[dict] = None) -> Any:
-        """Make an authenticated GET request to campus resources."""
-        await self._ensure_authenticated()
-        session = await self._ensure_session()
+            # Resource API patterns
+            "res_grades": (f"{self.base_url}/campus/resources/portal/grades", {"studentID": sid, "schoolID": school_id, "calendarID": cal_id}) if sid else None,
+            "res_assignments": (f"{self.base_url}/campus/resources/portal/assignments", {"studentID": sid}) if sid else None,
 
-        url = f"{self.base_url}/campus/resources/{path}"
-        logger.debug(f"Resource GET: {url}")
+            # Newer API patterns
+            "api_grades": (f"{self.base_url}/campus/api/portal/grades", {"studentID": sid}) if sid else None,
+            "api_assignments": (f"{self.base_url}/campus/api/portal/assignment/student/{sid}") if sid else None,
+            "api_attendance": (f"{self.base_url}/campus/api/portal/attendance", {"studentID": sid}) if sid else None,
+            "api_schedule": (f"{self.base_url}/campus/api/portal/schedule", {"studentID": sid}) if sid else None,
+            "api_notifications": f"{self.base_url}/campus/api/portal/notifications",
+            "api_announcements": f"{self.base_url}/campus/api/portal/announcements",
 
-        try:
-            async with session.get(url, params=params) as resp:
-                if resp.status != 200:
-                    raise APIError(f"Resource request failed: HTTP {resp.status}")
-                return await resp.json()
-        except (aiohttp.ClientError, json.JSONDecodeError) as e:
-            raise APIError(f"Resource request error: {e}")
+            # Additional patterns
+            "api_displaygrades": (f"{self.base_url}/campus/api/portal/displaygrades/{sid}") if sid else None,
+            "api_gradebook": (f"{self.base_url}/campus/api/portal/gradebook/student/{sid}") if sid else None,
+        }
+
+        for name, spec in endpoints.items():
+            if spec is None:
+                results[name] = {"status": "skipped", "reason": "missing IDs"}
+                continue
+
+            if isinstance(spec, tuple):
+                url, params = spec
+            else:
+                url, params = spec, None
+
+            try:
+                async with session.get(url, params=params) as resp:
+                    status = resp.status
+                    if status == 200:
+                        text = await resp.text()
+                        try:
+                            data = json.loads(text)
+                            # Summarize the response
+                            if isinstance(data, list):
+                                summary = f"list[{len(data)}]"
+                                if data:
+                                    summary += f" keys={list(data[0].keys()) if isinstance(data[0], dict) else 'primitives'}"
+                            elif isinstance(data, dict):
+                                summary = f"dict keys={list(data.keys())}"
+                            else:
+                                summary = str(type(data).__name__)
+                            results[name] = {"status": 200, "data": summary, "sample": str(data)[:300]}
+                        except json.JSONDecodeError:
+                            results[name] = {"status": 200, "data": f"text[{len(text)}]", "sample": text[:200]}
+                    else:
+                        results[name] = {"status": status}
+            except Exception as e:
+                results[name] = {"status": "error", "error": str(e)}
+
+        return results
 
     # ─── Data Fetching Methods ──────────────────────────────────────
 
     async def get_students(self) -> list[dict]:
         """Fetch all students linked to this parent account."""
-        try:
-            data = await self._api_get("students")
-            if isinstance(data, list):
-                return data
-            return data.get("students", data.get("StudentList", []))
-        except APIError:
-            # Fallback to prism
-            try:
-                data = await self._prism_get("portal.PortalOutline")
-                return data.get("StudentList", [])
-            except Exception:
-                return []
+        await self._ensure_authenticated()
+        session = await self._ensure_session()
+
+        # Return cached student data if available
+        if self._student_data:
+            return self._student_data
+
+        # Try API endpoint
+        data = await self._safe_get(session, f"{self.base_url}/campus/api/portal/students")
+        if isinstance(data, list) and data:
+            self._student_data = data
+            return data
+
+        # Try portal outline
+        if self._portal_outline and isinstance(self._portal_outline, dict):
+            return self._portal_outline.get("StudentList", [])
+
+        return []
 
     async def get_courses(self, student_id: Optional[str] = None) -> list[dict]:
         """Fetch courses for a student or all students."""
+        await self._ensure_authenticated()
+        session = await self._ensure_session()
         all_courses = []
         student_ids = [student_id] if student_id else self._student_ids
 
         for sid in student_ids:
-            try:
-                data = await self._api_get(f"students/{sid}/courses")
-                courses = data if isinstance(data, list) else data.get("courses", [])
-                for course in courses:
-                    course["studentID"] = sid
-                all_courses.extend(courses)
-            except APIError as e:
-                logger.warning(f"Failed to fetch courses for student {sid}: {e}")
+            # Try prism PortalGrades (contains course info)
+            for cal_id in (self._calendar_ids or [""]):
+                params = {"x": "portal.PortalGrades", "studentID": sid, "lang": "en"}
+                if cal_id:
+                    params["calendarID"] = cal_id
+                data = await self._safe_get(
+                    session, f"{self.base_url}/campus/prism", params=params
+                )
+                if isinstance(data, dict):
+                    for term in data.get("TermList", data.get("terms", [])):
+                        for course in term.get("CourseList", term.get("courses", [])):
+                            course["studentID"] = sid
+                            course["termName"] = term.get("termName", "")
+                            all_courses.append(course)
+                    if all_courses:
+                        break
+                elif isinstance(data, list):
+                    for item in data:
+                        item["studentID"] = sid
+                    all_courses.extend(data)
+                    if all_courses:
+                        break
 
+            # Fallback: try REST patterns
+            if not all_courses:
+                for endpoint in [
+                    f"api/portal/displaygrades/{sid}",
+                    f"api/portal/gradebook/student/{sid}",
+                ]:
+                    data = await self._safe_get(
+                        session, f"{self.base_url}/campus/{endpoint}"
+                    )
+                    if data:
+                        courses = data if isinstance(data, list) else data.get("courses", data.get("CourseList", []))
+                        if isinstance(courses, list):
+                            for c in courses:
+                                c["studentID"] = sid
+                            all_courses.extend(courses)
+                            break
+
+        if all_courses:
+            logger.info(f"Fetched {len(all_courses)} courses")
+        else:
+            logger.warning("No courses found via any endpoint")
         return all_courses
 
-    async def get_assignments(
-        self, student_id: Optional[str] = None
-    ) -> list[dict]:
+    async def get_assignments(self, student_id: Optional[str] = None) -> list[dict]:
         """Fetch assignments for a student or all students."""
+        await self._ensure_authenticated()
+        session = await self._ensure_session()
         all_assignments = []
         student_ids = [student_id] if student_id else self._student_ids
 
         for sid in student_ids:
-            try:
-                data = await self._api_get(f"students/{sid}/assignments")
-                assignments = (
-                    data if isinstance(data, list) else data.get("assignments", [])
+            # Try prism PortalAssignments
+            for cal_id in (self._calendar_ids or [""]):
+                params = {"x": "portal.PortalAssignments", "studentID": sid, "lang": "en"}
+                if cal_id:
+                    params["calendarID"] = cal_id
+                data = await self._safe_get(
+                    session, f"{self.base_url}/campus/prism", params=params
                 )
-                for a in assignments:
-                    a["studentID"] = sid
-                all_assignments.extend(assignments)
-            except APIError as e:
-                logger.warning(
-                    f"Failed to fetch assignments for student {sid}: {e}"
-                )
+                if data and data != []:
+                    assignments = data if isinstance(data, list) else data.get("AssignmentList", data.get("assignments", []))
+                    if isinstance(assignments, list):
+                        for a in assignments:
+                            a["studentID"] = sid
+                        all_assignments.extend(assignments)
+                        break
 
+            # Try REST API
+            if not all_assignments:
+                for endpoint in [
+                    (f"api/portal/assignment/student/{sid}", None),
+                    ("api/portal/assignments", {"studentID": sid}),
+                    ("resources/portal/assignments", {"studentID": sid}),
+                ]:
+                    url_path, params = endpoint if isinstance(endpoint, tuple) else (endpoint, None)
+                    data = await self._safe_get(
+                        session, f"{self.base_url}/campus/{url_path}", params=params
+                    )
+                    if data:
+                        assignments = data if isinstance(data, list) else data.get("assignments", [])
+                        if isinstance(assignments, list) and assignments:
+                            for a in assignments:
+                                a["studentID"] = sid
+                            all_assignments.extend(assignments)
+                            break
+
+        if all_assignments:
+            logger.info(f"Fetched {len(all_assignments)} assignments")
+        else:
+            logger.warning("No assignments found via any endpoint")
         return all_assignments
 
     async def get_grades(self, student_id: Optional[str] = None) -> list[dict]:
         """Fetch grade information for a student or all students."""
+        await self._ensure_authenticated()
+        session = await self._ensure_session()
         all_grades = []
         student_ids = [student_id] if student_id else self._student_ids
 
         for sid in student_ids:
-            try:
-                # Try the grades endpoint
-                data = await self._api_get(f"students/{sid}/grades")
-                grades = data if isinstance(data, list) else data.get("grades", [])
-                for g in grades:
-                    g["studentID"] = sid
-                all_grades.extend(grades)
-            except APIError:
-                # Fallback: extract grades from assignments
-                try:
-                    data = await self._api_get(f"students/{sid}/assignments")
-                    assignments = (
-                        data
-                        if isinstance(data, list)
-                        else data.get("assignments", [])
-                    )
-                    graded = [
-                        {
-                            "studentID": sid,
-                            "assignmentName": a.get("assignmentName", ""),
-                            "courseName": a.get("courseName", ""),
-                            "score": a.get("score", ""),
-                            "totalPoints": a.get("totalPoints", ""),
-                            "percentage": a.get("percentage", ""),
-                            "letterGrade": a.get("letterGrade", ""),
-                            "date": a.get("dueDate", ""),
-                        }
-                        for a in assignments
-                        if a.get("score") is not None
-                    ]
-                    all_grades.extend(graded)
-                except APIError as e:
-                    logger.warning(f"Failed to fetch grades for student {sid}: {e}")
+            # Try prism PortalGrades (primary method)
+            for cal_id in (self._calendar_ids or [""]):
+                params = {"x": "portal.PortalGrades", "studentID": sid, "lang": "en"}
+                if cal_id:
+                    params["calendarID"] = cal_id
+                data = await self._safe_get(
+                    session, f"{self.base_url}/campus/prism", params=params
+                )
+                if isinstance(data, dict):
+                    # Parse the grade structure
+                    for term in data.get("TermList", data.get("terms", [])):
+                        term_name = term.get("termName", term.get("name", ""))
+                        for course in term.get("CourseList", term.get("courses", [])):
+                            grade_entry = {
+                                "studentID": sid,
+                                "courseName": course.get("courseName", course.get("name", "")),
+                                "courseNumber": course.get("courseNumber", ""),
+                                "teacherName": course.get("teacherDisplay", course.get("teacher", "")),
+                                "termName": term_name,
+                                "score": course.get("score", course.get("percent", "")),
+                                "grade": course.get("grade", course.get("letterGrade", "")),
+                                "calendarID": cal_id,
+                            }
+                            # Also check for TaskList within courses
+                            for task in course.get("TaskList", []):
+                                grade_entry["score"] = task.get("score", grade_entry["score"])
+                                grade_entry["grade"] = task.get("grade", grade_entry["grade"])
+                                grade_entry["percent"] = task.get("percent", "")
+                                grade_entry["taskName"] = task.get("taskName", "")
+                            all_grades.append(grade_entry)
+                    if all_grades:
+                        break
+                elif isinstance(data, list) and data:
+                    for g in data:
+                        g["studentID"] = sid
+                    all_grades.extend(data)
+                    break
 
+            # Try REST patterns
+            if not all_grades:
+                for endpoint in [
+                    f"api/portal/displaygrades/{sid}",
+                    f"api/portal/gradebook/student/{sid}",
+                ]:
+                    data = await self._safe_get(
+                        session, f"{self.base_url}/campus/{endpoint}"
+                    )
+                    if data:
+                        if isinstance(data, list):
+                            for g in data:
+                                g["studentID"] = sid
+                            all_grades.extend(data)
+                        elif isinstance(data, dict):
+                            # Try to extract grade data from dict
+                            grades = data.get("grades", data.get("GradeList", []))
+                            if isinstance(grades, list):
+                                for g in grades:
+                                    g["studentID"] = sid
+                                all_grades.extend(grades)
+                        if all_grades:
+                            break
+
+            # Try resource endpoint
+            if not all_grades:
+                for school_id in (self._school_ids or [""]):
+                    for cal_id in (self._calendar_ids or [""]):
+                        params = {"studentID": sid}
+                        if school_id:
+                            params["schoolID"] = school_id
+                        if cal_id:
+                            params["calendarID"] = cal_id
+                        data = await self._safe_get(
+                            session,
+                            f"{self.base_url}/campus/resources/portal/grades",
+                            params=params,
+                        )
+                        if data:
+                            grades = data if isinstance(data, list) else data.get("grades", [])
+                            if isinstance(grades, list) and grades:
+                                for g in grades:
+                                    g["studentID"] = sid
+                                all_grades.extend(grades)
+                                break
+
+        if all_grades:
+            logger.info(f"Fetched {len(all_grades)} grade entries")
+        else:
+            logger.warning("No grades found via any endpoint")
         return all_grades
 
-    async def get_attendance(
-        self, student_id: Optional[str] = None
-    ) -> list[dict]:
-        """Fetch attendance records for a student or all students."""
+    async def get_attendance(self, student_id: Optional[str] = None) -> list[dict]:
+        """Fetch attendance records."""
+        await self._ensure_authenticated()
+        session = await self._ensure_session()
         all_attendance = []
         student_ids = [student_id] if student_id else self._student_ids
 
         for sid in student_ids:
-            try:
-                data = await self._api_get(f"students/{sid}/attendance")
-                records = (
-                    data
-                    if isinstance(data, list)
-                    else data.get("attendance", [])
+            # Try prism PortalAttendance
+            for cal_id in (self._calendar_ids or [""]):
+                params = {"x": "portal.PortalAttendance", "studentID": sid, "lang": "en"}
+                if cal_id:
+                    params["calendarID"] = cal_id
+                data = await self._safe_get(
+                    session, f"{self.base_url}/campus/prism", params=params
                 )
-                for r in records:
-                    r["studentID"] = sid
-                all_attendance.extend(records)
-            except APIError as e:
-                logger.warning(
-                    f"Failed to fetch attendance for student {sid}: {e}"
-                )
+                if data:
+                    records = data if isinstance(data, list) else data.get("AttendanceList", data.get("attendance", []))
+                    if isinstance(records, list):
+                        for r in records:
+                            if isinstance(r, dict):
+                                r["studentID"] = sid
+                        all_attendance.extend(records)
+                        if all_attendance:
+                            break
 
+            # Try REST
+            if not all_attendance:
+                data = await self._safe_get(
+                    session,
+                    f"{self.base_url}/campus/api/portal/attendance",
+                    params={"studentID": sid},
+                )
+                if data:
+                    records = data if isinstance(data, list) else data.get("attendance", [])
+                    if isinstance(records, list):
+                        for r in records:
+                            if isinstance(r, dict):
+                                r["studentID"] = sid
+                        all_attendance.extend(records)
+
+        if all_attendance:
+            logger.info(f"Fetched {len(all_attendance)} attendance records")
         return all_attendance
 
-    async def get_schedule(
-        self, student_id: Optional[str] = None
-    ) -> list[dict]:
-        """Fetch daily schedule for a student or all students."""
+    async def get_schedule(self, student_id: Optional[str] = None) -> list[dict]:
+        """Fetch daily schedule."""
+        await self._ensure_authenticated()
+        session = await self._ensure_session()
         all_schedule = []
         student_ids = [student_id] if student_id else self._student_ids
 
         for sid in student_ids:
-            try:
-                data = await self._api_get(f"students/{sid}/schedule")
-                schedule = (
-                    data if isinstance(data, list) else data.get("schedule", [])
+            # Try prism PortalSchedule
+            for cal_id in (self._calendar_ids or [""]):
+                params = {"x": "portal.PortalSchedule", "studentID": sid, "lang": "en"}
+                if cal_id:
+                    params["calendarID"] = cal_id
+                data = await self._safe_get(
+                    session, f"{self.base_url}/campus/prism", params=params
                 )
-                for s in schedule:
-                    s["studentID"] = sid
-                all_schedule.extend(schedule)
-            except APIError as e:
-                logger.warning(
-                    f"Failed to fetch schedule for student {sid}: {e}"
-                )
+                if data:
+                    items = data if isinstance(data, list) else data.get("ScheduleList", data.get("schedule", []))
+                    if isinstance(items, list):
+                        for s in items:
+                            if isinstance(s, dict):
+                                s["studentID"] = sid
+                        all_schedule.extend(items)
+                        if all_schedule:
+                            break
 
+        if all_schedule:
+            logger.info(f"Fetched {len(all_schedule)} schedule entries")
         return all_schedule
 
     async def get_terms(self) -> list[dict]:
         """Fetch academic terms/semesters."""
-        try:
-            data = await self._api_get("terms")
-            return data if isinstance(data, list) else data.get("terms", [])
-        except APIError:
-            try:
-                data = await self._prism_get("portal.PortalOutline")
-                return data.get("TermList", [])
-            except APIError:
-                return []
+        if self._portal_outline and isinstance(self._portal_outline, dict):
+            terms = self._portal_outline.get("TermList", [])
+            if terms:
+                return terms
+
+        await self._ensure_authenticated()
+        session = await self._ensure_session()
+
+        data = await self._safe_get(
+            session,
+            f"{self.base_url}/campus/prism",
+            params={"x": "portal.PortalOutline", "lang": "en"},
+        )
+        if isinstance(data, dict):
+            return data.get("TermList", [])
+        return []
 
     async def get_notifications(self) -> list[dict]:
         """Fetch portal notifications/announcements."""
-        try:
-            data = await self._api_get("notifications")
-            return data if isinstance(data, list) else data.get("notifications", [])
-        except APIError:
-            try:
-                data = await self._api_get("announcements")
-                return (
-                    data
-                    if isinstance(data, list)
-                    else data.get("announcements", [])
-                )
-            except APIError:
-                return []
+        await self._ensure_authenticated()
+        session = await self._ensure_session()
 
-    async def get_report_cards(
-        self, student_id: Optional[str] = None
-    ) -> list[dict]:
-        """Fetch report card data for a student or all students."""
-        all_reports = []
-        student_ids = [student_id] if student_id else self._student_ids
+        # Try prism notifications
+        data = await self._safe_get(
+            session,
+            f"{self.base_url}/campus/prism",
+            params={"x": "portal.PortalNotifications", "lang": "en"},
+        )
+        if data:
+            if isinstance(data, list):
+                return data
+            if isinstance(data, dict):
+                return data.get("NotificationList", data.get("notifications", []))
 
-        for sid in student_ids:
-            try:
-                data = await self._api_get(f"students/{sid}/reportcards")
-                reports = (
-                    data
-                    if isinstance(data, list)
-                    else data.get("reportCards", [])
-                )
-                for r in reports:
-                    r["studentID"] = sid
-                all_reports.extend(reports)
-            except APIError as e:
-                logger.warning(
-                    f"Failed to fetch report cards for student {sid}: {e}"
-                )
+        # Try REST announcements
+        data = await self._safe_get(
+            session, f"{self.base_url}/campus/api/portal/announcements"
+        )
+        if data:
+            return data if isinstance(data, list) else data.get("announcements", [])
 
-        return all_reports
+        return []
+
+    async def get_report_cards(self, student_id: Optional[str] = None) -> list[dict]:
+        """Fetch report card data."""
+        # Report cards are typically part of grades data
+        return []
 
     async def get_gpa(self, student_id: Optional[str] = None) -> list[dict]:
-        """Fetch GPA information for a student or all students."""
-        all_gpa = []
-        student_ids = [student_id] if student_id else self._student_ids
-
-        for sid in student_ids:
-            try:
-                data = await self._api_get(f"students/{sid}/gpa")
-                gpa = data if isinstance(data, list) else [data]
-                for g in gpa:
-                    g["studentID"] = sid
-                all_gpa.extend(gpa)
-            except APIError as e:
-                logger.warning(f"Failed to fetch GPA for student {sid}: {e}")
-
-        return all_gpa
+        """Fetch GPA information."""
+        # GPA is typically embedded in grade data
+        return []
 
     async def get_all_data(self) -> dict[str, Any]:
         """
@@ -547,7 +701,6 @@ class InfiniteCampusAPI:
         """
         results = {}
 
-        # Fetch all data concurrently
         tasks = {
             "students": self.get_students(),
             "courses": self.get_courses(),
@@ -557,8 +710,6 @@ class InfiniteCampusAPI:
             "schedule": self.get_schedule(),
             "terms": self.get_terms(),
             "notifications": self.get_notifications(),
-            "report_cards": self.get_report_cards(),
-            "gpa": self.get_gpa(),
         }
 
         gathered = await asyncio.gather(

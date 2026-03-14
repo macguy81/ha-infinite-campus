@@ -38,6 +38,8 @@ class WhatsAppNotifier:
         self,
         phone_number: str,
         api_key: str,
+        phone_number_2: str = "",
+        api_key_2: str = "",
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
@@ -46,10 +48,24 @@ class WhatsAppNotifier:
         Args:
             phone_number: WhatsApp number with country code (e.g., +12125551234)
             api_key: CallMeBot API key
+            phone_number_2: Optional second WhatsApp number (e.g., spouse)
+            api_key_2: CallMeBot API key for second number
             session: Optional aiohttp session to reuse
         """
-        self.phone_number = self._normalize_phone(phone_number)
-        self.api_key = api_key
+        self._recipients = []
+        if phone_number and api_key:
+            self._recipients.append({
+                "phone": self._normalize_phone(phone_number),
+                "api_key": api_key,
+            })
+        if phone_number_2 and api_key_2:
+            self._recipients.append({
+                "phone": self._normalize_phone(phone_number_2),
+                "api_key": api_key_2,
+            })
+        # Keep for backward compatibility
+        self.phone_number = self._recipients[0]["phone"] if self._recipients else ""
+        self.api_key = self._recipients[0]["api_key"] if self._recipients else ""
         self._session = session
         self._owns_session = session is None
         self._last_sent: Optional[datetime] = None
@@ -83,7 +99,7 @@ class WhatsAppNotifier:
 
     async def send_message(self, message: str) -> dict:
         """
-        Send a WhatsApp message immediately.
+        Send a WhatsApp message to all configured recipients.
 
         Args:
             message: The message text to send. Supports WhatsApp formatting:
@@ -92,57 +108,60 @@ class WhatsAppNotifier:
         Returns:
             dict with status and details
         """
+        if not self._recipients:
+            return {"success": False, "error": "No WhatsApp recipients configured"}
+
         if not self._check_daily_limit():
             return {
                 "success": False,
                 "error": "Daily message limit reached (25/day)",
             }
 
-        # Rate limit: wait if we sent recently
-        if self._last_sent:
-            elapsed = (datetime.now() - self._last_sent).total_seconds()
-            if elapsed < self.MIN_INTERVAL_SECONDS:
-                await asyncio.sleep(self.MIN_INTERVAL_SECONDS - elapsed)
-
         session = await self._ensure_session()
+        results = []
 
-        # URL-encode the message
-        encoded_message = quote(message)
+        for recipient in self._recipients:
+            # Rate limit: wait if we sent recently
+            if self._last_sent:
+                elapsed = (datetime.now() - self._last_sent).total_seconds()
+                if elapsed < self.MIN_INTERVAL_SECONDS:
+                    await asyncio.sleep(self.MIN_INTERVAL_SECONDS - elapsed)
 
-        params = {
-            "phone": self.phone_number,
-            "text": message,
-            "apikey": self.api_key,
+            params = {
+                "phone": recipient["phone"],
+                "text": message,
+                "apikey": recipient["api_key"],
+            }
+
+            try:
+                async with session.get(
+                    self.CALLMEBOT_URL, params=params, timeout=aiohttp.ClientTimeout(total=30)
+                ) as resp:
+                    response_text = await resp.text()
+                    self._last_sent = datetime.now()
+                    self._daily_count += 1
+
+                    if resp.status == 200 and "queued" in response_text.lower():
+                        logger.info(f"WhatsApp sent to {recipient['phone']} ({self._daily_count}/25 today)")
+                        results.append({"phone": recipient["phone"], "success": True})
+                    else:
+                        logger.warning(
+                            f"WhatsApp send to {recipient['phone']} issue: HTTP {resp.status} - {response_text[:200]}"
+                        )
+                        results.append({"phone": recipient["phone"], "success": False, "error": response_text[:200]})
+
+            except asyncio.TimeoutError:
+                results.append({"phone": recipient["phone"], "success": False, "error": "Timeout"})
+            except aiohttp.ClientError as e:
+                results.append({"phone": recipient["phone"], "success": False, "error": str(e)})
+
+        any_success = any(r["success"] for r in results)
+        return {
+            "success": any_success,
+            "message": f"Sent to {sum(1 for r in results if r['success'])}/{len(results)} recipients",
+            "daily_count": self._daily_count,
+            "details": results,
         }
-
-        try:
-            async with session.get(
-                self.CALLMEBOT_URL, params=params, timeout=aiohttp.ClientTimeout(total=30)
-            ) as resp:
-                response_text = await resp.text()
-                self._last_sent = datetime.now()
-                self._daily_count += 1
-
-                if resp.status == 200 and "queued" in response_text.lower():
-                    logger.info(f"WhatsApp message sent successfully ({self._daily_count}/25 today)")
-                    return {
-                        "success": True,
-                        "message": "Message queued for delivery",
-                        "daily_count": self._daily_count,
-                    }
-                else:
-                    logger.warning(
-                        f"WhatsApp send issue: HTTP {resp.status} - {response_text[:200]}"
-                    )
-                    return {
-                        "success": False,
-                        "error": f"HTTP {resp.status}: {response_text[:200]}",
-                    }
-
-        except asyncio.TimeoutError:
-            return {"success": False, "error": "Request timed out"}
-        except aiohttp.ClientError as e:
-            return {"success": False, "error": f"Connection error: {e}"}
 
     async def send_queued(self, message: str) -> None:
         """Add a message to the send queue."""

@@ -1,6 +1,6 @@
 ---
 name: "Infinite Campus Monitor"
-version: "1.2.1"
+version: "1.2.2"
 slug: "infinite_campus"
 description: "Monitor your children's grades, assignments, attendance, and school notifications from Infinite Campus. Get WhatsApp alerts for changes."
 url: "https://github.com/macguy81/ha-infinite-campus"
@@ -30,6 +30,8 @@ options:
   ic_password: ""
   whatsapp_phone: ""
   whatsapp_api_key: ""
+  whatsapp_phone_2: ""
+  whatsapp_api_key_2: ""
   poll_interval: 900
   notify_grades: true
   notify_assignments: true
@@ -45,6 +47,8 @@ schema:
   ic_password: "password?"
   whatsapp_phone: "str?"
   whatsapp_api_key: "password?"
+  whatsapp_phone_2: "str?"
+  whatsapp_api_key_2: "password?"
   poll_interval: "int(300,7200)"
   notify_grades: "bool"
   notify_assignments: "bool"

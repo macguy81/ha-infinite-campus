@@ -58,9 +58,8 @@ class ICWebServer:
         self.app.router.add_get("/api/data", self.handle_data)
         self.app.router.add_get("/api/data/{category}", self.handle_data_category)
         self.app.router.add_get("/api/config", self.handle_get_config)
-        self.app.router.add_post("/api/test-connection", self.handle_test_connection)
-        self.app.router.add_post("/api/test-whatsapp", self.handle_test_whatsapp)
         self.app.router.add_post("/api/poll", self.handle_poll_now)
+        self.app.router.add_get("/api/discover", self.handle_discover)
         self.app.router.add_post("/api/start", self.handle_start)
         self.app.router.add_post("/api/stop", self.handle_stop)
         self.app.router.add_static("/static", STATIC_DIR)
@@ -126,53 +125,15 @@ class ICWebServer:
         }
         return web.json_response(safe_config)
 
-    async def handle_test_connection(self, request: web.Request) -> web.Response:
-        """Test the Infinite Campus connection using HA config."""
+    async def handle_discover(self, request: web.Request) -> web.Response:
+        """Discover which IC API endpoints work for this district."""
+        if not self.api:
+            return web.json_response({"error": "API not initialized"}, status=400)
         try:
-            test_api = InfiniteCampusAPI(
-                base_url=self.config.get("ic_base_url", ""),
-                district=self.config.get("ic_district", ""),
-                username=self.config.get("ic_username", ""),
-                password=self.config.get("ic_password", ""),
-            )
-
-            await test_api.authenticate()
-            students = await test_api.get_students()
-            await test_api.close()
-
-            return web.json_response({
-                "success": True,
-                "message": f"Connected! Found {len(students)} student(s)",
-                "students": [
-                    {
-                        "name": s.get("firstName", "") + " " + s.get("lastName", ""),
-                        "id": s.get("personID", s.get("studentID", "")),
-                    }
-                    for s in students
-                ],
-            })
+            results = await self.api.discover_endpoints()
+            return web.json_response(results, dumps=lambda x: json.dumps(x, default=str, indent=2))
         except Exception as e:
-            return web.json_response({"success": False, "error": str(e)}, status=400)
-
-    async def handle_test_whatsapp(self, request: web.Request) -> web.Response:
-        """Test the WhatsApp notification using HA config."""
-        try:
-            phone = self.config.get("whatsapp_phone", "")
-            api_key = self.config.get("whatsapp_api_key", "")
-
-            if not phone or not api_key:
-                return web.json_response({
-                    "success": False,
-                    "error": "WhatsApp not configured. Set phone and API key in the HA Configuration tab."
-                }, status=400)
-
-            test_notifier = WhatsAppNotifier(phone_number=phone, api_key=api_key)
-            result = await test_notifier.test_connection()
-            await test_notifier.close()
-
-            return web.json_response(result)
-        except Exception as e:
-            return web.json_response({"success": False, "error": str(e)}, status=400)
+            return web.json_response({"error": str(e)}, status=500)
 
     async def handle_poll_now(self, request: web.Request) -> web.Response:
         """Trigger an immediate data poll."""
@@ -222,12 +183,14 @@ class ICWebServer:
             password=config.get("ic_password", ""),
         )
 
-        # Initialize WhatsApp notifier (optional)
+        # Initialize WhatsApp notifier (optional, supports 2 numbers)
         self.notifier = None
         if config.get("whatsapp_phone") and config.get("whatsapp_api_key"):
             self.notifier = WhatsAppNotifier(
                 phone_number=config["whatsapp_phone"],
                 api_key=config["whatsapp_api_key"],
+                phone_number_2=config.get("whatsapp_phone_2", ""),
+                api_key_2=config.get("whatsapp_api_key_2", ""),
             )
 
         # Initialize scheduler

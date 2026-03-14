@@ -368,20 +368,17 @@
             </div>
 
             <div class="card">
-                <h2>&#127979; Current Configuration</h2>
+                <h2>&#127979; Connection Status</h2>
                 <table class="data-table">
                     <tbody>
                         <tr><td style="font-weight:600;width:200px">Base URL</td><td id="cfgShowUrl">-</td></tr>
                         <tr><td style="font-weight:600">District</td><td id="cfgShowDistrict">-</td></tr>
                         <tr><td style="font-weight:600">Username</td><td id="cfgShowUsername">-</td></tr>
+                        <tr><td style="font-weight:600">Students Found</td><td id="cfgShowStudents">-</td></tr>
                         <tr><td style="font-weight:600">WhatsApp</td><td id="cfgShowWhatsapp">-</td></tr>
                         <tr><td style="font-weight:600">Poll Interval</td><td id="cfgShowInterval">-</td></tr>
                     </tbody>
                 </table>
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="testConnection()">&#128268; Test IC Connection</button>
-                    <button class="btn btn-primary" onclick="testWhatsApp()">&#128172; Test WhatsApp</button>
-                </div>
             </div>
 
             <div class="card">
@@ -622,41 +619,17 @@
         async function loadConfig() {
             try {
                 currentConfig = await apiGet('config');
+                const status = await apiGet('status');
                 document.getElementById('cfgShowUrl').textContent = currentConfig.ic_base_url || 'Not set';
                 document.getElementById('cfgShowDistrict').textContent = currentConfig.ic_district || 'Not set';
                 document.getElementById('cfgShowUsername').textContent = currentConfig.ic_username || 'Not set';
+                document.getElementById('cfgShowStudents').textContent = status.authenticated
+                    ? (status.scheduler?.students_found || 0) + ' student(s) connected'
+                    : 'Not connected';
                 document.getElementById('cfgShowWhatsapp').textContent = currentConfig.whatsapp_phone || 'Not configured';
                 document.getElementById('cfgShowInterval').textContent = (currentConfig.poll_interval || 900) + ' seconds';
             } catch (e) {
                 console.error('Failed to load config:', e);
-            }
-        }
-
-        async function testConnection() {
-            showAlert('Testing connection...', 'info');
-            try {
-                const result = await apiPost('test-connection', {});
-                if (result.success) {
-                    showAlert(result.message, 'success');
-                } else {
-                    showAlert('Connection failed: ' + result.error, 'error');
-                }
-            } catch (e) {
-                showAlert('Error: ' + e.message, 'error');
-            }
-        }
-
-        async function testWhatsApp() {
-            showAlert('Sending test message...', 'info');
-            try {
-                const result = await apiPost('test-whatsapp', {});
-                if (result.success) {
-                    showAlert('Test message sent! Check your WhatsApp.', 'success');
-                } else {
-                    showAlert('WhatsApp test failed: ' + result.error, 'error');
-                }
-            } catch (e) {
-                showAlert('Error: ' + e.message, 'error');
             }
         }
 
