@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="680" viewBox="0 0 800 680">
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="700" viewBox="0 0 800 700">
   <defs>
     <filter id="shadow" x="-2%" y="-2%" width="104%" height="106%">
       <feDropShadow dx="0" dy="1" stdDeviation="3" flood-color="#000" flood-opacity="0.06"/>
@@ -8,7 +8,7 @@
     </style>
   </defs>
 
-  <rect width="800" height="680" fill="#f5f5f7" rx="12"/>
+  <rect width="800" height="700" fill="#f5f5f7" rx="12"/>
 
   <!-- Header -->
   <rect width="800" height="48" fill="rgba(255,255,255,0.85)" rx="12"/>
@@ -44,137 +44,156 @@
   <text x="150" y="190" text-anchor="middle" font-size="11" font-weight="500" fill="#1d1d1f">M3</text>
   <rect x="174" y="174" width="36" height="24" rx="12" fill="white" stroke="rgba(0,0,0,0.06)"/>
   <text x="192" y="190" text-anchor="middle" font-size="11" font-weight="500" fill="#1d1d1f">M2</text>
-  <rect x="216" y="174" width="36" height="24" rx="12" fill="white" stroke="rgba(0,0,0,0.06)"/>
-  <text x="234" y="190" text-anchor="middle" font-size="11" font-weight="500" fill="#1d1d1f">M1</text>
 
-  <!-- Student Overview Card -->
+  <!-- ═══ ROW 1: Overview + Distribution + Assignments (side by side) ═══ -->
+
+  <!-- Card 1: Overview -->
   <g transform="translate(16, 210)">
-    <rect width="374" height="100" rx="14" fill="white" filter="url(#shadow)"/>
-    <text x="18" y="26" font-size="13" font-weight="600" fill="#1d1d1f">Student Overview</text>
-    <text x="18" y="50" font-size="13" font-weight="600" fill="#1d1d1f">Alex Johnson</text>
-    <text x="330" y="50" font-size="13" font-weight="700" fill="#34c759" text-anchor="end">87.2% avg</text>
-    <rect x="18" y="56" width="338" height="8" rx="4" fill="rgba(0,0,0,0.06)"/>
-    <rect x="18" y="56" width="295" height="8" rx="4" fill="#34c759"/>
-    <text x="18" y="82" font-size="10" fill="#86868b">6 graded courses + 2 standards-based</text>
-    <text x="338" y="82" font-size="10" fill="#86868b" text-anchor="end">Low: 72.1% · High: 98.0%</text>
+    <rect width="248" height="108" rx="14" fill="white" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="13" font-weight="600" fill="#1d1d1f">Overview</text>
+    <!-- Alex -->
+    <text x="16" y="48" font-size="12" font-weight="600" fill="#1d1d1f">Alex Johnson</text>
+    <text x="220" y="48" font-size="12" font-weight="700" fill="#34c759" text-anchor="end">87.2%</text>
+    <rect x="16" y="54" width="216" height="6" rx="3" fill="rgba(0,0,0,0.06)"/>
+    <rect x="16" y="54" width="188" height="6" rx="3" fill="#34c759"/>
+    <text x="16" y="72" font-size="9" fill="#86868b">6 courses + 2 standards · 72%–98%</text>
+    <!-- Maya -->
+    <text x="16" y="90" font-size="12" font-weight="600" fill="#1d1d1f">Maya Johnson</text>
+    <text x="220" y="90" font-size="12" font-weight="700" fill="#0071e3" text-anchor="end">82.5%</text>
+    <rect x="16" y="96" width="216" height="6" rx="3" fill="rgba(0,0,0,0.06)"/>
+    <rect x="16" y="96" width="178" height="6" rx="3" fill="#0071e3"/>
   </g>
 
-  <!-- Grade Distribution Card -->
-  <g transform="translate(402, 210)">
-    <rect width="382" height="100" rx="14" fill="white" filter="url(#shadow)"/>
-    <text x="18" y="26" font-size="13" font-weight="600" fill="#1d1d1f">Grade Distribution</text>
-    <!-- Donut -->
-    <circle cx="70" cy="64" r="24" fill="none" stroke="#34c759" stroke-width="10" stroke-dasharray="100.5 50.3" stroke-dashoffset="0" transform="rotate(-90 70 64)"/>
-    <circle cx="70" cy="64" r="24" fill="none" stroke="#0071e3" stroke-width="10" stroke-dasharray="37.7 113.1" stroke-dashoffset="-100.5" transform="rotate(-90 70 64)"/>
-    <circle cx="70" cy="64" r="24" fill="none" stroke="#ff9500" stroke-width="10" stroke-dasharray="12.6 138.2" stroke-dashoffset="-138.2" transform="rotate(-90 70 64)"/>
-    <!-- Legend -->
-    <rect x="120" y="40" width="24" height="16" rx="5" fill="rgba(52,199,89,0.12)"/>
-    <text x="132" y="52" text-anchor="middle" font-size="10" font-weight="700" fill="#248a3d">A</text>
-    <text x="150" y="52" font-size="12" fill="#1d1d1f">4</text>
-    <rect x="120" y="60" width="24" height="16" rx="5" fill="rgba(0,113,227,0.1)"/>
-    <text x="132" y="72" text-anchor="middle" font-size="10" font-weight="700" fill="#0071e3">B</text>
-    <text x="150" y="72" font-size="12" fill="#1d1d1f">2</text>
-    <rect x="120" y="80" width="24" height="16" rx="5" fill="rgba(255,149,0,0.12)"/>
-    <text x="132" y="92" text-anchor="middle" font-size="10" font-weight="700" fill="#c93400">C</text>
-    <text x="150" y="92" font-size="12" fill="#1d1d1f">1</text>
-    <!-- Standards -->
-    <line x1="190" y1="40" x2="190" y2="96" stroke="rgba(0,0,0,0.06)"/>
-    <text x="200" y="48" font-size="8" font-weight="600" fill="#86868b" letter-spacing="0.4">STANDARDS</text>
-    <rect x="200" y="56" width="24" height="16" rx="5" fill="rgba(52,199,89,0.12)"/>
-    <text x="212" y="68" text-anchor="middle" font-size="10" font-weight="700" fill="#248a3d">G</text>
-    <text x="230" y="68" font-size="12" fill="#1d1d1f">8</text>
-    <rect x="200" y="76" width="28" height="16" rx="5" fill="rgba(255,149,0,0.12)"/>
-    <text x="214" y="88" text-anchor="middle" font-size="10" font-weight="700" fill="#c93400">NY</text>
-    <text x="234" y="88" font-size="12" fill="#1d1d1f">1</text>
+  <!-- Card 2: Distribution -->
+  <g transform="translate(276, 210)">
+    <rect width="248" height="108" rx="14" fill="white" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="13" font-weight="600" fill="#1d1d1f">Distribution</text>
+    <!-- Donut chart -->
+    <circle cx="60" cy="68" r="22" fill="none" stroke="#34c759" stroke-width="9" stroke-dasharray="92 46" stroke-dashoffset="0" transform="rotate(-90 60 68)"/>
+    <circle cx="60" cy="68" r="22" fill="none" stroke="#0071e3" stroke-width="9" stroke-dasharray="34.5 103.7" stroke-dashoffset="-92" transform="rotate(-90 60 68)"/>
+    <circle cx="60" cy="68" r="22" fill="none" stroke="#ff9500" stroke-width="9" stroke-dasharray="11.5 126.7" stroke-dashoffset="-126.5" transform="rotate(-90 60 68)"/>
+    <!-- Letter badges -->
+    <rect x="100" y="38" width="22" height="16" rx="5" fill="rgba(52,199,89,0.12)"/>
+    <text x="111" y="50" text-anchor="middle" font-size="10" font-weight="700" fill="#248a3d">A</text>
+    <text x="128" y="50" font-size="11" fill="#1d1d1f">5</text>
+    <rect x="148" y="38" width="22" height="16" rx="5" fill="rgba(0,113,227,0.1)"/>
+    <text x="159" y="50" text-anchor="middle" font-size="10" font-weight="700" fill="#0071e3">B</text>
+    <text x="176" y="50" font-size="11" fill="#1d1d1f">3</text>
+    <rect x="196" y="38" width="22" height="16" rx="5" fill="rgba(255,149,0,0.12)"/>
+    <text x="207" y="50" text-anchor="middle" font-size="10" font-weight="700" fill="#c93400">C</text>
+    <text x="224" y="50" font-size="11" fill="#1d1d1f">1</text>
+    <!-- Standards marks -->
+    <text x="100" y="72" font-size="8" font-weight="600" fill="#86868b" letter-spacing="0.3">STANDARDS</text>
+    <rect x="100" y="78" width="22" height="16" rx="5" fill="rgba(52,199,89,0.12)"/>
+    <text x="111" y="90" text-anchor="middle" font-size="10" font-weight="700" fill="#248a3d">G</text>
+    <text x="128" y="90" font-size="11" fill="#1d1d1f">8</text>
+    <rect x="148" y="78" width="26" height="16" rx="5" fill="rgba(255,149,0,0.12)"/>
+    <text x="161" y="90" text-anchor="middle" font-size="10" font-weight="700" fill="#c93400">NY</text>
+    <text x="180" y="90" font-size="11" fill="#1d1d1f">1</text>
   </g>
 
-  <!-- Term Progression Card -->
-  <g transform="translate(16, 322)">
-    <rect width="768" height="140" rx="14" fill="white" filter="url(#shadow)"/>
-    <text x="18" y="26" font-size="13" font-weight="600" fill="#1d1d1f">Grade Trend by Term</text>
-    <text x="18" y="42" font-size="10" fill="#86868b">How grades change across marking periods</text>
-
-    <!-- ELA 7 -->
-    <text x="18" y="66" font-size="12" font-weight="600" fill="#1d1d1f">ELA 7</text>
-    <text x="18" y="80" font-size="10" fill="#86868b">Alex</text>
-    <g transform="translate(120, 55)">
-      <g>
-        <text x="12" y="0" text-anchor="middle" font-size="9" font-weight="600" fill="#0071e3">82%</text>
-        <rect x="0" y="4" width="24" height="18" rx="3" fill="#0071e3"/>
-        <text x="12" y="30" text-anchor="middle" font-size="8" fill="#86868b">M1</text>
-      </g>
-      <g transform="translate(36, 0)">
-        <text x="12" y="0" text-anchor="middle" font-size="9" font-weight="600" fill="#34c759">91%</text>
-        <rect x="0" y="4" width="24" height="24" rx="3" fill="#34c759"/>
-        <text x="12" y="36" text-anchor="middle" font-size="8" fill="#86868b">M2</text>
-      </g>
-      <g transform="translate(72, 0)">
-        <text x="12" y="0" text-anchor="middle" font-size="9" font-weight="600" fill="#0071e3">88%</text>
-        <rect x="0" y="4" width="24" height="22" rx="3" fill="#0071e3"/>
-        <text x="12" y="34" text-anchor="middle" font-size="8" fill="#86868b">M3</text>
-      </g>
-      <g transform="translate(108, 0)">
-        <text x="12" y="0" text-anchor="middle" font-size="9" font-weight="600" fill="#34c759">93%</text>
-        <rect x="0" y="4" width="24" height="26" rx="3" fill="#34c759"/>
-        <text x="12" y="38" text-anchor="middle" font-size="8" fill="#86868b">M4</text>
-      </g>
-    </g>
-
-    <!-- 7/8 Math (standards-based) -->
-    <text x="400" y="66" font-size="12" font-weight="600" fill="#1d1d1f">7/8 Math</text>
-    <text x="400" y="80" font-size="10" fill="#86868b">Alex (standards-based)</text>
-    <g transform="translate(530, 57)">
-      <text x="14" y="-4" text-anchor="middle" font-size="8" fill="#86868b">M1</text>
-      <rect x="0" y="2" width="28" height="18" rx="5" fill="rgba(52,199,89,0.12)"/>
-      <text x="14" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="#248a3d">G</text>
-    </g>
-    <g transform="translate(570, 57)">
-      <text x="14" y="-4" text-anchor="middle" font-size="8" fill="#86868b">M2</text>
-      <rect x="0" y="2" width="28" height="18" rx="5" fill="rgba(52,199,89,0.12)"/>
-      <text x="14" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="#248a3d">G</text>
-    </g>
-    <g transform="translate(610, 57)">
-      <text x="14" y="-4" text-anchor="middle" font-size="8" fill="#86868b">M3</text>
-      <rect x="0" y="2" width="28" height="18" rx="5" fill="rgba(255,149,0,0.12)"/>
-      <text x="14" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="#c93400">NY</text>
-    </g>
-    <g transform="translate(650, 57)">
-      <text x="14" y="-4" text-anchor="middle" font-size="8" fill="#86868b">M4</text>
-      <rect x="0" y="2" width="28" height="18" rx="5" fill="rgba(52,199,89,0.12)"/>
-      <text x="14" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="#248a3d">G</text>
-    </g>
-
-    <!-- History 7 -->
-    <text x="18" y="118" font-size="12" font-weight="600" fill="#1d1d1f">Am History 7</text>
-    <text x="18" y="132" font-size="10" fill="#86868b">Alex</text>
-    <g transform="translate(120, 108)">
-      <g>
-        <text x="12" y="0" text-anchor="middle" font-size="9" font-weight="600" fill="#ff9500">75%</text>
-        <rect x="0" y="4" width="24" height="14" rx="3" fill="#ff9500"/>
-        <text x="12" y="26" text-anchor="middle" font-size="8" fill="#86868b">M1</text>
-      </g>
-      <g transform="translate(36, 0)">
-        <text x="12" y="0" text-anchor="middle" font-size="9" font-weight="600" fill="#0071e3">81%</text>
-        <rect x="0" y="4" width="24" height="18" rx="3" fill="#0071e3"/>
-        <text x="12" y="30" text-anchor="middle" font-size="8" fill="#86868b">M2</text>
-      </g>
-      <g transform="translate(72, 0)">
-        <text x="12" y="0" text-anchor="middle" font-size="9" font-weight="600" fill="#0071e3">85%</text>
-        <rect x="0" y="4" width="24" height="20" rx="3" fill="#0071e3"/>
-        <text x="12" y="32" text-anchor="middle" font-size="8" fill="#86868b">M3</text>
-      </g>
-      <g transform="translate(108, 0)">
-        <text x="12" y="0" text-anchor="middle" font-size="9" font-weight="600" fill="#0071e3">88%</text>
-        <rect x="0" y="4" width="24" height="22" rx="3" fill="#0071e3"/>
-        <text x="12" y="34" text-anchor="middle" font-size="8" fill="#86868b">M4</text>
-      </g>
-    </g>
+  <!-- Card 3: Assignments -->
+  <g transform="translate(536, 210)">
+    <rect width="248" height="108" rx="14" fill="white" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="13" font-weight="600" fill="#1d1d1f">Assignments</text>
+    <!-- Alex donut -->
+    <text x="16" y="46" font-size="11" font-weight="600" fill="#1d1d1f">Alex</text>
+    <circle cx="40" cy="72" r="16" fill="none" stroke="#34c759" stroke-width="7" stroke-dasharray="75 25" stroke-dashoffset="0" transform="rotate(-90 40 72)"/>
+    <circle cx="40" cy="72" r="16" fill="none" stroke="#ddd" stroke-width="7" stroke-dasharray="15 85" stroke-dashoffset="-75" transform="rotate(-90 40 72)"/>
+    <circle cx="40" cy="72" r="16" fill="none" stroke="#ff3b30" stroke-width="7" stroke-dasharray="10 90" stroke-dashoffset="-90" transform="rotate(-90 40 72)"/>
+    <text x="72" y="64" font-size="10" fill="#1d1d1f"><tspan font-weight="600" fill="#34c759">38</tspan> graded</text>
+    <text x="72" y="78" font-size="10" fill="#1d1d1f"><tspan font-weight="600">6</tspan> pending · <tspan font-weight="600" fill="#ff3b30">1</tspan> missing</text>
+    <!-- Maya donut -->
+    <text x="140" y="46" font-size="11" font-weight="600" fill="#1d1d1f">Maya</text>
+    <circle cx="164" cy="72" r="16" fill="none" stroke="#34c759" stroke-width="7" stroke-dasharray="68 32" stroke-dashoffset="0" transform="rotate(-90 164 72)"/>
+    <circle cx="164" cy="72" r="16" fill="none" stroke="#ddd" stroke-width="7" stroke-dasharray="18 82" stroke-dashoffset="-68" transform="rotate(-90 164 72)"/>
+    <circle cx="164" cy="72" r="16" fill="none" stroke="#ff9500" stroke-width="7" stroke-dasharray="8 92" stroke-dashoffset="-86" transform="rotate(-90 164 72)"/>
+    <circle cx="164" cy="72" r="16" fill="none" stroke="#ff3b30" stroke-width="7" stroke-dasharray="6 94" stroke-dashoffset="-94" transform="rotate(-90 164 72)"/>
+    <text x="196" y="64" font-size="10" fill="#1d1d1f"><tspan font-weight="600" fill="#34c759">32</tspan> graded</text>
+    <text x="196" y="78" font-size="10" fill="#1d1d1f"><tspan font-weight="600" fill="#ff9500">2</tspan> late · <tspan font-weight="600" fill="#ff3b30">1</tspan> miss</text>
   </g>
 
-  <!-- Expandable Course Cards -->
-  <g transform="translate(16, 474)">
-    <!-- Card 1: ELA 7 (expanded) -->
-    <rect width="768" height="188" rx="14" fill="white" filter="url(#shadow)"/>
+  <!-- ═══ ROW 2: Grade Trend Table ═══ -->
+  <g transform="translate(16, 332)">
+    <rect width="768" height="186" rx="14" fill="white" filter="url(#shadow)"/>
+    <text x="16" y="26" font-size="13" font-weight="600" fill="#1d1d1f">Grade Trend by Term</text>
+
+    <!-- Table header -->
+    <text x="16" y="50" font-size="10" font-weight="600" fill="#86868b">Course</text>
+    <text x="190" y="50" font-size="10" font-weight="600" fill="#86868b" text-anchor="middle">Student</text>
+    <text x="280" y="50" font-size="10" font-weight="600" fill="#86868b" text-anchor="middle">M1</text>
+    <text x="370" y="50" font-size="10" font-weight="600" fill="#86868b" text-anchor="middle">M2</text>
+    <text x="460" y="50" font-size="10" font-weight="600" fill="#86868b" text-anchor="middle">M3</text>
+    <text x="550" y="50" font-size="10" font-weight="600" fill="#86868b" text-anchor="middle">M4</text>
+    <text x="650" y="50" font-size="10" font-weight="600" fill="#86868b" text-anchor="middle">Trend</text>
+    <line x1="16" y1="56" x2="752" y2="56" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+
+    <!-- Row 1: ELA 7 - Alex -->
+    <text x="16" y="76" font-size="12" font-weight="500" fill="#1d1d1f">ELA 7</text>
+    <text x="190" y="76" font-size="11" fill="#86868b" text-anchor="middle">Alex</text>
+    <!-- M1: 82% -->
+    <rect x="254" y="63" width="52" height="20" rx="6" fill="rgba(0,113,227,0.08)"/>
+    <text x="280" y="77" text-anchor="middle" font-size="11" font-weight="600" fill="#0071e3">82%</text>
+    <!-- M2: 91% -->
+    <rect x="344" y="63" width="52" height="20" rx="6" fill="rgba(52,199,89,0.08)"/>
+    <text x="370" y="77" text-anchor="middle" font-size="11" font-weight="600" fill="#34c759">91%</text>
+    <!-- M3: 88% -->
+    <rect x="434" y="63" width="52" height="20" rx="6" fill="rgba(0,113,227,0.08)"/>
+    <text x="460" y="77" text-anchor="middle" font-size="11" font-weight="600" fill="#0071e3">88%</text>
+    <!-- M4: 93% -->
+    <rect x="524" y="63" width="52" height="20" rx="6" fill="rgba(52,199,89,0.08)"/>
+    <text x="550" y="77" text-anchor="middle" font-size="11" font-weight="600" fill="#34c759">93%</text>
+    <!-- Trend: +11 -->
+    <text x="650" y="77" text-anchor="middle" font-size="12" font-weight="600" fill="#34c759">&#9650; +11</text>
+    <line x1="16" y1="86" x2="752" y2="86" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+
+    <!-- Row 2: Am History 7 - Alex -->
+    <text x="16" y="106" font-size="12" font-weight="500" fill="#1d1d1f">Am History 7</text>
+    <text x="190" y="106" font-size="11" fill="#86868b" text-anchor="middle">Alex</text>
+    <rect x="254" y="93" width="52" height="20" rx="6" fill="rgba(255,149,0,0.08)"/>
+    <text x="280" y="107" text-anchor="middle" font-size="11" font-weight="600" fill="#c93400">75%</text>
+    <rect x="344" y="93" width="52" height="20" rx="6" fill="rgba(0,113,227,0.08)"/>
+    <text x="370" y="107" text-anchor="middle" font-size="11" font-weight="600" fill="#0071e3">81%</text>
+    <rect x="434" y="93" width="52" height="20" rx="6" fill="rgba(0,113,227,0.08)"/>
+    <text x="460" y="107" text-anchor="middle" font-size="11" font-weight="600" fill="#0071e3">85%</text>
+    <rect x="524" y="93" width="52" height="20" rx="6" fill="rgba(0,113,227,0.08)"/>
+    <text x="550" y="107" text-anchor="middle" font-size="11" font-weight="600" fill="#0071e3">88%</text>
+    <text x="650" y="107" text-anchor="middle" font-size="12" font-weight="600" fill="#34c759">&#9650; +13</text>
+    <line x1="16" y1="116" x2="752" y2="116" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+
+    <!-- Row 3: 7/8 Math - Alex (standards-based) -->
+    <text x="16" y="136" font-size="12" font-weight="500" fill="#1d1d1f">7/8 Math</text>
+    <text x="190" y="136" font-size="11" fill="#86868b" text-anchor="middle">Alex</text>
+    <!-- G marks -->
+    <rect x="264" y="123" width="32" height="20" rx="6" fill="rgba(52,199,89,0.12)"/>
+    <text x="280" y="137" text-anchor="middle" font-size="11" font-weight="700" fill="#248a3d">G</text>
+    <rect x="354" y="123" width="32" height="20" rx="6" fill="rgba(52,199,89,0.12)"/>
+    <text x="370" y="137" text-anchor="middle" font-size="11" font-weight="700" fill="#248a3d">G</text>
+    <!-- NY mark -->
+    <rect x="441" y="123" width="38" height="20" rx="6" fill="rgba(255,149,0,0.12)"/>
+    <text x="460" y="137" text-anchor="middle" font-size="11" font-weight="700" fill="#c93400">NY</text>
+    <rect x="534" y="123" width="32" height="20" rx="6" fill="rgba(52,199,89,0.12)"/>
+    <text x="550" y="137" text-anchor="middle" font-size="11" font-weight="700" fill="#248a3d">G</text>
+    <text x="650" y="137" text-anchor="middle" font-size="12" fill="#86868b">&#8212;</text>
+    <line x1="16" y1="146" x2="752" y2="146" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+
+    <!-- Row 4: Science 5 - Maya -->
+    <text x="16" y="166" font-size="12" font-weight="500" fill="#1d1d1f">Science 5</text>
+    <text x="190" y="166" font-size="11" fill="#86868b" text-anchor="middle">Maya</text>
+    <rect x="254" y="153" width="52" height="20" rx="6" fill="rgba(0,113,227,0.08)"/>
+    <text x="280" y="167" text-anchor="middle" font-size="11" font-weight="600" fill="#0071e3">80%</text>
+    <rect x="344" y="153" width="52" height="20" rx="6" fill="rgba(0,113,227,0.08)"/>
+    <text x="370" y="167" text-anchor="middle" font-size="11" font-weight="600" fill="#0071e3">83%</text>
+    <rect x="434" y="153" width="52" height="20" rx="6" fill="rgba(0,113,227,0.08)"/>
+    <text x="460" y="167" text-anchor="middle" font-size="11" font-weight="600" fill="#0071e3">79%</text>
+    <rect x="524" y="153" width="52" height="20" rx="6" fill="rgba(0,113,227,0.08)"/>
+    <text x="550" y="167" text-anchor="middle" font-size="11" font-weight="600" fill="#0071e3">86%</text>
+    <text x="650" y="167" text-anchor="middle" font-size="12" font-weight="600" fill="#34c759">&#9650; +6</text>
+  </g>
+
+  <!-- ═══ ROW 3: Expandable Course Card (ELA 7 expanded) ═══ -->
+  <g transform="translate(16, 532)">
+    <rect width="768" height="156" rx="14" fill="white" filter="url(#shadow)"/>
     <text x="18" y="26" font-size="14" font-weight="600" fill="#1d1d1f">ELA 7</text>
     <text x="18" y="42" font-size="11" fill="#86868b">Alex · Ms. Thompson · M4</text>
     <rect x="660" y="12" width="36" height="20" rx="6" fill="rgba(52,199,89,0.12)"/>
@@ -184,7 +203,7 @@
     <line x1="0" y1="52" x2="768" y2="52" stroke="rgba(0,0,0,0.06)"/>
 
     <!-- Assessments -->
-    <text x="18" y="70" font-size="9" font-weight="600" fill="#86868b" letter-spacing="0.4">ASSESSMENTS (6)</text>
+    <text x="18" y="70" font-size="9" font-weight="600" fill="#86868b" letter-spacing="0.4">ASSESSMENTS (4)</text>
     <text x="18" y="92" font-size="12" fill="#1d1d1f">Chapter 5 Quiz</text>
     <text x="420" y="92" font-size="10" fill="#86868b">Mar 12</text>
     <text x="520" y="92" font-size="12" font-weight="600" fill="#1d1d1f" text-anchor="end">45/50 (90%)</text>
@@ -198,12 +217,5 @@
     <text x="18" y="144" font-size="12" fill="#1d1d1f">Persuasive Essay</text>
     <text x="420" y="144" font-size="10" fill="#86868b">Mar 5</text>
     <text x="520" y="144" font-size="12" font-weight="600" fill="#1d1d1f" text-anchor="end">92/100 (92%)</text>
-    <line x1="18" y1="152" x2="748" y2="152" stroke="rgba(0,0,0,0.03)"/>
-
-    <text x="18" y="170" font-size="12" fill="#1d1d1f">Reading Response Ch 4</text>
-    <rect x="186" y="159" width="56" height="16" rx="8" fill="rgba(52,199,89,0.1)"/>
-    <text x="214" y="171" text-anchor="middle" font-size="9" font-weight="600" fill="#248a3d">Turned In</text>
-    <text x="420" y="170" font-size="10" fill="#86868b">Mar 14</text>
-    <text x="520" y="170" font-size="12" font-weight="600" fill="#86868b" text-anchor="end">-</text>
   </g>
 </svg>
