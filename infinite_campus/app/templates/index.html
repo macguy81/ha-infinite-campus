@@ -222,7 +222,32 @@
         .pct-text { font-size: 0.78rem; font-weight: 600; min-width: 44px; text-align: right; }
 
         .insights-grid {
-            display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px;
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;
+        }
+        .insights-row {
+            display: flex; gap: 12px;
+        }
+        .insights-row > .card { flex: 1; min-width: 0; margin-bottom: 0; }
+
+        /* Compact grade table */
+        .grade-grid {
+            width: 100%; border-collapse: collapse; font-size: 0.82rem;
+        }
+        .grade-grid th {
+            text-align: center; padding: 6px 8px; font-size: 0.68rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        .grade-grid th:first-child { text-align: left; }
+        .grade-grid td {
+            padding: 7px 8px; border-bottom: 0.5px solid var(--border);
+            text-align: center; white-space: nowrap;
+        }
+        .grade-grid td:first-child { text-align: left; font-weight: 500; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+        .grade-grid tr:last-child td { border-bottom: none; }
+        .grade-grid .trend-cell {
+            display: inline-block; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.78rem;
+            min-width: 44px;
         }
 
         /* ── Course Card (expandable) ── */
@@ -251,18 +276,6 @@
             padding: 12px 16px; background: rgba(0,0,0,0.01);
         }
         .course-card.open .course-card-body { display: block; }
-
-        /* ── Term progression mini bar ── */
-        .term-progression {
-            display: flex; gap: 4px; align-items: flex-end; height: 36px; margin-top: 6px;
-        }
-        .term-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
-        .term-bar {
-            width: 100%; border-radius: 3px 3px 0 0; min-height: 4px;
-            transition: height 0.3s;
-        }
-        .term-bar-label { font-size: 0.6rem; color: var(--text-secondary); font-weight: 500; }
-        .term-bar-val { font-size: 0.65rem; font-weight: 600; }
 
         /* ── Assessment item ── */
         .assess-item {
@@ -308,7 +321,6 @@
             .card { padding: 20px; margin-bottom: 16px; }
             .card h2 { font-size: 0.95rem; margin-bottom: 16px; }
             .tab { font-size: 0.82rem; padding: 8px 12px; }
-            .insights-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
             .desktop-table { display: table; }
             .mobile-list { display: none !important; }
         }
@@ -318,6 +330,9 @@
             .progress-bar { max-width: 80px; }
             .filter-bar { flex-wrap: nowrap; overflow-x: auto; }
             .student-tab { padding: 10px 16px; font-size: 0.84rem; }
+            .insights-row { flex-direction: column; }
+            .grade-grid { font-size: 0.78rem; }
+            .grade-grid td, .grade-grid th { padding: 5px 4px; }
         }
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -744,7 +759,7 @@ function renderGrades() {
 function renderGradeInsights(filtered, allGrades, assignments) {
     let h='<div class="insights-grid">';
 
-    // ═══ 1. Student Overview with overall avg ═══
+    // ═══ Compute stats ═══
     const studentStats={};
     filtered.forEach(g=>{
         const sid=g.studentID||'';
@@ -758,148 +773,17 @@ function renderGradeInsights(filtered, allGrades, assignments) {
             studentStats[sid].standards++;
         }
     });
-    const studentArr=Object.values(studentStats).filter(s=>s.count>0||s.standards>0);
-    if(studentArr.length>0) {
-        h+='<div class="card">';
-        h+='<h2>Student Overview</h2>';
-        for(const s of studentArr) {
-            const avg=s.count?s.sum/s.count:0;
-            const clr=s.count?progressColor(avg):'var(--text-secondary)';
-            h+='<div style="margin-bottom:14px">';
-            h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
-            h+='<span style="font-weight:600;font-size:0.88rem">'+esc(s.name)+'</span>';
-            if(s.count) h+='<span style="font-weight:700;color:'+clr+';font-size:0.88rem">'+avg.toFixed(1)+'% avg</span>';
-            h+='</div>';
-            if(s.count) {
-                h+='<div class="progress-bar" style="max-width:none"><div class="progress-fill" style="width:'+Math.min(avg,100)+'%;background:'+clr+'"></div></div>';
-                h+='<div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-secondary);margin-top:3px">';
-                h+='<span>'+s.count+' graded courses'+(s.standards?' + '+s.standards+' standards-based':'')+'</span>';
-                h+='<span>Low: '+s.low.toFixed(1)+'% &middot; High: '+s.high.toFixed(1)+'%</span>';
-                h+='</div>';
-            } else {
-                h+='<div style="font-size:0.78rem;color:var(--text-secondary)">'+s.standards+' standards-based courses (no percentage grades)</div>';
-            }
-            h+='</div>';
-        }
-        h+='</div>';
-    }
 
-    // ═══ 2. Term-over-Term Progression (per course across terms) ═══
-    // Group grades by student+course across ALL terms (not just filtered)
-    const progression = {};
-    const allTermNames = new Set();
-    allGrades.forEach(g => {
-        if(gradesSid && String(g.studentID||'')!==gradesSid) return;
-        const key = (g.studentID||'')+'|'+(g.courseName||'');
-        if(!progression[key]) progression[key] = { name: g.courseName||'', student: g.studentID||'', terms: {} };
-        const tn = g.termName||'';
-        if(tn) allTermNames.add(tn);
-        const pct = getPct(g);
-        const score = getScore(g);
-        progression[key].terms[tn] = { pct, score, isStd: isStandardsBased(g) };
-    });
-    const termOrder = [...allTermNames].sort(); // M1, M2, M3, M4
-    const progArr = Object.values(progression).filter(p => {
-        const termCount = Object.keys(p.terms).length;
-        return termCount > 1;
-    });
-
-    if(progArr.length > 0 && termOrder.length > 1) {
-        h += '<div class="card">';
-        h += '<h2>Grade Trend by Term</h2>';
-        h += '<div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:10px">How grades change across marking periods</div>';
-        for(const p of progArr) {
-            const hasNumeric = termOrder.some(t => p.terms[t] && !isNaN(p.terms[t].pct));
-            h += '<div style="margin-bottom:16px">';
-            h += '<div style="font-weight:600;font-size:0.84rem;margin-bottom:2px">'+esc(p.name)+'</div>';
-            if(gradesSid==='') h += '<div style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:4px">'+esc(getFirst(p.student))+'</div>';
-
-            if(hasNumeric) {
-                // Show mini bar chart for numeric grades
-                h += '<div class="term-progression">';
-                for(const tn of termOrder) {
-                    const td = p.terms[tn];
-                    if(!td) {
-                        h += '<div class="term-bar-wrap"><div class="term-bar" style="height:4px;background:var(--border)"></div><div class="term-bar-label">'+esc(tn)+'</div></div>';
-                        continue;
-                    }
-                    const pct = td.pct;
-                    if(!isNaN(pct)) {
-                        const barH = Math.max(4, pct/100*32);
-                        const clr = progressColor(pct);
-                        h += '<div class="term-bar-wrap"><div class="term-bar-val" style="color:'+clr+'">'+pct.toFixed(0)+'%</div><div class="term-bar" style="height:'+barH+'px;background:'+clr+'"></div><div class="term-bar-label">'+esc(tn)+'</div></div>';
-                    } else {
-                        h += '<div class="term-bar-wrap"><div class="term-bar-val">'+esc(td.score)+'</div><div class="term-bar" style="height:16px;background:'+markColor(td.score)+'40"></div><div class="term-bar-label">'+esc(tn)+'</div></div>';
-                    }
-                }
-                h += '</div>';
-            } else {
-                // Standards-based: show marks in a row
-                h += '<div style="display:flex;gap:8px;margin-top:4px">';
-                for(const tn of termOrder) {
-                    const td = p.terms[tn];
-                    h += '<div style="text-align:center">';
-                    h += '<div style="font-size:0.68rem;color:var(--text-secondary)">'+esc(tn)+'</div>';
-                    h += (td ? markChip(td.score) : '<span style="color:var(--text-secondary);font-size:0.75rem">-</span>');
-                    h += '</div>';
-                }
-                h += '</div>';
-            }
-            h += '</div>';
-        }
-        h += '</div>';
-    }
-
-    // ═══ 3. Grade Distribution (donut) ═══
     const dist={A:0,B:0,C:0,D:0,F:0};
     const stdDist={};
     filtered.forEach(g=>{
         const p=getPct(g);
-        if(!isNaN(p)) {
-            const l=letterGrade(p); const k=l[0];
-            if(dist[k]!==undefined) dist[k]++;
-        } else {
-            const score=getScore(g).toUpperCase().trim();
-            if(score) stdDist[score]=(stdDist[score]||0)+1;
-        }
+        if(!isNaN(p)) { const l=letterGrade(p); const k=l[0]; if(dist[k]!==undefined) dist[k]++; }
+        else { const s=getScore(g).toUpperCase().trim(); if(s) stdDist[s]=(stdDist[s]||0)+1; }
     });
     const pctTotal=dist.A+dist.B+dist.C+dist.D+dist.F;
     const stdTotal=Object.values(stdDist).reduce((a,b)=>a+b,0);
 
-    if(pctTotal>0 || stdTotal>0) {
-        h+='<div class="card" style="text-align:center">';
-        h+='<h2 style="text-align:left">Grade Distribution</h2>';
-        h+='<div style="display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap">';
-        if(pctTotal>0) {
-            const segs=[
-                {pct:dist.A/pctTotal*100,color:'var(--green)'},
-                {pct:dist.B/pctTotal*100,color:'var(--accent)'},
-                {pct:dist.C/pctTotal*100,color:'var(--orange)'},
-                {pct:dist.D/pctTotal*100,color:'#ff6b6b'},
-                {pct:dist.F/pctTotal*100,color:'var(--red)'},
-            ].filter(s=>s.pct>0);
-            h+=svgDonut(segs,90,12);
-            h+='<div style="text-align:left;font-size:0.82rem;line-height:1.8">';
-            if(dist.A) h+='<div><span class="grade-badge grade-a">A</span> '+dist.A+'</div>';
-            if(dist.B) h+='<div><span class="grade-badge grade-b">B</span> '+dist.B+'</div>';
-            if(dist.C) h+='<div><span class="grade-badge grade-c">C</span> '+dist.C+'</div>';
-            if(dist.D) h+='<div><span class="grade-badge grade-d">D</span> '+dist.D+'</div>';
-            if(dist.F) h+='<div><span class="grade-badge grade-f">F</span> '+dist.F+'</div>';
-            h+='</div>';
-        }
-        if(stdTotal>0) {
-            if(pctTotal>0) h+='<div style="width:1px;height:60px;background:var(--border);margin:0 4px"></div>';
-            h+='<div style="text-align:left;font-size:0.82rem;line-height:1.8">';
-            h+='<div style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px">STANDARDS-BASED</div>';
-            for(const [mark,cnt] of Object.entries(stdDist).sort()) {
-                h+='<div>'+markChip(mark)+' '+cnt+'</div>';
-            }
-            h+='</div>';
-        }
-        h+='</div></div>';
-    }
-
-    // ═══ 4. Assignment Completion ═══
     const assgnByStudent={};
     assignments.forEach(a=>{
         const sid=String(a.studentID||a.personID||'');
@@ -911,29 +795,149 @@ function renderGradeInsights(filtered, allGrades, assignments) {
         else if(a.score!=null && a.score!=='') assgnByStudent[sid].graded++;
         else assgnByStudent[sid].pending++;
     });
+
+    // ═══ ROW 1: Student Overview + Distribution + Assignment Status (side by side) ═══
+    const studentArr=Object.values(studentStats).filter(s=>s.count>0||s.standards>0);
     const asArr=Object.values(assgnByStudent).filter(a=>a.total>0);
+
+    h+='<div class="insights-row">';
+
+    // Student Overview
+    if(studentArr.length>0) {
+        h+='<div class="card">';
+        h+='<h2>Overview</h2>';
+        for(const s of studentArr) {
+            const avg=s.count?s.sum/s.count:0;
+            const clr=s.count?progressColor(avg):'var(--text-secondary)';
+            h+='<div style="margin-bottom:10px">';
+            h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">';
+            h+='<span style="font-weight:600;font-size:0.84rem">'+esc(s.name)+'</span>';
+            if(s.count) h+='<span style="font-weight:700;color:'+clr+';font-size:0.84rem">'+avg.toFixed(1)+'%</span>';
+            h+='</div>';
+            if(s.count) {
+                h+='<div class="progress-bar" style="max-width:none"><div class="progress-fill" style="width:'+Math.min(avg,100)+'%;background:'+clr+'"></div></div>';
+                h+='<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:2px">'+s.count+' courses'+(s.standards?' + '+s.standards+' standards':'')
+                  +' &middot; '+s.low.toFixed(0)+'%–'+s.high.toFixed(0)+'%</div>';
+            }
+            h+='</div>';
+        }
+        h+='</div>';
+    }
+
+    // Grade Distribution (compact)
+    if(pctTotal>0 || stdTotal>0) {
+        h+='<div class="card">';
+        h+='<h2>Distribution</h2>';
+        h+='<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">';
+        if(pctTotal>0) {
+            h+=svgDonut([
+                {pct:dist.A/pctTotal*100,color:'var(--green)'},
+                {pct:dist.B/pctTotal*100,color:'var(--accent)'},
+                {pct:dist.C/pctTotal*100,color:'var(--orange)'},
+                {pct:dist.D/pctTotal*100,color:'#ff6b6b'},
+                {pct:dist.F/pctTotal*100,color:'var(--red)'},
+            ].filter(s=>s.pct>0), 70, 10);
+            h+='<div style="font-size:0.78rem;line-height:1.7">';
+            if(dist.A) h+='<span class="grade-badge grade-a" style="margin-right:2px">A</span>'+dist.A+' ';
+            if(dist.B) h+='<span class="grade-badge grade-b" style="margin-right:2px">B</span>'+dist.B+' ';
+            if(dist.C) h+='<span class="grade-badge grade-c" style="margin-right:2px">C</span>'+dist.C+' ';
+            if(dist.D) h+='<span class="grade-badge grade-d" style="margin-right:2px">D</span>'+dist.D+' ';
+            if(dist.F) h+='<span class="grade-badge grade-f" style="margin-right:2px">F</span>'+dist.F;
+            h+='</div>';
+        }
+        if(stdTotal>0) {
+            h+='<div style="font-size:0.78rem;line-height:1.7">';
+            for(const [mark,cnt] of Object.entries(stdDist).sort()) h+=markChip(mark)+' '+cnt+' ';
+            h+='</div>';
+        }
+        h+='</div></div>';
+    }
+
+    // Assignment Status (compact inline)
     if(asArr.length>0) {
         h+='<div class="card">';
-        h+='<h2>Assignment Status</h2>';
+        h+='<h2>Assignments</h2>';
         for(const s of asArr) {
-            const segs2=[
+            h+='<div style="margin-bottom:8px">';
+            if(asArr.length>1) h+='<div style="font-weight:600;font-size:0.82rem;margin-bottom:4px">'+esc(getFirst(s.name))+'</div>';
+            h+='<div style="display:flex;align-items:center;gap:10px">';
+            h+=svgDonut([
                 {pct:s.graded/s.total*100,color:'var(--green)'},
                 {pct:s.pending/s.total*100,color:'#ddd'},
                 {pct:s.late/s.total*100,color:'var(--orange)'},
                 {pct:s.missing/s.total*100,color:'var(--red)'},
-            ].filter(x=>x.pct>0);
-            h+='<div style="margin-bottom:14px">';
-            h+='<div style="font-weight:600;font-size:0.86rem;margin-bottom:6px">'+esc(s.name)+'</div>';
-            h+='<div style="display:flex;align-items:center;gap:14px">';
-            h+=svgDonut(segs2,64,10);
-            h+='<div style="font-size:0.78rem;line-height:1.8">';
-            h+='<div><span style="color:var(--green);font-weight:600">'+s.graded+'</span> graded</div>';
-            if(s.pending) h+='<div><span style="color:#999;font-weight:600">'+s.pending+'</span> pending</div>';
-            if(s.late) h+='<div><span style="color:var(--orange);font-weight:600">'+s.late+'</span> late</div>';
-            if(s.missing) h+='<div><span style="color:var(--red);font-weight:600">'+s.missing+'</span> missing</div>';
+            ].filter(x=>x.pct>0), 50, 8);
+            h+='<div style="font-size:0.75rem;line-height:1.6">';
+            h+='<span style="color:var(--green);font-weight:600">'+s.graded+'</span> graded';
+            if(s.pending) h+=' &middot; <span style="font-weight:600">'+s.pending+'</span> pending';
+            if(s.late) h+=' &middot; <span style="color:var(--orange);font-weight:600">'+s.late+'</span> late';
+            if(s.missing) h+=' &middot; <span style="color:var(--red);font-weight:600">'+s.missing+'</span> missing';
             h+='</div></div></div>';
         }
         h+='</div>';
+    }
+    h+='</div>';
+
+    // ═══ ROW 2: Grade Trend Table (compact — one row per course, columns = terms) ═══
+    const progression = {};
+    const allTermNames = new Set();
+    allGrades.forEach(g => {
+        if(gradesSid && String(g.studentID||'')!==gradesSid) return;
+        const key = (g.studentID||'')+'|'+(g.courseName||'');
+        if(!progression[key]) progression[key] = { name: g.courseName||'', student: g.studentID||'', terms: {} };
+        const tn = g.termName||'';
+        if(tn) allTermNames.add(tn);
+        progression[key].terms[tn] = { pct: getPct(g), score: getScore(g), isStd: isStandardsBased(g) };
+    });
+    const termOrder = [...allTermNames].sort();
+    const progArr = Object.values(progression).filter(p => Object.keys(p.terms).length > 1)
+        .sort((a,b) => (a.name||'').localeCompare(b.name||''));
+
+    if(progArr.length > 0 && termOrder.length > 1) {
+        h += '<div class="card" style="padding:12px;overflow-x:auto">';
+        h += '<h2>Grade Trend by Term</h2>';
+        h += '<table class="grade-grid"><thead><tr>';
+        h += '<th style="min-width:120px">Course</th>';
+        if(!gradesSid) h += '<th>Student</th>';
+        for(const tn of termOrder) h += '<th>'+esc(tn)+'</th>';
+        h += '<th>Trend</th>';
+        h += '</tr></thead><tbody>';
+
+        for(const p of progArr) {
+            h += '<tr>';
+            h += '<td>'+esc(p.name)+'</td>';
+            if(!gradesSid) h += '<td style="text-align:center">'+esc(getFirst(p.student))+'</td>';
+
+            // Collect values for trend arrow
+            let prevPct = null, lastPct = null;
+            for(const tn of termOrder) {
+                const td = p.terms[tn];
+                if(!td) { h += '<td style="color:var(--text-secondary)">-</td>'; continue; }
+                const pct = td.pct;
+                if(!isNaN(pct)) {
+                    const clr = progressColor(pct);
+                    h += '<td><span class="trend-cell" style="background:'+clr+'18;color:'+clr+'">'+pct.toFixed(0)+'%</span></td>';
+                    if(prevPct===null) prevPct=pct;
+                    lastPct=pct;
+                } else if(td.score) {
+                    h += '<td>'+markChip(td.score)+'</td>';
+                } else {
+                    h += '<td style="color:var(--text-secondary)">-</td>';
+                }
+            }
+
+            // Trend indicator
+            if(prevPct!==null && lastPct!==null && prevPct!==lastPct) {
+                const diff = lastPct - prevPct;
+                const arrow = diff > 0 ? '&#9650;' : '&#9660;';
+                const tclr = diff > 0 ? 'var(--green)' : 'var(--red)';
+                h += '<td style="color:'+tclr+';font-weight:600;font-size:0.82rem">'+arrow+' '+(diff>0?'+':'')+diff.toFixed(0)+'</td>';
+            } else {
+                h += '<td style="color:var(--text-secondary)">—</td>';
+            }
+            h += '</tr>';
+        }
+        h += '</tbody></table></div>';
     }
 
     h+='</div>';
