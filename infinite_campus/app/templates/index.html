@@ -39,7 +39,6 @@
             padding-bottom: var(--safe-bottom);
         }
 
-        /* ── Header ── */
         .header {
             background: rgba(255,255,255,0.72);
             backdrop-filter: saturate(180%) blur(20px);
@@ -53,57 +52,29 @@
             top: 0;
             z-index: 100;
         }
-        .header h1 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-        }
+        .header h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; }
         .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            background: rgba(52,199,89,0.12);
-            color: #248a3d;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 500;
+            background: rgba(52,199,89,0.12); color: #248a3d;
         }
         .status-pill.offline { background: rgba(255,59,48,0.12); color: #d70015; }
-        .status-pill .dot {
-            width: 6px; height: 6px; border-radius: 50%; background: var(--green);
-        }
+        .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
         .status-pill.offline .dot { background: var(--red); }
 
-        /* ── Container ── */
         .container { max-width: 1100px; margin: 0 auto; padding: 12px 12px 32px; }
 
-        /* ── Main Tabs ── */
         .tabs {
-            display: flex;
-            gap: 2px;
-            margin-bottom: 16px;
-            background: rgba(118,118,128,0.12);
-            border-radius: 10px;
-            padding: 2px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            display: flex; gap: 2px; margin-bottom: 16px;
+            background: rgba(118,118,128,0.12); border-radius: 10px; padding: 2px;
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
         }
         .tabs::-webkit-scrollbar { display: none; }
         .tab {
-            flex: 1;
-            min-width: 0;
-            padding: 8px 6px;
-            text-align: center;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            border-radius: 8px;
-            font-size: 0.78rem;
-            font-weight: 500;
-            color: var(--text);
-            transition: all 0.15s ease;
-            white-space: nowrap;
+            flex: 1; min-width: 0; padding: 8px 6px; text-align: center;
+            border: none; background: transparent; cursor: pointer; border-radius: 8px;
+            font-size: 0.78rem; font-weight: 500; color: var(--text);
+            transition: all 0.15s ease; white-space: nowrap;
         }
         .tab.active {
             background: var(--card);
@@ -111,159 +82,81 @@
             font-weight: 600;
         }
         .tab:hover:not(.active) { color: var(--accent); }
-
         .tab-content { display: none; animation: fadeIn 0.25s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ── Cards ── */
         .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow);
+            background: var(--card); border-radius: var(--radius);
+            padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow);
         }
         .card h2 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            letter-spacing: -0.01em;
-            color: var(--text);
+            font-size: 0.9rem; font-weight: 600; margin-bottom: 12px;
+            letter-spacing: -0.01em; color: var(--text);
         }
 
-        /* ── Stat Grid ── */
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 8px; margin-bottom: 16px;
         }
         .stat-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 14px 10px;
-            text-align: center;
-            box-shadow: var(--shadow);
+            background: var(--card); border-radius: var(--radius);
+            padding: 14px 10px; text-align: center; box-shadow: var(--shadow);
         }
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            color: var(--text);
-            line-height: 1.1;
-        }
+        .stat-value { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
         .stat-label {
-            font-size: 0.65rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-top: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
+            font-size: 0.65rem; font-weight: 500; color: var(--text-secondary);
+            margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em;
         }
 
-        /* ── Buttons ── */
         .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 100px;
-            font-size: 0.82rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            padding: 10px 18px; border: none; border-radius: 100px; font-size: 0.82rem;
+            font-weight: 500; cursor: pointer; transition: all 0.15s ease;
+            display: inline-flex; align-items: center; gap: 6px;
             -webkit-tap-highlight-color: transparent;
         }
         .btn-primary { background: var(--accent); color: white; }
-        .btn-primary:hover { background: var(--accent-hover); }
         .btn-primary:active { transform: scale(0.97); }
         .btn-green { background: var(--green); color: white; }
         .btn-red { background: var(--red); color: white; }
-        .btn-secondary {
-            background: rgba(0,113,227,0.08);
-            color: var(--accent);
-        }
+        .btn-secondary { background: rgba(0,113,227,0.08); color: var(--accent); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
 
-        /* ── Alerts ── */
         .alert {
-            padding: 12px 16px;
-            border-radius: var(--radius-sm);
-            margin-bottom: 12px;
-            font-size: 0.82rem;
-            font-weight: 400;
+            padding: 12px 16px; border-radius: var(--radius-sm);
+            margin-bottom: 12px; font-size: 0.82rem;
         }
         .alert-success { background: rgba(52,199,89,0.1); color: #248a3d; }
         .alert-error { background: rgba(255,59,48,0.1); color: #d70015; }
         .alert-info { background: rgba(0,113,227,0.08); color: #0071e3; }
 
-        /* ── Tables (desktop) ── */
         .data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
         .data-table th {
-            text-align: left;
-            padding: 8px 10px;
-            font-weight: 600;
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--text-secondary);
+            text-align: left; padding: 8px 10px; font-weight: 600; font-size: 0.68rem;
+            text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary);
             border-bottom: 1px solid var(--border);
         }
-        .data-table td {
-            padding: 10px;
-            border-bottom: 0.5px solid var(--border);
-            color: var(--text);
-        }
+        .data-table td { padding: 10px; border-bottom: 0.5px solid var(--border); }
         .data-table tr:last-child td { border-bottom: none; }
-        .data-table tbody tr { transition: background 0.1s; }
         .data-table tbody tr:hover td { background: rgba(0,0,0,0.02); }
 
-        /* ── Mobile card list (replaces tables on mobile) ── */
         .mobile-list { display: none; }
         .mobile-item {
-            background: var(--card);
-            border-radius: var(--radius-sm);
-            padding: 14px;
-            margin-bottom: 8px;
+            background: var(--card); border-radius: var(--radius-sm);
+            padding: 14px; margin-bottom: 8px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         }
         .mobile-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 6px;
+            display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;
         }
-        .mobile-item-title {
-            font-weight: 600;
-            font-size: 0.88rem;
-            color: var(--text);
-            flex: 1;
-            margin-right: 8px;
-        }
-        .mobile-item-meta {
-            font-size: 0.78rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-        .mobile-item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .mobile-item-title { font-weight: 600; font-size: 0.88rem; flex: 1; margin-right: 8px; }
+        .mobile-item-meta { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6; }
 
-        /* ── Badges ── */
         .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 3px 10px;
-            border-radius: 100px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            white-space: nowrap;
+            display: inline-flex; align-items: center; padding: 3px 10px;
+            border-radius: 100px; font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 0.02em; white-space: nowrap;
         }
         .badge-missing { background: rgba(255,59,48,0.1); color: #d70015; }
         .badge-late { background: rgba(255,149,0,0.12); color: #c93400; }
@@ -271,154 +164,139 @@
         .badge-graded { background: rgba(0,113,227,0.08); color: #0071e3; }
 
         .grade-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 30px;
-            padding: 3px 10px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.78rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 30px; padding: 3px 10px; border-radius: 8px;
+            font-weight: 700; font-size: 0.78rem;
         }
         .grade-a { background: rgba(52,199,89,0.12); color: #248a3d; }
         .grade-b { background: rgba(0,113,227,0.1); color: #0071e3; }
         .grade-c { background: rgba(255,149,0,0.12); color: #c93400; }
         .grade-d { background: rgba(255,59,48,0.08); color: #d70015; }
         .grade-f { background: rgba(255,59,48,0.15); color: #d70015; }
+        /* Standards-based marks */
+        .grade-g { background: rgba(52,199,89,0.12); color: #248a3d; }
+        .grade-e { background: rgba(52,199,89,0.18); color: #1a7a2e; }
+        .grade-ny { background: rgba(255,149,0,0.12); color: #c93400; }
+        .grade-na { background: rgba(0,0,0,0.06); color: var(--text-secondary); }
 
-        /* ── Student sub-tabs (within Students tab) ── */
         .student-tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 16px;
+            display: flex; gap: 0; margin-bottom: 16px;
             border-bottom: 2px solid var(--border);
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
         }
         .student-tabs::-webkit-scrollbar { display: none; }
         .student-tab {
-            padding: 10px 20px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-size: 0.88rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-            white-space: nowrap;
-            transition: all 0.15s;
+            padding: 10px 20px; border: none; background: transparent; cursor: pointer;
+            font-size: 0.88rem; font-weight: 500; color: var(--text-secondary);
+            border-bottom: 2px solid transparent; margin-bottom: -2px;
+            white-space: nowrap; transition: all 0.15s;
         }
-        .student-tab.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-            font-weight: 600;
-        }
-        .student-tab:hover:not(.active) { color: var(--text); }
+        .student-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
         .student-panel { display: none; animation: fadeIn 0.2s ease; }
         .student-panel.active { display: block; }
 
-        /* ── Filter Pills ── */
         .filter-bar {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 2px;
+            display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap;
+            overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px;
         }
         .filter-pill {
-            padding: 6px 14px;
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            background: var(--card);
-            cursor: pointer;
-            font-size: 0.78rem;
-            font-weight: 500;
-            transition: all 0.15s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            white-space: nowrap;
-            flex-shrink: 0;
+            padding: 6px 14px; border: 1px solid var(--border); border-radius: 100px;
+            background: var(--card); cursor: pointer; font-size: 0.78rem; font-weight: 500;
+            transition: all 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            white-space: nowrap; flex-shrink: 0;
         }
-        .filter-pill.active {
-            background: var(--text);
-            color: white;
-            border-color: var(--text);
-        }
+        .filter-pill.active { background: var(--text); color: white; border-color: var(--text); }
         .filter-pill:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
-
         .filter-section { margin-bottom: 6px; }
         .filter-label {
-            font-size: 0.68rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            display: block;
+            font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.04em; color: var(--text-secondary); margin-bottom: 4px; display: block;
         }
 
-        /* ── Progress Bar ── */
-        .progress-wrap {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .progress-wrap { display: flex; align-items: center; gap: 8px; }
         .progress-bar {
-            flex: 1;
-            height: 8px;
-            background: rgba(0,0,0,0.06);
-            border-radius: 100px;
-            overflow: hidden;
-            min-width: 50px;
-            max-width: 120px;
+            flex: 1; height: 8px; background: rgba(0,0,0,0.06);
+            border-radius: 100px; overflow: hidden; min-width: 50px; max-width: 120px;
         }
-        .progress-fill {
-            height: 100%;
-            border-radius: 100px;
-            transition: width 0.4s ease;
-        }
-        .pct-text {
-            font-size: 0.78rem;
-            font-weight: 600;
-            min-width: 44px;
-            text-align: right;
-        }
+        .progress-fill { height: 100%; border-radius: 100px; transition: width 0.4s ease; }
+        .pct-text { font-size: 0.78rem; font-weight: 600; min-width: 44px; text-align: right; }
 
-        /* ── Insights Grid ── */
         .insights-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
+            display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px;
         }
 
-        /* ── Loading ── */
+        /* ── Course Card (expandable) ── */
+        .course-card {
+            background: var(--card); border-radius: var(--radius);
+            margin-bottom: 10px; box-shadow: var(--shadow); overflow: hidden;
+        }
+        .course-card-header {
+            padding: 14px 16px; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center;
+            transition: background 0.15s;
+        }
+        .course-card-header:active { background: rgba(0,0,0,0.02); }
+        .course-card-left { flex: 1; min-width: 0; }
+        .course-card-name { font-weight: 600; font-size: 0.9rem; }
+        .course-card-teacher { font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px; }
+        .course-card-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .course-card-grade { font-size: 1.2rem; font-weight: 700; }
+        .course-card-chevron {
+            font-size: 1.1rem; color: var(--text-secondary);
+            transition: transform 0.2s; display: inline-block;
+        }
+        .course-card.open .course-card-chevron { transform: rotate(90deg); }
+        .course-card-body {
+            display: none; border-top: 1px solid var(--border);
+            padding: 12px 16px; background: rgba(0,0,0,0.01);
+        }
+        .course-card.open .course-card-body { display: block; }
+
+        /* ── Term progression mini bar ── */
+        .term-progression {
+            display: flex; gap: 4px; align-items: flex-end; height: 36px; margin-top: 6px;
+        }
+        .term-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
+        .term-bar {
+            width: 100%; border-radius: 3px 3px 0 0; min-height: 4px;
+            transition: height 0.3s;
+        }
+        .term-bar-label { font-size: 0.6rem; color: var(--text-secondary); font-weight: 500; }
+        .term-bar-val { font-size: 0.65rem; font-weight: 600; }
+
+        /* ── Assessment item ── */
+        .assess-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 0.5px solid var(--border);
+            font-size: 0.82rem;
+        }
+        .assess-item:last-child { border-bottom: none; }
+        .assess-name { flex: 1; min-width: 0; }
+        .assess-date { color: var(--text-secondary); font-size: 0.75rem; margin: 0 10px; flex-shrink: 0; }
+        .assess-score { font-weight: 600; flex-shrink: 0; min-width: 40px; text-align: right; }
+
+        /* ── Mark chip (standards-based) ── */
+        .mark-chip {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem;
+        }
+
         .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
         .spinner {
-            display: inline-block;
-            width: 24px; height: 24px;
-            border: 2.5px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
+            display: inline-block; width: 24px; height: 24px;
+            border: 2.5px solid var(--border); border-top-color: var(--accent);
+            border-radius: 50%; animation: spin 0.7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── Config table on mobile ── */
         .config-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 0.5px solid var(--border);
-            font-size: 0.84rem;
+            display: flex; justify-content: space-between; padding: 10px 0;
+            border-bottom: 0.5px solid var(--border); font-size: 0.84rem;
         }
         .config-row:last-child { border-bottom: none; }
         .config-label { font-weight: 600; color: var(--text-secondary); flex-shrink: 0; margin-right: 12px; }
         .config-value { text-align: right; word-break: break-all; }
 
-        /* ═══ Desktop (>768px) ═══ */
         @media (min-width: 769px) {
             .container { padding: 20px 24px 40px; }
             .header { padding: 14px 24px; }
@@ -434,8 +312,6 @@
             .desktop-table { display: table; }
             .mobile-list { display: none !important; }
         }
-
-        /* ═══ Mobile (<768px) ═══ */
         @media (max-width: 768px) {
             .desktop-table { display: none; }
             .mobile-list { display: block; }
@@ -443,7 +319,6 @@
             .filter-bar { flex-wrap: nowrap; overflow-x: auto; }
             .student-tab { padding: 10px 16px; font-size: 0.84rem; }
         }
-
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -469,7 +344,7 @@
 
         <div id="alertContainer"></div>
 
-        <!-- ── Dashboard ── -->
+        <!-- Dashboard -->
         <div id="tab-dashboard" class="tab-content active">
             <div class="stats-grid">
                 <div class="stat-card"><div class="stat-value" id="statStudents">-</div><div class="stat-label">Students</div></div>
@@ -479,7 +354,6 @@
                 <div class="stat-card"><div class="stat-value" id="statAlerts">-</div><div class="stat-label">Alerts Sent</div></div>
                 <div class="stat-card"><div class="stat-value" id="statLastPoll">-</div><div class="stat-label">Last Update</div></div>
             </div>
-
             <div class="card">
                 <h2>Quick Actions</h2>
                 <div class="btn-group">
@@ -488,25 +362,18 @@
                     <button class="btn btn-red" onclick="stopService()">Stop Service</button>
                 </div>
             </div>
-
             <div class="card">
                 <h2>Recent Assignments</h2>
-                <div id="recentActivity" class="loading">
-                    <div class="spinner"></div>
-                    <p style="margin-top:8px;font-size:0.82rem">Loading...</p>
-                </div>
+                <div id="recentActivity" class="loading"><div class="spinner"></div><p style="margin-top:8px;font-size:0.82rem">Loading...</p></div>
             </div>
         </div>
 
-        <!-- ── Students (tabbed per student) ── -->
+        <!-- Students -->
         <div id="tab-students" class="tab-content">
-            <div id="studentsContainer" class="loading">
-                <div class="spinner"></div>
-                <p style="margin-top:8px;font-size:0.82rem">Loading students...</p>
-            </div>
+            <div id="studentsContainer" class="loading"><div class="spinner"></div><p style="margin-top:8px;font-size:0.82rem">Loading students...</p></div>
         </div>
 
-        <!-- ── Grades ── -->
+        <!-- Grades -->
         <div id="tab-grades" class="tab-content">
             <div class="filter-section">
                 <span class="filter-label">Student</span>
@@ -517,25 +384,20 @@
                 <div id="gradesTermFilter" class="filter-bar"></div>
             </div>
             <div id="gradesSummary"></div>
-            <div id="gradesContainer" class="loading">
-                <div class="spinner"></div>
-            </div>
+            <div id="gradesContainer" class="loading"><div class="spinner"></div></div>
         </div>
 
-        <!-- ── Assignments ── -->
+        <!-- Assignments -->
         <div id="tab-assignments" class="tab-content">
             <div id="assignmentsFilter" class="filter-bar"></div>
-            <div id="assignmentsContainer" class="loading">
-                <div class="spinner"></div>
-            </div>
+            <div id="assignmentsContainer" class="loading"><div class="spinner"></div></div>
         </div>
 
-        <!-- ── Settings ── -->
+        <!-- Settings -->
         <div id="tab-config" class="tab-content">
             <div class="alert alert-info">
                 All settings are managed in the Home Assistant add-on <strong>Configuration</strong> tab. Restart the add-on after making changes.
             </div>
-
             <div class="card">
                 <h2>Connection</h2>
                 <div class="config-row"><span class="config-label">Base URL</span><span class="config-value" id="cfgUrl">-</span></div>
@@ -546,7 +408,6 @@
                 <div class="config-row"><span class="config-label">HA Sensors</span><span class="config-value" id="cfgEntities">-</span></div>
                 <div class="config-row"><span class="config-label">Poll Interval</span><span class="config-value" id="cfgInterval">-</span></div>
             </div>
-
             <div class="card">
                 <h2>WhatsApp Setup (Free via CallMeBot)</h2>
                 <ol style="margin-left:18px;font-size:0.84rem;color:var(--text-secondary);line-height:1.9">
@@ -560,12 +421,16 @@
     </div>
 
 <script>
-// ── State ──
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
 let currentData = {};
 let nameMap = {};
 let activeStudentTab = 0;
 
-// ── Tab Switching ──
+// ══════════════════════════════════
+// CORE
+// ══════════════════════════════════
 function switchTab(tab, btn) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tabs .tab').forEach(el => el.classList.remove('active'));
@@ -585,15 +450,26 @@ function showAlert(msg, type='info') {
     setTimeout(() => d.remove(), 4000);
 }
 
-// ── API ──
 async function apiGet(p) { return (await fetch('api/' + p)).json(); }
 async function apiPost(p) { return (await fetch('api/' + p, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' })).json(); }
 
-// ── Helpers ──
+// ══════════════════════════════════
+// HELPERS
+// ══════════════════════════════════
 function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 function fmtDate(d) { if(!d) return '-'; try { const dt=new Date(d); return isNaN(dt)?d:dt.toLocaleDateString('en-US',{month:'short',day:'numeric'}); } catch{return d;} }
 function getName(id) { return nameMap[String(id)]||('Student '+id); }
+function getFirst(id) { const n=getName(id); return n.split(' ')[0]; }
 
+function buildNameMap(students) {
+    nameMap = {};
+    for(const s of students) {
+        const id=String(s.personID||s.studentID||'');
+        nameMap[id]=((s.firstName||'')+' '+(s.lastName||'')).trim()||('Student '+id);
+    }
+}
+
+// ── Grade helpers ──
 function letterGrade(pct) {
     const p=parseFloat(pct); if(isNaN(p)) return '';
     if(p>=93) return 'A'; if(p>=90) return 'A-';
@@ -604,7 +480,13 @@ function letterGrade(pct) {
 
 function gradeClass(l) {
     if(!l) return '';
-    const c=l[0].toUpperCase();
+    const u=l.toUpperCase();
+    // Standards-based marks
+    if(u==='G'||u==='GOT IT') return 'grade-g';
+    if(u==='E'||u==='EXCEEDS'||u==='EXEMPLARY') return 'grade-e';
+    if(u==='NY'||u==='NOT YET') return 'grade-ny';
+    if(u==='NA'||u==='N/A') return 'grade-na';
+    const c=u[0];
     return c==='A'?'grade-a':c==='B'?'grade-b':c==='C'?'grade-c':c==='D'?'grade-d':c==='F'?'grade-f':'';
 }
 
@@ -615,12 +497,39 @@ function progressColor(pct) {
     return 'var(--red)';
 }
 
-function buildNameMap(students) {
-    nameMap = {};
-    for(const s of students) {
-        const id=String(s.personID||s.studentID||'');
-        nameMap[id]=((s.firstName||'')+' '+(s.lastName||'')).trim()||('Student '+id);
-    }
+function getPct(g) {
+    const v = g.progressPercent||g.percent||g.percentage||'';
+    return v ? parseFloat(v) : NaN;
+}
+
+function getScore(g) {
+    return g.progressScore||g.score||'';
+}
+
+function isStandardsBased(g) {
+    // Check if this grade entry uses standards-based marks (non-numeric score, no percentage)
+    const score = getScore(g);
+    const pct = getPct(g);
+    if(!isNaN(pct)) return false;
+    if(!score) return false;
+    // Non-numeric score = standards-based
+    return isNaN(parseFloat(score));
+}
+
+function markColor(mark) {
+    const u = (mark||'').toUpperCase().trim();
+    if(u==='G'||u==='GOT IT'||u==='MET') return 'var(--green)';
+    if(u==='E'||u==='EXCEEDS'||u==='EXEMPLARY'||u==='EX') return '#1a7a2e';
+    if(u==='NY'||u==='NOT YET'||u==='NM') return 'var(--orange)';
+    if(u==='U'||u==='UNSATISFACTORY') return 'var(--red)';
+    return 'var(--accent)';
+}
+
+function markChip(mark) {
+    if(!mark) return '-';
+    const clr = markColor(mark);
+    const gc = gradeClass(mark);
+    return '<span class="mark-chip grade-badge '+gc+'" style="background:'+clr+'20;color:'+clr+'">'+esc(mark)+'</span>';
 }
 
 function statusBadge(a) {
@@ -631,20 +540,14 @@ function statusBadge(a) {
     return '';
 }
 
-function getPct(g) {
-    const v = g.progressPercent||g.percent||g.percentage||'';
-    return v ? parseFloat(v) : NaN;
-}
-
-// ── Generic filter pills ──
+// ── Filter pills ──
 function renderStudentFilter(containerId, callback) {
     const el=document.getElementById(containerId);
     const students=currentData.students||[];
     let h='<button class="filter-pill active" data-v="" onclick="pickFilter(this,\''+containerId+'\','+callback+')">All</button>';
     for(const s of students) {
         const id=String(s.personID||s.studentID||'');
-        const first=(s.firstName||'').split(' ')[0];
-        h+='<button class="filter-pill" data-v="'+id+'" onclick="pickFilter(this,\''+containerId+'\','+callback+')">'+esc(first||getName(id))+'</button>';
+        h+='<button class="filter-pill" data-v="'+id+'" onclick="pickFilter(this,\''+containerId+'\','+callback+')">'+esc(getFirst(id))+'</button>';
     }
     el.innerHTML=h;
 }
@@ -662,7 +565,7 @@ function pickFilter(btn,cid,cb) {
     cb(btn.dataset.v);
 }
 
-// ── SVG helpers ──
+// ── SVG ──
 function svgDonut(segments, size=80, strokeWidth=10) {
     const r=(size-strokeWidth)/2, cx=size/2, cy=size/2, circ=2*Math.PI*r;
     let offset=0, paths='';
@@ -674,29 +577,9 @@ function svgDonut(segments, size=80, strokeWidth=10) {
     return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0">${paths}</svg>`;
 }
 
-function svgBarChart(bars, width=300, height=140) {
-    if(!bars.length) return '';
-    const pad=30, barW=Math.min(36, (width-pad*2)/bars.length-4);
-    const maxVal=Math.max(...bars.map(b=>b.val),1);
-    const chartH=height-pad-20;
-    let svg=`<svg width="100%" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="display:block;max-width:${width}px">`;
-    for(let i=0;i<=4;i++) {
-        const y=pad+chartH*(1-i/4);
-        svg+=`<line x1="${pad}" y1="${y}" x2="${width-10}" y2="${y}" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>`;
-        svg+=`<text x="${pad-4}" y="${y+4}" text-anchor="end" fill="#86868b" font-size="10">${Math.round(maxVal*i/4)}</text>`;
-    }
-    bars.forEach((b,i)=> {
-        const x=pad+i*(barW+4)+2;
-        const bh=chartH*b.val/maxVal;
-        const y=pad+chartH-bh;
-        svg+=`<rect x="${x}" y="${y}" width="${barW}" height="${bh}" rx="4" fill="${b.color||'var(--accent)'}"/>`;
-        svg+=`<text x="${x+barW/2}" y="${height-4}" text-anchor="middle" fill="#86868b" font-size="8" transform="rotate(-35 ${x+barW/2} ${height-4})">${esc(b.label.substring(0,10))}</text>`;
-    });
-    svg+='</svg>';
-    return svg;
-}
-
-// ── Status ──
+// ══════════════════════════════════
+// STATUS + LOAD
+// ══════════════════════════════════
 async function updateStatus() {
     try {
         const s=await apiGet('status');
@@ -732,34 +615,31 @@ async function loadData() {
     } catch(e){}
 }
 
-// ── Dashboard: Recent ──
+// ══════════════════════════════════
+// DASHBOARD: RECENT
+// ══════════════════════════════════
 function renderRecent(data) {
     const c=document.getElementById('recentActivity');
     const sorted=[...(data.assignments||[])].sort((a,b)=>(b.modifiedDate||b.dueDate||'').localeCompare(a.modifiedDate||a.dueDate||''));
     const items=sorted.slice(0,15);
     if(!items.length) { c.innerHTML='<p style="color:var(--text-secondary)">No data yet. Click Refresh Data.</p>'; return; }
 
-    // Desktop table
     let h='<table class="data-table desktop-table"><thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Due</th><th>Score</th><th>Status</th></tr></thead><tbody>';
     for(const a of items) {
         const sid=String(a.studentID||a.personID||'');
         const score=a.score!=null&&a.score!==''?a.score+'/'+(a.totalPoints||'?'):'-';
         const pct=a.scorePercentage!=null?' ('+Math.round(a.scorePercentage)+'%)':'';
-        h+='<tr><td>'+esc(getName(sid))+'</td><td>'+esc(a.assignmentName||'')+'</td><td>'+esc(a.courseName||'')+'</td><td>'+fmtDate(a.dueDate)+'</td><td>'+score+pct+'</td><td>'+statusBadge(a)+'</td></tr>';
+        h+='<tr><td>'+esc(getFirst(sid))+'</td><td>'+esc(a.assignmentName||'')+'</td><td>'+esc(a.courseName||'')+'</td><td>'+fmtDate(a.dueDate)+'</td><td>'+score+pct+'</td><td>'+statusBadge(a)+'</td></tr>';
     }
     h+='</tbody></table>';
 
-    // Mobile card list
     h+='<div class="mobile-list">';
     for(const a of items) {
         const sid=String(a.studentID||a.personID||'');
         const score=a.score!=null&&a.score!==''?a.score+'/'+(a.totalPoints||'?'):'';
         const pct=a.scorePercentage!=null?' ('+Math.round(a.scorePercentage)+'%)':'';
-        h+='<div class="mobile-item">';
-        h+='<div class="mobile-item-header"><span class="mobile-item-title">'+esc(a.assignmentName||'')+'</span>'+statusBadge(a)+'</div>';
-        h+='<div class="mobile-item-meta">';
-        h+=esc(getName(sid))+' &middot; '+esc(a.courseName||'')+'<br>';
-        h+='Due '+fmtDate(a.dueDate);
+        h+='<div class="mobile-item"><div class="mobile-item-header"><span class="mobile-item-title">'+esc(a.assignmentName||'')+'</span>'+statusBadge(a)+'</div>';
+        h+='<div class="mobile-item-meta">'+esc(getFirst(sid))+' &middot; '+esc(a.courseName||'')+'<br>Due '+fmtDate(a.dueDate);
         if(score) h+=' &middot; '+score+pct;
         h+='</div></div>';
     }
@@ -767,15 +647,13 @@ function renderRecent(data) {
     c.innerHTML=h;
 }
 
-// ── Students (tabbed view) ──
+// ══════════════════════════════════
+// STUDENTS (tabbed)
+// ══════════════════════════════════
 function switchStudentTab(idx) {
     activeStudentTab=idx;
-    document.querySelectorAll('.student-tab').forEach((t,i)=>{
-        t.classList.toggle('active', i===idx);
-    });
-    document.querySelectorAll('.student-panel').forEach((p,i)=>{
-        p.classList.toggle('active', i===idx);
-    });
+    document.querySelectorAll('.student-tab').forEach((t,i)=> t.classList.toggle('active', i===idx));
+    document.querySelectorAll('.student-panel').forEach((p,i)=> p.classList.toggle('active', i===idx));
 }
 
 function renderStudents() {
@@ -784,68 +662,53 @@ function renderStudents() {
     const courses=currentData.courses||[];
     if(!students.length) { c.innerHTML='<p style="color:var(--text-secondary)">No students loaded. Start the service and refresh.</p>'; return; }
 
-    // Student tabs
-    let tabsHtml='<div class="student-tabs">';
+    let tabsH='<div class="student-tabs">';
     students.forEach((s,i)=>{
         const id=String(s.personID||s.studentID||'');
-        const first=(s.firstName||getName(id)).split(' ')[0];
-        tabsHtml+='<button class="student-tab'+(i===activeStudentTab?' active':'')+'" onclick="switchStudentTab('+i+')">'+esc(first)+'</button>';
+        tabsH+='<button class="student-tab'+(i===activeStudentTab?' active':'')+'" onclick="switchStudentTab('+i+')">'+esc(getFirst(id))+'</button>';
     });
-    tabsHtml+='</div>';
+    tabsH+='</div>';
 
-    // Panels
-    let panelsHtml='';
+    let panels='';
     students.forEach((s,i)=>{
         const id=String(s.personID||s.studentID||'');
         const name=getName(id);
         const enrollments=s.enrollments||[];
-        let meta='Student #'+(s.studentNumber||id);
+        let meta='#'+(s.studentNumber||id);
         if(enrollments.length) { const e=enrollments[0]; if(e.schoolName) meta+=' &middot; '+e.schoolName; if(e.grade) meta+=' &middot; Grade '+e.grade; }
         const sc=courses.filter(c=>String(c.personID||c.studentID||'')===id);
 
-        panelsHtml+='<div class="student-panel'+(i===activeStudentTab?' active':'')+'">';
-        panelsHtml+='<div class="card">';
-        panelsHtml+='<div style="margin-bottom:4px"><span style="font-size:1.15rem;font-weight:600;letter-spacing:-0.02em">'+esc(name)+'</span></div>';
-        panelsHtml+='<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:14px">'+meta+' &middot; '+sc.length+' courses</div>';
-
+        panels+='<div class="student-panel'+(i===activeStudentTab?' active':'')+'">';
+        panels+='<div class="card">';
+        panels+='<div style="margin-bottom:4px"><span style="font-size:1.15rem;font-weight:600;letter-spacing:-0.02em">'+esc(name)+'</span></div>';
+        panels+='<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:14px">'+meta+' &middot; '+sc.length+' courses</div>';
         if(sc.length) {
-            // Desktop table
-            panelsHtml+='<table class="data-table desktop-table"><thead><tr><th>Course</th><th>Teacher</th><th>Room</th><th>Period</th></tr></thead><tbody>';
-            for(const cr of sc) {
-                panelsHtml+='<tr><td style="font-weight:500">'+esc(cr.courseName||'')+'</td><td>'+esc(cr.teacherDisplay||cr.teacherName||'-')+'</td><td>'+esc(cr.roomName||'-')+'</td><td>'+esc(cr.sectionNumber||cr.period||'-')+'</td></tr>';
-            }
-            panelsHtml+='</tbody></table>';
-
-            // Mobile list
-            panelsHtml+='<div class="mobile-list">';
-            for(const cr of sc) {
-                panelsHtml+='<div class="mobile-item">';
-                panelsHtml+='<div class="mobile-item-title">'+esc(cr.courseName||'')+'</div>';
-                panelsHtml+='<div class="mobile-item-meta">';
-                panelsHtml+=esc(cr.teacherDisplay||cr.teacherName||'-');
-                panelsHtml+=' &middot; Room '+esc(cr.roomName||'-');
-                panelsHtml+=' &middot; Period '+esc(cr.sectionNumber||cr.period||'-');
-                panelsHtml+='</div></div>';
-            }
-            panelsHtml+='</div>';
+            panels+='<table class="data-table desktop-table"><thead><tr><th>Course</th><th>Teacher</th><th>Room</th><th>Period</th></tr></thead><tbody>';
+            for(const cr of sc) panels+='<tr><td style="font-weight:500">'+esc(cr.courseName||'')+'</td><td>'+esc(cr.teacherDisplay||cr.teacherName||'-')+'</td><td>'+esc(cr.roomName||'-')+'</td><td>'+esc(cr.sectionNumber||cr.period||'-')+'</td></tr>';
+            panels+='</tbody></table>';
+            panels+='<div class="mobile-list">';
+            for(const cr of sc) panels+='<div class="mobile-item"><div class="mobile-item-title">'+esc(cr.courseName||'')+'</div><div class="mobile-item-meta">'+esc(cr.teacherDisplay||cr.teacherName||'-')+' &middot; Room '+esc(cr.roomName||'-')+' &middot; Period '+esc(cr.sectionNumber||cr.period||'-')+'</div></div>';
+            panels+='</div>';
         }
-        panelsHtml+='</div></div>';
+        panels+='</div></div>';
     });
-
-    c.innerHTML=tabsHtml+panelsHtml;
+    c.innerHTML=tabsH+panels;
 }
 
-// ══════════════════════════════════════════
-// ── GRADES TAB ──
-// ══════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// GRADES TAB — insights + expandable course cards
+// ══════════════════════════════════════════════════
 let gradesSid='', gradesTerm='';
 function setGradeStudent(v) { gradesSid=v; renderGrades(); }
 function setGradeTerm(v) { gradesTerm=v; renderGrades(); }
+
+function toggleCourse(el) { el.closest('.course-card').classList.toggle('open'); }
 
 function renderGrades() {
     const c=document.getElementById('gradesContainer');
     const summary=document.getElementById('gradesSummary');
     const grades=currentData.grades||[];
+    const assignments=currentData.assignments||[];
 
     renderStudentFilter('gradesStudentFilter', setGradeStudent);
 
@@ -871,145 +734,172 @@ function renderGrades() {
         return;
     }
 
-    summary.innerHTML=renderGradeInsights(filtered);
+    // Build insights
+    summary.innerHTML=renderGradeInsights(filtered, grades, assignments);
 
-    // Desktop table
-    let h='<div class="card" style="padding:0;overflow:hidden"><table class="data-table desktop-table"><thead><tr><th>Student</th><th>Course</th><th>Term</th><th>Progress</th><th>Score</th><th>Grade</th></tr></thead><tbody>';
-    for(const g of filtered) {
-        const name=getName(g.studentID||'');
-        const pct=getPct(g);
-        const earned=g.progressPointsEarned||g.pointsEarned||'';
-        const total=g.progressTotalPoints||g.totalPoints||'';
-        const score=g.progressScore||g.score||'';
-        const letter=g.letterGrade||g.grade||(!isNaN(pct)?letterGrade(pct):'');
-        const gc=gradeClass(letter);
-        let scoreStr=earned&&total?earned+'/'+total:score||'-';
-        let progressHtml='-';
-        if(!isNaN(pct)) {
-            const clr=progressColor(pct);
-            progressHtml=`<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(pct,100)}%;background:${clr}"></div></div><span class="pct-text" style="color:${clr}">${pct.toFixed(1)}%</span></div>`;
-        }
-        h+='<tr><td>'+esc(name)+'</td><td style="font-weight:500">'+esc(g.courseName||'')+'</td><td>'+esc(g.termName||'')+'</td><td style="min-width:140px">'+progressHtml+'</td><td>'+scoreStr+'</td><td>'+(letter?'<span class="grade-badge '+gc+'">'+esc(letter)+'</span>':'-')+'</td></tr>';
-    }
-    h+='</tbody></table></div>';
-
-    // Mobile list
-    h+='<div class="mobile-list">';
-    for(const g of filtered) {
-        const name=getName(g.studentID||'');
-        const pct=getPct(g);
-        const earned=g.progressPointsEarned||g.pointsEarned||'';
-        const total=g.progressTotalPoints||g.totalPoints||'';
-        const score=g.progressScore||g.score||'';
-        const letter=g.letterGrade||g.grade||(!isNaN(pct)?letterGrade(pct):'');
-        const gc=gradeClass(letter);
-        let scoreStr=earned&&total?earned+'/'+total:score||'';
-        const clr=!isNaN(pct)?progressColor(pct):'var(--text-secondary)';
-
-        h+='<div class="mobile-item">';
-        h+='<div class="mobile-item-header"><span class="mobile-item-title">'+esc(g.courseName||'')+'</span>';
-        if(letter) h+='<span class="grade-badge '+gc+'">'+esc(letter)+'</span>';
-        h+='</div>';
-        h+='<div class="mobile-item-meta">';
-        h+=esc(name)+' &middot; '+esc(g.termName||'');
-        if(!isNaN(pct)) {
-            h+='<div class="progress-wrap" style="margin-top:6px"><div class="progress-bar" style="max-width:none"><div class="progress-fill" style="width:'+Math.min(pct,100)+'%;background:'+clr+'"></div></div><span class="pct-text" style="color:'+clr+'">'+pct.toFixed(1)+'%</span></div>';
-        }
-        if(scoreStr) h+='<div style="margin-top:2px">Score: '+scoreStr+'</div>';
-        h+='</div></div>';
-    }
-    h+='</div>';
-    c.innerHTML=h;
+    // Build expandable course cards with assessments
+    c.innerHTML=renderCourseCards(filtered, assignments);
 }
 
-function renderGradeInsights(grades) {
+function renderGradeInsights(filtered, allGrades, assignments) {
     let h='<div class="insights-grid">';
 
-    // 1. Grade Distribution
-    const dist={A:0,B:0,C:0,D:0,F:0,NA:0};
-    grades.forEach(g=>{
-        const p=getPct(g);
-        if(isNaN(p)){dist.NA++;return;}
-        const l=letterGrade(p);
-        const k=l[0]; if(dist[k]!==undefined) dist[k]++; else dist.NA++;
-    });
-    const total=dist.A+dist.B+dist.C+dist.D+dist.F;
-    if(total>0) {
-        const segs=[
-            {pct:dist.A/total*100,color:'var(--green)'},
-            {pct:dist.B/total*100,color:'var(--accent)'},
-            {pct:dist.C/total*100,color:'var(--orange)'},
-            {pct:dist.D/total*100,color:'#ff6b6b'},
-            {pct:dist.F/total*100,color:'var(--red)'},
-        ].filter(s=>s.pct>0);
-        h+='<div class="card" style="text-align:center">';
-        h+='<h2 style="text-align:left">Grade Distribution</h2>';
-        h+='<div style="display:flex;align-items:center;justify-content:center;gap:20px">';
-        h+=svgDonut(segs,90,12);
-        h+='<div style="text-align:left;font-size:0.82rem;line-height:1.8">';
-        if(dist.A) h+='<div><span class="grade-badge grade-a">A</span> '+dist.A+'</div>';
-        if(dist.B) h+='<div><span class="grade-badge grade-b">B</span> '+dist.B+'</div>';
-        if(dist.C) h+='<div><span class="grade-badge grade-c">C</span> '+dist.C+'</div>';
-        if(dist.D) h+='<div><span class="grade-badge grade-d">D</span> '+dist.D+'</div>';
-        if(dist.F) h+='<div><span class="grade-badge grade-f">F</span> '+dist.F+'</div>';
-        h+='</div></div></div>';
-    }
-
-    // 2. Average by Course
-    const courseAvg={};
-    grades.forEach(g=>{
-        const p=getPct(g);
-        if(isNaN(p)||!g.courseName) return;
-        if(!courseAvg[g.courseName]) courseAvg[g.courseName]={sum:0,count:0};
-        courseAvg[g.courseName].sum+=p;
-        courseAvg[g.courseName].count++;
-    });
-    const bars=Object.entries(courseAvg).map(([name,v])=>({
-        label:name, val:v.sum/v.count, color:progressColor(v.sum/v.count)
-    })).sort((a,b)=>b.val-a.val);
-    if(bars.length>1) {
-        h+='<div class="card">';
-        h+='<h2>Average by Course</h2>';
-        h+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">';
-        h+=svgBarChart(bars, Math.min(bars.length*44+60, 500), 150);
-        h+='</div></div>';
-    }
-
-    // 3. Per-student stats
+    // ═══ 1. Student Overview with overall avg ═══
     const studentStats={};
-    grades.forEach(g=>{
+    filtered.forEach(g=>{
         const sid=g.studentID||'';
         const p=getPct(g);
-        if(isNaN(p)) return;
-        if(!studentStats[sid]) studentStats[sid]={sum:0,count:0,high:0,low:100,name:getName(sid)};
-        studentStats[sid].sum+=p;
-        studentStats[sid].count++;
-        if(p>studentStats[sid].high) studentStats[sid].high=p;
-        if(p<studentStats[sid].low) studentStats[sid].low=p;
+        if(!studentStats[sid]) studentStats[sid]={sum:0,count:0,high:0,low:100,standards:0,name:getName(sid)};
+        if(!isNaN(p)) {
+            studentStats[sid].sum+=p; studentStats[sid].count++;
+            if(p>studentStats[sid].high) studentStats[sid].high=p;
+            if(p<studentStats[sid].low) studentStats[sid].low=p;
+        } else if(isStandardsBased(g)) {
+            studentStats[sid].standards++;
+        }
     });
-    const studentArr=Object.values(studentStats).filter(s=>s.count>0);
+    const studentArr=Object.values(studentStats).filter(s=>s.count>0||s.standards>0);
     if(studentArr.length>0) {
         h+='<div class="card">';
         h+='<h2>Student Overview</h2>';
         for(const s of studentArr) {
-            const avg=s.sum/s.count;
-            const clr=progressColor(avg);
+            const avg=s.count?s.sum/s.count:0;
+            const clr=s.count?progressColor(avg):'var(--text-secondary)';
             h+='<div style="margin-bottom:14px">';
             h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
-            h+='<span style="font-weight:600;font-size:0.86rem">'+esc(s.name)+'</span>';
-            h+='<span style="font-weight:700;color:'+clr+';font-size:0.86rem">'+avg.toFixed(1)+'%</span>';
+            h+='<span style="font-weight:600;font-size:0.88rem">'+esc(s.name)+'</span>';
+            if(s.count) h+='<span style="font-weight:700;color:'+clr+';font-size:0.88rem">'+avg.toFixed(1)+'% avg</span>';
             h+='</div>';
-            h+='<div class="progress-bar" style="max-width:none"><div class="progress-fill" style="width:'+Math.min(avg,100)+'%;background:'+clr+'"></div></div>';
-            h+='<div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-secondary);margin-top:3px">';
-            h+='<span>'+s.count+' courses</span>';
-            h+='<span>Low: '+s.low.toFixed(1)+'% &middot; High: '+s.high.toFixed(1)+'%</span>';
-            h+='</div></div>';
+            if(s.count) {
+                h+='<div class="progress-bar" style="max-width:none"><div class="progress-fill" style="width:'+Math.min(avg,100)+'%;background:'+clr+'"></div></div>';
+                h+='<div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-secondary);margin-top:3px">';
+                h+='<span>'+s.count+' graded courses'+(s.standards?' + '+s.standards+' standards-based':'')+'</span>';
+                h+='<span>Low: '+s.low.toFixed(1)+'% &middot; High: '+s.high.toFixed(1)+'%</span>';
+                h+='</div>';
+            } else {
+                h+='<div style="font-size:0.78rem;color:var(--text-secondary)">'+s.standards+' standards-based courses (no percentage grades)</div>';
+            }
+            h+='</div>';
         }
         h+='</div>';
     }
 
-    // 4. Assignment status
-    const assignments=currentData.assignments||[];
+    // ═══ 2. Term-over-Term Progression (per course across terms) ═══
+    // Group grades by student+course across ALL terms (not just filtered)
+    const progression = {};
+    const allTermNames = new Set();
+    allGrades.forEach(g => {
+        if(gradesSid && String(g.studentID||'')!==gradesSid) return;
+        const key = (g.studentID||'')+'|'+(g.courseName||'');
+        if(!progression[key]) progression[key] = { name: g.courseName||'', student: g.studentID||'', terms: {} };
+        const tn = g.termName||'';
+        if(tn) allTermNames.add(tn);
+        const pct = getPct(g);
+        const score = getScore(g);
+        progression[key].terms[tn] = { pct, score, isStd: isStandardsBased(g) };
+    });
+    const termOrder = [...allTermNames].sort(); // M1, M2, M3, M4
+    const progArr = Object.values(progression).filter(p => {
+        const termCount = Object.keys(p.terms).length;
+        return termCount > 1;
+    });
+
+    if(progArr.length > 0 && termOrder.length > 1) {
+        h += '<div class="card">';
+        h += '<h2>Grade Trend by Term</h2>';
+        h += '<div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:10px">How grades change across marking periods</div>';
+        for(const p of progArr) {
+            const hasNumeric = termOrder.some(t => p.terms[t] && !isNaN(p.terms[t].pct));
+            h += '<div style="margin-bottom:16px">';
+            h += '<div style="font-weight:600;font-size:0.84rem;margin-bottom:2px">'+esc(p.name)+'</div>';
+            if(gradesSid==='') h += '<div style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:4px">'+esc(getFirst(p.student))+'</div>';
+
+            if(hasNumeric) {
+                // Show mini bar chart for numeric grades
+                h += '<div class="term-progression">';
+                for(const tn of termOrder) {
+                    const td = p.terms[tn];
+                    if(!td) {
+                        h += '<div class="term-bar-wrap"><div class="term-bar" style="height:4px;background:var(--border)"></div><div class="term-bar-label">'+esc(tn)+'</div></div>';
+                        continue;
+                    }
+                    const pct = td.pct;
+                    if(!isNaN(pct)) {
+                        const barH = Math.max(4, pct/100*32);
+                        const clr = progressColor(pct);
+                        h += '<div class="term-bar-wrap"><div class="term-bar-val" style="color:'+clr+'">'+pct.toFixed(0)+'%</div><div class="term-bar" style="height:'+barH+'px;background:'+clr+'"></div><div class="term-bar-label">'+esc(tn)+'</div></div>';
+                    } else {
+                        h += '<div class="term-bar-wrap"><div class="term-bar-val">'+esc(td.score)+'</div><div class="term-bar" style="height:16px;background:'+markColor(td.score)+'40"></div><div class="term-bar-label">'+esc(tn)+'</div></div>';
+                    }
+                }
+                h += '</div>';
+            } else {
+                // Standards-based: show marks in a row
+                h += '<div style="display:flex;gap:8px;margin-top:4px">';
+                for(const tn of termOrder) {
+                    const td = p.terms[tn];
+                    h += '<div style="text-align:center">';
+                    h += '<div style="font-size:0.68rem;color:var(--text-secondary)">'+esc(tn)+'</div>';
+                    h += (td ? markChip(td.score) : '<span style="color:var(--text-secondary);font-size:0.75rem">-</span>');
+                    h += '</div>';
+                }
+                h += '</div>';
+            }
+            h += '</div>';
+        }
+        h += '</div>';
+    }
+
+    // ═══ 3. Grade Distribution (donut) ═══
+    const dist={A:0,B:0,C:0,D:0,F:0};
+    const stdDist={};
+    filtered.forEach(g=>{
+        const p=getPct(g);
+        if(!isNaN(p)) {
+            const l=letterGrade(p); const k=l[0];
+            if(dist[k]!==undefined) dist[k]++;
+        } else {
+            const score=getScore(g).toUpperCase().trim();
+            if(score) stdDist[score]=(stdDist[score]||0)+1;
+        }
+    });
+    const pctTotal=dist.A+dist.B+dist.C+dist.D+dist.F;
+    const stdTotal=Object.values(stdDist).reduce((a,b)=>a+b,0);
+
+    if(pctTotal>0 || stdTotal>0) {
+        h+='<div class="card" style="text-align:center">';
+        h+='<h2 style="text-align:left">Grade Distribution</h2>';
+        h+='<div style="display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap">';
+        if(pctTotal>0) {
+            const segs=[
+                {pct:dist.A/pctTotal*100,color:'var(--green)'},
+                {pct:dist.B/pctTotal*100,color:'var(--accent)'},
+                {pct:dist.C/pctTotal*100,color:'var(--orange)'},
+                {pct:dist.D/pctTotal*100,color:'#ff6b6b'},
+                {pct:dist.F/pctTotal*100,color:'var(--red)'},
+            ].filter(s=>s.pct>0);
+            h+=svgDonut(segs,90,12);
+            h+='<div style="text-align:left;font-size:0.82rem;line-height:1.8">';
+            if(dist.A) h+='<div><span class="grade-badge grade-a">A</span> '+dist.A+'</div>';
+            if(dist.B) h+='<div><span class="grade-badge grade-b">B</span> '+dist.B+'</div>';
+            if(dist.C) h+='<div><span class="grade-badge grade-c">C</span> '+dist.C+'</div>';
+            if(dist.D) h+='<div><span class="grade-badge grade-d">D</span> '+dist.D+'</div>';
+            if(dist.F) h+='<div><span class="grade-badge grade-f">F</span> '+dist.F+'</div>';
+            h+='</div>';
+        }
+        if(stdTotal>0) {
+            if(pctTotal>0) h+='<div style="width:1px;height:60px;background:var(--border);margin:0 4px"></div>';
+            h+='<div style="text-align:left;font-size:0.82rem;line-height:1.8">';
+            h+='<div style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px">STANDARDS-BASED</div>';
+            for(const [mark,cnt] of Object.entries(stdDist).sort()) {
+                h+='<div>'+markChip(mark)+' '+cnt+'</div>';
+            }
+            h+='</div>';
+        }
+        h+='</div></div>';
+    }
+
+    // ═══ 4. Assignment Completion ═══
     const assgnByStudent={};
     assignments.forEach(a=>{
         const sid=String(a.studentID||a.personID||'');
@@ -1050,7 +940,99 @@ function renderGradeInsights(grades) {
     return h;
 }
 
-// ── Assignments ──
+// ═══ Course Cards with drill-down ═══
+function renderCourseCards(filtered, assignments) {
+    // Group grades by student + course
+    const courseMap = {};
+    filtered.forEach(g => {
+        const key = (g.studentID||'')+'|'+(g.courseName||'')+'|'+(g.termName||'');
+        if(!courseMap[key]) courseMap[key] = { ...g, key };
+    });
+
+    // Build assignment lookup: courseName+studentID -> assignments
+    const assignLookup = {};
+    assignments.forEach(a => {
+        const sid = String(a.studentID||a.personID||'');
+        const cn = a.courseName||'';
+        const k = sid+'|'+cn;
+        if(!assignLookup[k]) assignLookup[k]=[];
+        assignLookup[k].push(a);
+    });
+
+    let h='';
+    for(const g of Object.values(courseMap)) {
+        const sid = g.studentID||'';
+        const pct = getPct(g);
+        const score = getScore(g);
+        const letter = g.letterGrade||g.grade||(!isNaN(pct)?letterGrade(pct):'');
+        const isStd = isStandardsBased(g);
+        const clr = !isNaN(pct) ? progressColor(pct) : markColor(score);
+
+        // Grade display
+        let gradeDisp = '';
+        if(!isNaN(pct)) {
+            gradeDisp = '<span style="color:'+clr+'">'+pct.toFixed(1)+'%</span>';
+            if(letter) gradeDisp = '<span class="grade-badge '+gradeClass(letter)+'" style="margin-right:6px">'+esc(letter)+'</span>'+gradeDisp;
+        } else if(score) {
+            gradeDisp = markChip(score);
+        } else {
+            gradeDisp = '<span style="color:var(--text-secondary)">-</span>';
+        }
+
+        // Find assessments for this course+student
+        const courseAssigns = assignLookup[sid+'|'+(g.courseName||'')] || [];
+        const sortedAssigns = [...courseAssigns].sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
+
+        h += '<div class="course-card">';
+        h += '<div class="course-card-header" onclick="toggleCourse(this)">';
+        h += '<div class="course-card-left">';
+        h += '<div class="course-card-name">'+esc(g.courseName||'')+'</div>';
+        h += '<div class="course-card-teacher">'+esc(getFirst(sid))+' &middot; '+esc(g.teacherDisplay||'-')+' &middot; '+esc(g.termName||'')+'</div>';
+        h += '</div>';
+        h += '<div class="course-card-right">';
+        h += '<div class="course-card-grade">'+gradeDisp+'</div>';
+        h += '<span class="course-card-chevron">&#8250;</span>';
+        h += '</div></div>';
+
+        // Expandable body with assessments
+        h += '<div class="course-card-body">';
+        if(!isNaN(pct)) {
+            const earned = g.progressPointsEarned||g.pointsEarned||'';
+            const total = g.progressTotalPoints||g.totalPoints||'';
+            if(earned && total) h += '<div style="font-size:0.82rem;margin-bottom:8px;color:var(--text-secondary)">Points: <strong style="color:var(--text)">'+earned+' / '+total+'</strong></div>';
+        }
+
+        if(sortedAssigns.length) {
+            h += '<div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-secondary);margin-bottom:6px">Assessments ('+sortedAssigns.length+')</div>';
+            const showCount = 10;
+            const displayAssigns = sortedAssigns.slice(0, showCount);
+            for(const a of displayAssigns) {
+                const aScore = a.score!=null&&a.score!=='' ? a.score+(a.totalPoints?'/'+a.totalPoints:'') : '';
+                const aPct = a.scorePercentage!=null ? ' ('+Math.round(a.scorePercentage)+'%)' : '';
+                h += '<div class="assess-item">';
+                h += '<div class="assess-name">'+esc(a.assignmentName||'')+' '+statusBadge(a)+'</div>';
+                h += '<div class="assess-date">'+fmtDate(a.dueDate)+'</div>';
+                if(aScore) {
+                    h += '<div class="assess-score">'+aScore+aPct+'</div>';
+                } else {
+                    h += '<div class="assess-score" style="color:var(--text-secondary)">-</div>';
+                }
+                h += '</div>';
+            }
+            if(sortedAssigns.length > showCount) {
+                h += '<div style="font-size:0.78rem;color:var(--text-secondary);padding-top:6px;text-align:center">+'+(sortedAssigns.length-showCount)+' more assignments</div>';
+            }
+        } else {
+            h += '<div style="font-size:0.82rem;color:var(--text-secondary)">No individual assessments found for this course.</div>';
+        }
+        h += '</div></div>';
+    }
+    return h;
+}
+
+// ══════════════════════════════════
+// ASSIGNMENTS TAB
+// ══════════════════════════════════
 let assignSid='';
 function setAssignFilter(sid) { assignSid=sid; renderAssignments(); }
 function renderAssignments() {
@@ -1061,27 +1043,22 @@ function renderAssignments() {
     if(!filtered.length) { c.innerHTML='<p style="color:var(--text-secondary)">No assignments available.</p>'; return; }
     const sorted=[...filtered].sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
 
-    // Desktop
-    let h='<div class="card" style="padding:0;overflow:hidden"><table class="data-table desktop-table"><thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Due</th><th>Score</th><th>Status</th></tr></thead><tbody>';
+    let h='<table class="data-table desktop-table"><thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Due</th><th>Score</th><th>Status</th></tr></thead><tbody>';
     for(const a of sorted) {
         const sid=String(a.studentID||a.personID||'');
         const score=a.score!=null&&a.score!==''?a.score+'/'+(a.totalPoints||'?'):'-';
         const pct=a.scorePercentage!=null?' ('+Math.round(a.scorePercentage)+'%)':'';
-        h+='<tr><td>'+esc(getName(sid))+'</td><td style="font-weight:500">'+esc(a.assignmentName||'')+'</td><td>'+esc(a.courseName||'')+'</td><td>'+fmtDate(a.dueDate)+'</td><td>'+score+pct+'</td><td>'+statusBadge(a)+'</td></tr>';
+        h+='<tr><td>'+esc(getFirst(sid))+'</td><td style="font-weight:500">'+esc(a.assignmentName||'')+'</td><td>'+esc(a.courseName||'')+'</td><td>'+fmtDate(a.dueDate)+'</td><td>'+score+pct+'</td><td>'+statusBadge(a)+'</td></tr>';
     }
-    h+='</tbody></table></div>';
+    h+='</tbody></table>';
 
-    // Mobile
     h+='<div class="mobile-list">';
     for(const a of sorted) {
         const sid=String(a.studentID||a.personID||'');
         const score=a.score!=null&&a.score!==''?a.score+'/'+(a.totalPoints||'?'):'';
         const pct=a.scorePercentage!=null?' ('+Math.round(a.scorePercentage)+'%)':'';
-        h+='<div class="mobile-item">';
-        h+='<div class="mobile-item-header"><span class="mobile-item-title">'+esc(a.assignmentName||'')+'</span>'+statusBadge(a)+'</div>';
-        h+='<div class="mobile-item-meta">';
-        h+=esc(getName(sid))+' &middot; '+esc(a.courseName||'');
-        h+='<br>Due '+fmtDate(a.dueDate);
+        h+='<div class="mobile-item"><div class="mobile-item-header"><span class="mobile-item-title">'+esc(a.assignmentName||'')+'</span>'+statusBadge(a)+'</div>';
+        h+='<div class="mobile-item-meta">'+esc(getFirst(sid))+' &middot; '+esc(a.courseName||'')+'<br>Due '+fmtDate(a.dueDate);
         if(score) h+=' &middot; '+score+pct;
         h+='</div></div>';
     }
@@ -1089,7 +1066,9 @@ function renderAssignments() {
     c.innerHTML=h;
 }
 
-// ── Settings ──
+// ══════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════
 async function loadConfig() {
     try {
         const cfg=await apiGet('config'); const sts=await apiGet('status');
@@ -1103,7 +1082,9 @@ async function loadConfig() {
     } catch(e){}
 }
 
-// ── Controls ──
+// ══════════════════════════════════
+// CONTROLS
+// ══════════════════════════════════
 async function pollNow() {
     showAlert('Refreshing...','info');
     try { const r=await apiPost('poll'); r.success?(showAlert('Done!','success'),await loadData()):showAlert(r.error,'error'); }
@@ -1118,7 +1099,9 @@ async function stopService() {
     catch(e){showAlert(e.message,'error');}
 }
 
-// ── Init ──
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
 async function init() {
     await loadConfig(); await updateStatus(); await loadData();
     setInterval(updateStatus,30000);

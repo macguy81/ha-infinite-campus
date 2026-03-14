@@ -23,7 +23,7 @@ LABEL \
     io.hass.name="Infinite Campus Monitor" \
     io.hass.description="Monitor student grades, assignments, and attendance from Infinite Campus with WhatsApp notifications" \
     io.hass.type="addon" \
-    io.hass.version="1.3.1"
+    io.hass.version="1.3.2"
 
 # Run via startup script which also installs deps as fallback
 CMD ["/app/run.sh"]
