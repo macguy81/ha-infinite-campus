@@ -14,9 +14,8 @@ Setup:
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
-from urllib.parse import quote
 
 import aiohttp
 

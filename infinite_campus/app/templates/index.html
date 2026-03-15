@@ -431,11 +431,14 @@
                     <li>Enter the API key you receive into the HA Configuration tab</li>
                     <li>Repeat for the second phone number if desired</li>
                 </ol>
-                <div style="margin-top:16px">
+                <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
                     <button class="btn" onclick="testWhatsApp()" id="btnTestWA" style="background:var(--green);color:#fff">
                         Send Test Message
                     </button>
-                    <span id="testWAResult" style="margin-left:12px;font-size:0.84rem"></span>
+                    <button class="btn" onclick="testSummary()" id="btnTestSummary" style="background:var(--accent);color:#fff">
+                        Test Daily Summary
+                    </button>
+                    <span id="testWAResult" style="font-size:0.84rem"></span>
                 </div>
             </div>
         </div>
@@ -1134,6 +1137,33 @@ async function testWhatsApp() {
     }
     btn.disabled = false;
     btn.textContent = 'Send Test Message';
+}
+
+async function testSummary() {
+    const btn = document.getElementById('btnTestSummary');
+    const result = document.getElementById('testWAResult');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    result.textContent = '';
+    result.style.color = '';
+    try {
+        const r = await apiPost('test-summary');
+        if (r.success) {
+            result.textContent = 'Daily summary sent! Check WhatsApp.';
+            result.style.color = 'var(--green)';
+            showAlert('Daily summary sent!', 'success');
+        } else {
+            result.textContent = r.error || 'Failed';
+            result.style.color = 'var(--red)';
+            showAlert('Summary failed: ' + (r.error || 'Unknown error'), 'error');
+        }
+    } catch(e) {
+        result.textContent = e.message;
+        result.style.color = 'var(--red)';
+        showAlert('Summary error: ' + e.message, 'error');
+    }
+    btn.disabled = false;
+    btn.textContent = 'Test Daily Summary';
 }
 
 // ══════════════════════════════════

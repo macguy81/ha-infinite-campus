@@ -124,6 +124,7 @@ class ICScheduler:
         self._last_poll: Optional[datetime] = None
         self._last_summary_date: Optional[str] = None
         self._student_names: dict[str, str] = {}
+        self._first_poll = True  # Skip notifications on first poll to avoid flood
 
         # Web UI state
         self.latest_data: dict[str, Any] = {}
@@ -203,7 +204,16 @@ class ICScheduler:
                 cat_data = data.get(category, [])
                 if cat_data and isinstance(cat_data, list):
                     changes = self._detector.detect_changes(category, cat_data)
-                    await self._process_changes(category, changes)
+                    if self._first_poll:
+                        added_count = len(changes.get("added", []))
+                        if added_count > 0:
+                            logger.info(f"First poll: skipping {added_count} {category} notifications (baseline)")
+                    else:
+                        await self._process_changes(category, changes)
+
+            if self._first_poll:
+                self._first_poll = False
+                logger.info("First poll complete — future changes will trigger notifications")
 
             # Cache other categories without notifications
             for category in ["courses", "terms", "schedule"]:
@@ -246,6 +256,8 @@ class ICScheduler:
 
         if not added and not modified:
             return
+
+        logger.info(f"Changes detected in {category}: {len(added)} added, {len(modified)} modified")
 
         if category == "grades" and self.notify_grades:
             await self._notify_grade_changes(added, modified)
@@ -294,7 +306,10 @@ class ICScheduler:
                     pass
 
             score_str = earned + "/" + total if earned and total else score or "N/A"
-            pct_str = f" ({float(pct):.1f}%)" if pct else ""
+            try:
+                pct_str = f" ({float(pct):.1f}%)" if pct else ""
+            except (ValueError, TypeError):
+                pct_str = ""
 
             msg = (
                 f"📚 *Grade Update*\n\n"
@@ -329,8 +344,11 @@ class ICScheduler:
             elif item.get("score") is not None and item.get("score") != "":
                 # New graded assignment
                 score_str = f"{item['score']}/{item.get('totalPoints', '?')}"
-                pct = item.get("scorePercentage", "")
-                pct_str = f" ({pct:.0f}%)" if pct else ""
+                pct = item.get("scorePercentage")
+                try:
+                    pct_str = f" ({float(pct):.0f}%)" if pct is not None else ""
+                except (ValueError, TypeError):
+                    pct_str = ""
                 msg = (
                     f"✅ *Assignment Graded*\n\n"
                     f"👤 *{name}*\n"
@@ -364,8 +382,11 @@ class ICScheduler:
             new_score = new_item.get("score")
             if (old_score is None or old_score == "") and new_score is not None and new_score != "":
                 score_str = f"{new_score}/{new_item.get('totalPoints', '?')}"
-                pct = new_item.get("scorePercentage", "")
-                pct_str = f" ({pct:.0f}%)" if pct else ""
+                pct = new_item.get("scorePercentage")
+                try:
+                    pct_str = f" ({float(pct):.0f}%)" if pct is not None else ""
+                except (ValueError, TypeError):
+                    pct_str = ""
                 msg = (
                     f"✅ *Assignment Graded*\n\n"
                     f"👤 *{name}*\n"
@@ -430,49 +451,92 @@ class ICScheduler:
         except Exception as e:
             logger.error(f"Failed to send notification: {e}")
 
-    async def _check_daily_summary(self) -> None:
+    def _load_summary_date(self) -> Optional[str]:
+        """Load last summary date from disk to survive restarts."""
+        summary_file = DATA_DIR / "last_summary_date.txt"
+        try:
+            if summary_file.exists():
+                return summary_file.read_text().strip()
+        except IOError:
+            pass
+        return None
+
+    def _save_summary_date(self, date_str: str) -> None:
+        """Persist last summary date to disk."""
+        summary_file = DATA_DIR / "last_summary_date.txt"
+        try:
+            DATA_DIR.mkdir(parents=True, exist_ok=True)
+            summary_file.write_text(date_str)
+        except IOError as e:
+            logger.error(f"Failed to save summary date: {e}")
+
+    async def _check_daily_summary(self, force: bool = False) -> None:
         now = datetime.now()
         today = now.strftime("%Y-%m-%d")
 
-        if (
-            now.hour == self.daily_summary_hour
-            and self._last_summary_date != today
-            and self.notifier
-            and self.latest_data
-        ):
-            self._last_summary_date = today
+        if not force:
+            # Load persisted date if we don't have one in memory
+            if self._last_summary_date is None:
+                self._last_summary_date = self._load_summary_date()
 
-            for sid, name in self._student_names.items():
-                assignments = [
-                    a for a in self.latest_data.get("assignments", [])
-                    if str(a.get("studentID", a.get("personID", ""))) == sid
-                ]
-                grades = [
-                    g for g in self.latest_data.get("grades", [])
-                    if str(g.get("studentID", "")) == sid
-                ]
-                courses = [
-                    c for c in self.latest_data.get("courses", [])
-                    if str(c.get("studentID", c.get("personID", ""))) == sid
-                ]
+            # Check if we're at or past the summary hour and haven't sent today
+            if now.hour < self.daily_summary_hour:
+                return
+            if self._last_summary_date == today:
+                return
 
-                missing = len([a for a in assignments if a.get("missing")])
-                due_today = 0
-                for a in assignments:
-                    due = a.get("dueDate", "")
-                    if due and today in due:
-                        due_today += 1
+        if not self.notifier or not self.latest_data:
+            logger.debug(f"Daily summary skipped: notifier={bool(self.notifier)}, data={bool(self.latest_data)}")
+            return
 
-                msg = (
-                    f"📊 *Daily Summary*\n\n"
-                    f"👤 *{name}*\n"
-                    f"📅 {now.strftime('%A, %B %d, %Y')}\n\n"
-                    f"📖 Courses: {len(courses)}\n"
-                    f"📝 Assignments Due Today: {due_today}\n"
-                    f"⚠️ Missing Assignments: {missing}\n"
-                    f"✅ Total Grades: {len(grades)}"
-                )
-                await self._send_notification(msg)
+        logger.info(f"Sending daily summary for {today} (hour={now.hour}, target={self.daily_summary_hour})")
+        self._last_summary_date = today
+        self._save_summary_date(today)
+
+        for sid, name in self._student_names.items():
+            assignments = [
+                a for a in self.latest_data.get("assignments", [])
+                if str(a.get("studentID", a.get("personID", ""))) == sid
+            ]
+            grades = [
+                g for g in self.latest_data.get("grades", [])
+                if str(g.get("studentID", "")) == sid
+            ]
+            courses = [
+                c for c in self.latest_data.get("courses", [])
+                if str(c.get("studentID", c.get("personID", ""))) == sid
+            ]
+
+            missing = len([a for a in assignments if a.get("missing")])
+            due_today = 0
+            for a in assignments:
+                due = a.get("dueDate", "")
+                if due and today in due:
+                    due_today += 1
+
+            # Calculate average grade
+            pcts = []
+            for g in grades:
+                pct = g.get("progressPercent") or g.get("percent") or ""
+                try:
+                    pcts.append(float(pct))
+                except (ValueError, TypeError):
+                    pass
+            avg_str = f"\n📈 Average: *{sum(pcts)/len(pcts):.1f}%*" if pcts else ""
+
+            msg = (
+                f"📊 *Daily Summary*\n\n"
+                f"👤 *{name}*\n"
+                f"📅 {now.strftime('%A, %B %d, %Y')}\n\n"
+                f"📖 Courses: {len(courses)}\n"
+                f"📝 Assignments Due Today: {due_today}\n"
+                f"⚠️ Missing Assignments: {missing}\n"
+                f"✅ Total Grades: {len(grades)}"
+                f"{avg_str}\n\n"
+                f"🕐 {now.strftime('%I:%M %p')}"
+            )
+            await self._send_notification(msg)
+            logger.info(f"Daily summary sent for {name}")
 
     def get_status(self) -> dict:
         return {

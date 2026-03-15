@@ -62,6 +62,7 @@ class ICWebServer:
         self.app.router.add_post("/api/start", self.handle_start)
         self.app.router.add_post("/api/stop", self.handle_stop)
         self.app.router.add_post("/api/test-whatsapp", self.handle_test_whatsapp)
+        self.app.router.add_post("/api/test-summary", self.handle_test_summary)
         self.app.router.add_static("/static", STATIC_DIR)
 
     async def handle_index(self, request: web.Request) -> web.Response:
@@ -192,6 +193,34 @@ class ICWebServer:
         except Exception as e:
             if notifier is not self.notifier:
                 await notifier.close()
+            return web.json_response({"success": False, "error": str(e)}, status=500)
+
+    async def handle_test_summary(self, request: web.Request) -> web.Response:
+        """Send a test daily summary to verify it works."""
+        if not self.scheduler:
+            return web.json_response(
+                {"success": False, "error": "Service not started. Click Start Service first."},
+                status=400,
+            )
+        if not self.notifier:
+            return web.json_response(
+                {"success": False, "error": "WhatsApp not configured."},
+                status=400,
+            )
+        if not self.scheduler.latest_data:
+            return web.json_response(
+                {"success": False, "error": "No data yet. Wait for a poll cycle or click Refresh Data first."},
+                status=400,
+            )
+
+        try:
+            # Force send regardless of time or last-sent date
+            saved_date = self.scheduler._last_summary_date
+            await self.scheduler._check_daily_summary(force=True)
+            # Restore original date (don't mark today as sent for the real scheduled one)
+            self.scheduler._last_summary_date = saved_date
+            return web.json_response({"success": True, "message": "Daily summary sent"})
+        except Exception as e:
             return web.json_response({"success": False, "error": str(e)}, status=500)
 
     async def _init_services(self) -> None:
