@@ -431,6 +431,12 @@
                     <li>Enter the API key you receive into the HA Configuration tab</li>
                     <li>Repeat for the second phone number if desired</li>
                 </ol>
+                <div style="margin-top:16px">
+                    <button class="btn" onclick="testWhatsApp()" id="btnTestWA" style="background:var(--green);color:#fff">
+                        Send Test Message
+                    </button>
+                    <span id="testWAResult" style="margin-left:12px;font-size:0.84rem"></span>
+                </div>
             </div>
         </div>
     </div>
@@ -1101,6 +1107,33 @@ async function startService() {
 async function stopService() {
     try { const r=await apiPost('stop'); showAlert(r.success?'Stopped.':r.error,r.success?'success':'error'); await updateStatus(); }
     catch(e){showAlert(e.message,'error');}
+}
+
+async function testWhatsApp() {
+    const btn = document.getElementById('btnTestWA');
+    const result = document.getElementById('testWAResult');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    result.textContent = '';
+    result.style.color = '';
+    try {
+        const r = await apiPost('test-whatsapp');
+        if (r.success) {
+            result.textContent = 'Sent! Check your WhatsApp.';
+            result.style.color = 'var(--green)';
+            showAlert('Test WhatsApp message sent!', 'success');
+        } else {
+            result.textContent = r.error || 'Failed to send';
+            result.style.color = 'var(--red)';
+            showAlert('WhatsApp test failed: ' + (r.error || 'Unknown error'), 'error');
+        }
+    } catch(e) {
+        result.textContent = e.message;
+        result.style.color = 'var(--red)';
+        showAlert('WhatsApp test error: ' + e.message, 'error');
+    }
+    btn.disabled = false;
+    btn.textContent = 'Send Test Message';
 }
 
 // ══════════════════════════════════

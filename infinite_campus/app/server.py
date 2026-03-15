@@ -61,6 +61,7 @@ class ICWebServer:
         self.app.router.add_post("/api/poll", self.handle_poll_now)
         self.app.router.add_post("/api/start", self.handle_start)
         self.app.router.add_post("/api/stop", self.handle_stop)
+        self.app.router.add_post("/api/test-whatsapp", self.handle_test_whatsapp)
         self.app.router.add_static("/static", STATIC_DIR)
 
     async def handle_index(self, request: web.Request) -> web.Response:
@@ -160,6 +161,38 @@ class ICWebServer:
         """Stop the polling scheduler."""
         await self._stop_services()
         return web.json_response({"success": True, "message": "Service stopped"})
+
+    async def handle_test_whatsapp(self, request: web.Request) -> web.Response:
+        """Send a test WhatsApp message to verify configuration."""
+        if not self.notifier:
+            # Try to initialize notifier from current config
+            config = load_config()
+            phone = config.get("whatsapp_phone", "")
+            api_key = config.get("whatsapp_api_key", "")
+            if not phone or not api_key:
+                return web.json_response(
+                    {"success": False, "error": "WhatsApp not configured. Add phone number and API key in the HA Configuration tab, then restart the add-on."},
+                    status=400,
+                )
+            # Create a temporary notifier for testing
+            notifier = WhatsAppNotifier(
+                phone_number=phone,
+                api_key=api_key,
+                phone_number_2=config.get("whatsapp_phone_2", ""),
+                api_key_2=config.get("whatsapp_api_key_2", ""),
+            )
+        else:
+            notifier = self.notifier
+
+        try:
+            result = await notifier.test_connection()
+            if notifier is not self.notifier:
+                await notifier.close()
+            return web.json_response(result)
+        except Exception as e:
+            if notifier is not self.notifier:
+                await notifier.close()
+            return web.json_response({"success": False, "error": str(e)}, status=500)
 
     async def _init_services(self) -> None:
         """Initialize API client, notifier, and scheduler from HA config."""
