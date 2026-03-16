@@ -497,6 +497,7 @@
                 <span class="filter-label">Term</span>
                 <div id="gradesTermFilter" class="filter-bar"></div>
             </div>
+            <div id="gradeCharts" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px"></div>
             <div id="gradesSummary"></div>
             <div id="gradesContainer" class="loading"><div class="spinner"></div></div>
         </div>
@@ -906,11 +907,197 @@ function renderStudents() {
 // ══════════════════════════════════════════════════
 // GRADES TAB — insights + expandable course cards
 // ══════════════════════════════════════════════════
-let gradesSid='', gradesTerm='';
+let gradesSid='', gradesTerm='', gradeChartSubject='';
 function setGradeStudent(v) { gradesSid=v; renderGrades(); }
 function setGradeTerm(v) { gradesTerm=v; renderGrades(); }
+function setGradeChartSubject(v) { gradeChartSubject=v; renderGradeCharts(window._lastGradeFiltered||[]); }
 
 function toggleCourse(el) { el.closest('.course-card').classList.toggle('open'); }
+
+function renderGradeCharts(filtered) {
+    window._lastGradeFiltered = filtered;
+    const container = document.getElementById('gradeCharts');
+    if(!container) return;
+    if(!filtered.length) { container.innerHTML = ''; return; }
+
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const gridClr = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+    const palette = ['#0071e3','#34c759','#ff9500','#af52de','#ff3b30','#5ac8fa','#ff2d55','#ffcc00','#30b0c7','#8e8e93'];
+
+    destroyChart('gradeCourse');
+    destroyChart('gradeTrend');
+
+    const allSubjects = [...new Set(filtered.map(g => g.courseName || 'Unknown'))].sort();
+
+    let pctCount = 0, stdCount = 0;
+    filtered.forEach(g => {
+        const p = getPct(g);
+        if(!isNaN(p)) pctCount++;
+        else {
+            const s = parseFloat(getScore(g));
+            if(!isNaN(s) && s >= 1 && s <= 4) stdCount++;
+        }
+    });
+    const useStandards = stdCount > pctCount;
+
+    // Course performance bar
+    const courseGrades = {};
+    filtered.forEach(g => {
+        const name = g.courseName || 'Unknown';
+        const p = getPct(g);
+        const s = parseFloat(getScore(g));
+        if(!isNaN(p) && !useStandards) {
+            if(!courseGrades[name]) courseGrades[name] = { sum: 0, count: 0 };
+            courseGrades[name].sum += p; courseGrades[name].count++;
+        } else if(useStandards && !isNaN(s) && s >= 1 && s <= 4) {
+            if(!courseGrades[name]) courseGrades[name] = { sum: 0, count: 0 };
+            courseGrades[name].sum += s; courseGrades[name].count++;
+        }
+    });
+    const courseNames = Object.keys(courseGrades).slice(0, 10);
+    const courseData = courseNames.map(n => +(courseGrades[n].sum / courseGrades[n].count).toFixed(1));
+    const courseColors = courseNames.map((n, i) => {
+        if(gradeChartSubject && n !== gradeChartSubject) return isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)';
+        if(useStandards) {
+            return courseData[i] >= 3.5 ? '#34c759' : courseData[i] >= 2.5 ? '#0071e3' : courseData[i] >= 1.5 ? '#ff9500' : '#ff3b30';
+        }
+        return courseData[i] >= 90 ? '#34c759' : courseData[i] >= 80 ? '#0071e3' : courseData[i] >= 70 ? '#ff9500' : '#ff3b30';
+    });
+
+    // Per-subject term trend data
+    const termSet = new Set();
+    const subjectTermData = {};
+    filtered.forEach(g => {
+        const t = g.termName || 'Current';
+        const name = g.courseName || 'Unknown';
+        const p = getPct(g);
+        const s = parseFloat(getScore(g));
+        if(!isNaN(p) && !useStandards) {
+            termSet.add(t);
+            if(!subjectTermData[name]) subjectTermData[name] = {};
+            if(!subjectTermData[name][t]) subjectTermData[name][t] = { sum:0, count:0 };
+            subjectTermData[name][t].sum += p; subjectTermData[name][t].count++;
+        } else if(useStandards && !isNaN(s) && s >= 1 && s <= 4) {
+            termSet.add(t);
+            if(!subjectTermData[name]) subjectTermData[name] = {};
+            if(!subjectTermData[name][t]) subjectTermData[name][t] = { sum:0, count:0 };
+            subjectTermData[name][t].sum += s; subjectTermData[name][t].count++;
+        }
+    });
+    const termLabels = [...termSet].sort();
+
+    // Subject dropdown filter
+    const selClr = gradeChartSubject ? palette[allSubjects.indexOf(gradeChartSubject) % palette.length] : '#0071e3';
+    let dropHtml = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;grid-column:1/-1">';
+    dropHtml += '<label style="font-size:13px;font-weight:600;color:'+(isDark?'#ccc':'#555')+'">Subject</label>';
+    dropHtml += '<select onchange="setGradeChartSubject(this.value)" style="padding:6px 32px 6px 12px;border-radius:10px;border:1.5px solid '+(gradeChartSubject?selClr:'var(--border)')+';font-size:13px;background:'+(isDark?'#2a2a2a':'#fff')+';color:'+(isDark?'#eee':'#333')+';cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url(\'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23888%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>\');background-repeat:no-repeat;background-position:right 10px center;min-width:180px">';
+    dropHtml += '<option value=""'+(gradeChartSubject===''?' selected':'')+'>All Subjects ('+allSubjects.length+')</option>';
+    allSubjects.forEach((s, i) => {
+        const avg = courseGrades[s] ? (courseGrades[s].sum / courseGrades[s].count).toFixed(1) + (useStandards ? '/4' : '%') : '';
+        dropHtml += '<option value="'+s.replace(/"/g,'&quot;')+'"'+(gradeChartSubject===s?' selected':'')+'>'+s+(avg?' — '+avg:'')+'</option>';
+    });
+    dropHtml += '</select>';
+    if(gradeChartSubject) {
+        dropHtml += '<button onclick="setGradeChartSubject(\'\')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border);font-size:11px;cursor:pointer;background:transparent;color:'+(isDark?'#aaa':'#666')+'">Clear</button>';
+    }
+    dropHtml += '</div>';
+
+    let h = dropHtml;
+    if(courseNames.length) {
+        const chartTitle = useStandards ? 'Standards Scores (1-4)' : 'Course Grades';
+        h += '<div class="card chart-card-wrap" style="margin-bottom:0"><div class="chart-header"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg><h2 style="margin-bottom:0">'+chartTitle+'</h2></div><div class="chart-wrap"><canvas id="gradeChartCourse"></canvas></div></div>';
+    }
+    if(termLabels.length > 0) {
+        h += '<div class="card chart-card-wrap" style="margin-bottom:0"><div class="chart-header"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><h2 style="margin-bottom:0">Term Trend by Subject</h2></div><div class="chart-wrap" style="height:260px"><canvas id="gradeChartTrend"></canvas></div></div>';
+    }
+    container.innerHTML = h;
+
+    // Render course chart
+    if(courseNames.length) {
+        chartInstances['gradeCourse'] = new Chart(document.getElementById('gradeChartCourse'), {
+            type: 'bar',
+            data: {
+                labels: courseNames.map(n => n.length > 20 ? n.slice(0,18)+'...' : n),
+                datasets: [{ data: courseData, backgroundColor: courseColors, borderRadius: 6, barThickness: Math.min(18, Math.max(8, Math.floor(180/courseNames.length))) }]
+            },
+            options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{min:0,max:useStandards?4:100,grid:{color:gridClr},ticks:useStandards?{stepSize:1,callback:v=>v===1?'1-Limited':v===2?'2-Approaching':v===3?'3-Meeting':v===4?'4-Exceeds':v}:{}}, y:{grid:{display:false}} } }
+        });
+    }
+
+    // Render trend chart with per-subject lines
+    if(termLabels.length > 0) {
+        const datasets = [];
+        const showSubjects = gradeChartSubject ? [gradeChartSubject] : allSubjects;
+
+        showSubjects.forEach((subj, idx) => {
+            const cIdx = allSubjects.indexOf(subj);
+            const clr = palette[cIdx % palette.length];
+            const data = termLabels.map(t => {
+                const d = (subjectTermData[subj]||{})[t];
+                return d ? +(d.sum / d.count).toFixed(1) : null;
+            });
+            if(data.some(v => v !== null)) {
+                datasets.push({
+                    label: subj,
+                    data: data,
+                    borderColor: clr,
+                    backgroundColor: gradeChartSubject ? clr+'1a' : 'transparent',
+                    fill: !!gradeChartSubject,
+                    tension: 0.3,
+                    pointRadius: gradeChartSubject ? 6 : 3,
+                    pointBackgroundColor: clr,
+                    borderWidth: gradeChartSubject ? 3 : 2,
+                    spanGaps: true
+                });
+            }
+        });
+
+        if(!gradeChartSubject && datasets.length > 1) {
+            const avgData = termLabels.map(t => {
+                let sum = 0, cnt = 0;
+                Object.values(subjectTermData).forEach(td => {
+                    if(td[t]) { sum += td[t].sum / td[t].count; cnt++; }
+                });
+                return cnt ? +(sum/cnt).toFixed(1) : null;
+            });
+            datasets.push({
+                label: 'Average',
+                data: avgData,
+                borderColor: isDark ? '#fff' : '#333',
+                borderDash: [6, 3],
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: false,
+                tension: 0.3,
+                spanGaps: true
+            });
+        }
+
+        const allVals = datasets.flatMap(d => d.data.filter(v => v !== null));
+        const minVal = useStandards ? 0.5 : (allVals.length ? Math.max(0, Math.min(...allVals) - 10) : 0);
+        const maxVal = useStandards ? 4.5 : 100;
+
+        chartInstances['gradeTrend'] = new Chart(document.getElementById('gradeChartTrend'), {
+            type: 'line',
+            data: { labels: termLabels, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: datasets.length > 1,
+                        position: 'bottom',
+                        labels: { boxWidth: 12, padding: 10, font: { size: 11 }, color: isDark ? '#ccc' : '#555' }
+                    }
+                },
+                scales: {
+                    y: { min: minVal, max: maxVal, grid: { color: gridClr }, ticks: useStandards ? { stepSize: 1, callback: v => v >= 1 && v <= 4 ? ['','1-Limited','2-Approaching','3-Meeting','4-Exceeds'][v] : '' } : {} },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+}
 
 function renderGrades() {
     const c=document.getElementById('gradesContainer');
@@ -930,6 +1117,17 @@ function renderGrades() {
 
     if(gradesTerm) filtered=filtered.filter(g=>g.termName===gradesTerm);
 
+    // Filter out future terms (terms with no actual grades/scores)
+    const termHasData = {};
+    filtered.forEach(g => {
+        const t = g.termName || '';
+        if(!termHasData[t]) termHasData[t] = false;
+        const p = getPct(g);
+        const s = getScore(g);
+        if(!isNaN(p) || (s && s !== '')) termHasData[t] = true;
+    });
+    filtered = filtered.filter(g => termHasData[g.termName || '']);
+
     filtered.sort((a,b)=>{
         const ta=a.termName||'', tb=b.termName||'';
         if(ta!==tb) return tb.localeCompare(ta);
@@ -939,8 +1137,12 @@ function renderGrades() {
     if(!filtered.length) {
         summary.innerHTML='';
         c.innerHTML='<p style="color:var(--text-secondary)">No grades available.</p>';
+        renderGradeCharts([]);
         return;
     }
+
+    // Render grade charts
+    renderGradeCharts(filtered);
 
     // Build insights
     summary.innerHTML=renderGradeInsights(filtered, grades, assignments);
