@@ -20,12 +20,13 @@
 
   <!-- Tab bar -->
   <rect x="12" y="52" width="351" height="32" rx="8" fill="rgba(118,118,128,0.12)"/>
-  <rect x="14" y="54" width="66" height="28" rx="7" fill="white" filter="url(#shadow)"/>
-  <text x="47" y="72" text-anchor="middle" font-size="10" font-weight="600" fill="#1d1d1f">Dashboard</text>
-  <text x="117" y="72" text-anchor="middle" font-size="10" font-weight="500" fill="#1d1d1f">Students</text>
-  <text x="187" y="72" text-anchor="middle" font-size="10" font-weight="500" fill="#1d1d1f">Grades</text>
-  <text x="262" y="72" text-anchor="middle" font-size="10" font-weight="500" fill="#1d1d1f">Assign...</text>
-  <text x="332" y="72" text-anchor="middle" font-size="10" font-weight="500" fill="#1d1d1f">Settings</text>
+  <rect x="14" y="54" width="52" height="28" rx="7" fill="white" filter="url(#shadow)"/>
+  <text x="40" y="72" text-anchor="middle" font-size="9" font-weight="600" fill="#1d1d1f">Dashboard</text>
+  <text x="100" y="72" text-anchor="middle" font-size="9" font-weight="500" fill="#1d1d1f">Students</text>
+  <text x="155" y="72" text-anchor="middle" font-size="9" font-weight="500" fill="#1d1d1f">Grades</text>
+  <text x="212" y="72" text-anchor="middle" font-size="9" font-weight="500" fill="#1d1d1f">Assign...</text>
+  <text x="275" y="72" text-anchor="middle" font-size="9" font-weight="500" fill="#0071e3">AI</text>
+  <text x="332" y="72" text-anchor="middle" font-size="9" font-weight="500" fill="#1d1d1f">Settings</text>
 
   <!-- Stats Grid (2x3) -->
   <g transform="translate(12, 96)">

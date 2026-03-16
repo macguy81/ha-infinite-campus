@@ -5,9 +5,14 @@ Monitor your children's grades, assignments, attendance, and school notification
 ## Screenshots
 
 ### Dashboard
-Overview with stats, quick actions, and recent assignments with scores and status badges.
+Overview with stats, quick actions, interactive charts (grade trends, course performance, assignment status, GPA by student), and recent assignments.
 
 ![Dashboard](screenshots/dashboard.svg)
+
+### AI Insights
+AI-powered analysis with personalized parent summaries, study tips, assignment priorities, grade predictions, and weekly action plans. Powered by Google Gemini (free).
+
+![AI Insights](screenshots/ai-insights.svg)
 
 ### Grades & Insights
 Filter by student and term. Grade trends across marking periods, distribution charts, and expandable course cards with individual assessments. Supports both percentage-based and standards-based grading (G/NY marks).
@@ -52,11 +57,12 @@ Fully responsive — tables become card layouts on mobile for a native app feel.
 - **Last Updated Sensor**: `sensor.infinite_campus_last_updated` — timestamp with data counts
 
 ### Web Dashboard (Ingress)
-- **Dashboard**: Overview stats, quick actions, recent assignments sorted by most recent
+- **Dashboard**: Overview stats, quick actions, 4 interactive Chart.js charts (grade trends, course performance, assignment status, GPA by student), and recent assignments
 - **Students Tab**: Tabbed per-student view with enrollment info, courses, teachers, rooms
 - **Grades Tab**: Student and term filters, grade trend charts across marking periods, expandable course cards with per-assignment drill-down, supports both percentage-based and standards-based grading (G/NY/E marks)
 - **Assignments Tab**: Full assignment list sorted by due date with status badges (Missing/Late/Turned In/Graded)
-- **Settings Tab**: Connection status, WhatsApp setup guide
+- **AI Insights Tab**: AI-powered analysis using Google Gemini (free) — parent summaries, study tips per subject, assignment priorities, grade predictions, and weekly action plans
+- **Settings Tab**: Connection status, WhatsApp setup guide, Gemini API key configuration
 - **Mobile-First**: Responsive design — tables become card layouts on phones for a native app feel
 
 ## Installation
@@ -256,6 +262,7 @@ The add-on tries multiple patterns and uses whichever works for your district:
 All data stays local on your Home Assistant instance. No data is sent to any third party except:
 - Infinite Campus (to fetch your student data with your credentials)
 - CallMeBot (only if WhatsApp notifications are configured, sends notification text only)
+- Google Gemini API (only if AI Insights is configured, sends grade/assignment summaries for analysis)
 
 ## License
 

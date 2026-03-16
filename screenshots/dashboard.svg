@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="780" viewBox="0 0 800 780">
   <defs>
     <filter id="shadow" x="-2%" y="-2%" width="104%" height="106%">
       <feDropShadow dx="0" dy="1" stdDeviation="3" flood-color="#000" flood-opacity="0.06"/>
@@ -9,7 +9,7 @@
   </defs>
 
   <!-- Background -->
-  <rect width="800" height="520" fill="#f5f5f7" rx="12"/>
+  <rect width="800" height="780" fill="#f5f5f7" rx="12"/>
 
   <!-- Header -->
   <rect width="800" height="48" fill="rgba(255,255,255,0.85)" rx="12"/>
@@ -20,49 +20,44 @@
 
   <!-- Tab bar -->
   <rect x="16" y="60" width="768" height="36" rx="10" fill="rgba(118,118,128,0.12)"/>
-  <rect x="18" y="62" width="150" height="32" rx="8" fill="white" filter="url(#shadow)"/>
-  <text x="93" y="83" text-anchor="middle" font-size="12" font-weight="600" fill="#1d1d1f">Dashboard</text>
-  <text x="247" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Students</text>
-  <text x="397" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Grades</text>
-  <text x="547" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Assignments</text>
-  <text x="697" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Settings</text>
+  <rect x="18" y="62" width="124" height="32" rx="8" fill="white" filter="url(#shadow)"/>
+  <text x="80" y="83" text-anchor="middle" font-size="12" font-weight="600" fill="#1d1d1f">Dashboard</text>
+  <text x="200" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Students</text>
+  <text x="310" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Grades</text>
+  <text x="428" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Assignments</text>
+  <text x="550" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#0071e3">AI Insights</text>
+  <text x="670" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Settings</text>
 
   <!-- Stats Grid -->
   <g transform="translate(16, 112)">
-    <!-- Stat 1 -->
     <rect width="120" height="70" rx="14" fill="white" filter="url(#shadow)"/>
     <text x="60" y="36" text-anchor="middle" font-size="24" font-weight="700" fill="#1d1d1f">2</text>
     <text x="60" y="56" text-anchor="middle" font-size="9" font-weight="500" fill="#86868b" letter-spacing="0.5">STUDENTS</text>
 
-    <!-- Stat 2 -->
     <g transform="translate(132, 0)">
       <rect width="120" height="70" rx="14" fill="white" filter="url(#shadow)"/>
       <text x="60" y="36" text-anchor="middle" font-size="24" font-weight="700" fill="#1d1d1f">14</text>
       <text x="60" y="56" text-anchor="middle" font-size="9" font-weight="500" fill="#86868b" letter-spacing="0.5">COURSES</text>
     </g>
 
-    <!-- Stat 3 -->
     <g transform="translate(264, 0)">
       <rect width="120" height="70" rx="14" fill="white" filter="url(#shadow)"/>
       <text x="60" y="36" text-anchor="middle" font-size="24" font-weight="700" fill="#1d1d1f">42</text>
       <text x="60" y="56" text-anchor="middle" font-size="9" font-weight="500" fill="#86868b" letter-spacing="0.5">GRADES</text>
     </g>
 
-    <!-- Stat 4 -->
     <g transform="translate(396, 0)">
       <rect width="120" height="70" rx="14" fill="white" filter="url(#shadow)"/>
       <text x="60" y="36" text-anchor="middle" font-size="24" font-weight="700" fill="#1d1d1f">186</text>
       <text x="60" y="56" text-anchor="middle" font-size="9" font-weight="500" fill="#86868b" letter-spacing="0.5">ASSIGNMENTS</text>
     </g>
 
-    <!-- Stat 5 -->
     <g transform="translate(528, 0)">
       <rect width="120" height="70" rx="14" fill="white" filter="url(#shadow)"/>
       <text x="60" y="36" text-anchor="middle" font-size="24" font-weight="700" fill="#1d1d1f">12</text>
       <text x="60" y="56" text-anchor="middle" font-size="9" font-weight="500" fill="#86868b" letter-spacing="0.5">ALERTS SENT</text>
     </g>
 
-    <!-- Stat 6 -->
     <g transform="translate(660, 0)">
       <rect width="108" height="70" rx="14" fill="white" filter="url(#shadow)"/>
       <text x="54" y="36" text-anchor="middle" font-size="24" font-weight="700" fill="#1d1d1f">3:45</text>
@@ -72,77 +67,160 @@
 
   <!-- Quick Actions -->
   <g transform="translate(16, 198)">
-    <rect width="768" height="72" rx="14" fill="white" filter="url(#shadow)"/>
-    <text x="20" y="28" font-size="13" font-weight="600" fill="#1d1d1f">Quick Actions</text>
-    <rect x="20" y="40" width="110" height="22" rx="11" fill="#0071e3"/>
-    <text x="75" y="55" text-anchor="middle" font-size="11" font-weight="500" fill="white">Refresh Data</text>
-    <rect x="140" y="40" width="110" height="22" rx="11" fill="#34c759"/>
-    <text x="195" y="55" text-anchor="middle" font-size="11" font-weight="500" fill="white">Start Service</text>
-    <rect x="260" y="40" width="110" height="22" rx="11" fill="#ff3b30"/>
-    <text x="315" y="55" text-anchor="middle" font-size="11" font-weight="500" fill="white">Stop Service</text>
+    <rect width="768" height="56" rx="14" fill="white" filter="url(#shadow)"/>
+    <text x="20" y="24" font-size="13" font-weight="600" fill="#1d1d1f">Quick Actions</text>
+    <rect x="20" y="32" width="100" height="18" rx="9" fill="#0071e3"/>
+    <text x="70" y="45" text-anchor="middle" font-size="10" font-weight="500" fill="white">Refresh Data</text>
+    <rect x="128" y="32" width="100" height="18" rx="9" fill="#34c759"/>
+    <text x="178" y="45" text-anchor="middle" font-size="10" font-weight="500" fill="white">Start Service</text>
+    <rect x="236" y="32" width="100" height="18" rx="9" fill="#ff3b30"/>
+    <text x="286" y="45" text-anchor="middle" font-size="10" font-weight="500" fill="white">Stop Service</text>
   </g>
 
-  <!-- Recent Assignments -->
-  <g transform="translate(16, 286)">
-    <rect width="768" height="220" rx="14" fill="white" filter="url(#shadow)"/>
+  <!-- Student Filter Pills -->
+  <rect x="16" y="268" width="36" height="22" rx="11" fill="#1d1d1f"/>
+  <text x="34" y="283" text-anchor="middle" font-size="10" font-weight="500" fill="white">All</text>
+  <rect x="58" y="268" width="44" height="22" rx="11" fill="white" stroke="rgba(0,0,0,0.06)"/>
+  <text x="80" y="283" text-anchor="middle" font-size="10" font-weight="500" fill="#1d1d1f">Alex</text>
+  <rect x="108" y="268" width="50" height="22" rx="11" fill="white" stroke="rgba(0,0,0,0.06)"/>
+  <text x="133" y="283" text-anchor="middle" font-size="10" font-weight="500" fill="#1d1d1f">Maya</text>
+
+  <!-- ═══ CHARTS GRID (2x2) ═══ -->
+
+  <!-- Chart 1: Grade Trends (line chart) -->
+  <g transform="translate(16, 298)">
+    <rect width="374" height="200" rx="14" fill="white" filter="url(#shadow)"/>
+    <g transform="translate(16, 16)">
+      <line x1="0" y1="2" x2="14" y2="10" stroke="#0071e3" stroke-width="2" stroke-linecap="round"/>
+      <line x1="14" y1="10" x2="14" y2="2" stroke="#0071e3" stroke-width="2" stroke-linecap="round"/>
+      <text x="22" y="10" font-size="13" font-weight="600" fill="#1d1d1f">Grade Trends</text>
+    </g>
+    <!-- Y-axis labels -->
+    <text x="26" y="56" font-size="9" fill="#86868b">100</text>
+    <text x="30" y="90" font-size="9" fill="#86868b">90</text>
+    <text x="30" y="124" font-size="9" fill="#86868b">80</text>
+    <text x="30" y="158" font-size="9" fill="#86868b">70</text>
+    <!-- Grid lines -->
+    <line x1="50" y1="52" x2="354" y2="52" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+    <line x1="50" y1="86" x2="354" y2="86" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+    <line x1="50" y1="120" x2="354" y2="120" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+    <line x1="50" y1="154" x2="354" y2="154" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+    <!-- X-axis labels -->
+    <text x="90" y="175" text-anchor="middle" font-size="9" fill="#86868b">M1</text>
+    <text x="170" y="175" text-anchor="middle" font-size="9" fill="#86868b">M2</text>
+    <text x="250" y="175" text-anchor="middle" font-size="9" fill="#86868b">M3</text>
+    <text x="330" y="175" text-anchor="middle" font-size="9" fill="#86868b">M4</text>
+    <!-- Line chart area fill -->
+    <polygon points="90,120 170,96 250,103 330,82 330,154 90,154" fill="rgba(0,113,227,0.08)"/>
+    <!-- Line chart -->
+    <polyline points="90,120 170,96 250,103 330,82" fill="none" stroke="#0071e3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Points -->
+    <circle cx="90" cy="120" r="4" fill="#0071e3"/>
+    <circle cx="170" cy="96" r="4" fill="#0071e3"/>
+    <circle cx="250" cy="103" r="4" fill="#0071e3"/>
+    <circle cx="330" cy="82" r="4" fill="#0071e3"/>
+    <!-- Data labels -->
+    <text x="90" y="114" text-anchor="middle" font-size="8" font-weight="600" fill="#0071e3">80%</text>
+    <text x="170" y="90" text-anchor="middle" font-size="8" font-weight="600" fill="#0071e3">87%</text>
+    <text x="250" y="97" text-anchor="middle" font-size="8" font-weight="600" fill="#0071e3">85%</text>
+    <text x="330" y="76" text-anchor="middle" font-size="8" font-weight="600" fill="#0071e3">91%</text>
+  </g>
+
+  <!-- Chart 2: Course Performance (horizontal bar) -->
+  <g transform="translate(402, 298)">
+    <rect width="382" height="200" rx="14" fill="white" filter="url(#shadow)"/>
+    <g transform="translate(16, 16)">
+      <rect x="0" y="0" width="3" height="14" rx="1" fill="#34c759"/>
+      <rect x="5" y="3" width="3" height="11" rx="1" fill="#34c759"/>
+      <rect x="10" y="6" width="3" height="8" rx="1" fill="#34c759"/>
+      <text x="20" y="12" font-size="13" font-weight="600" fill="#1d1d1f">Course Performance</text>
+    </g>
+    <!-- Bars -->
+    <text x="16" y="56" font-size="10" fill="#1d1d1f">Algebra II</text>
+    <rect x="110" y="46" width="220" height="14" rx="4" fill="#34c759"/>
+    <text x="336" y="57" font-size="9" font-weight="600" fill="#34c759">97%</text>
+
+    <text x="16" y="78" font-size="10" fill="#1d1d1f">Comp Sci</text>
+    <rect x="110" y="68" width="214" height="14" rx="4" fill="#34c759"/>
+    <text x="330" y="79" font-size="9" font-weight="600" fill="#34c759">95%</text>
+
+    <text x="16" y="100" font-size="10" fill="#1d1d1f">ELA 7</text>
+    <rect x="110" y="90" width="206" height="14" rx="4" fill="#34c759"/>
+    <text x="322" y="101" font-size="9" font-weight="600" fill="#34c759">93%</text>
+
+    <text x="16" y="122" font-size="10" fill="#1d1d1f">Am History</text>
+    <rect x="110" y="112" width="192" height="14" rx="4" fill="#0071e3"/>
+    <text x="308" y="123" font-size="9" font-weight="600" fill="#0071e3">88%</text>
+
+    <text x="16" y="144" font-size="10" fill="#1d1d1f">Science 5</text>
+    <rect x="110" y="134" width="186" height="14" rx="4" fill="#0071e3"/>
+    <text x="302" y="145" font-size="9" font-weight="600" fill="#0071e3">86%</text>
+
+    <text x="16" y="166" font-size="10" fill="#1d1d1f">Spanish</text>
+    <rect x="110" y="156" width="156" height="14" rx="4" fill="#ff9500"/>
+    <text x="272" y="167" font-size="9" font-weight="600" fill="#ff9500">72%</text>
+  </g>
+
+  <!-- Chart 3: Assignment Status (doughnut) -->
+  <g transform="translate(16, 510)">
+    <rect width="374" height="200" rx="14" fill="white" filter="url(#shadow)"/>
+    <g transform="translate(16, 16)">
+      <circle cx="8" cy="7" r="7" fill="none" stroke="var(--orange)" stroke-width="2"/>
+      <line x1="8" y1="3" x2="8" y2="7" stroke="#ff9500" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="8" y1="7" x2="11" y2="9" stroke="#ff9500" stroke-width="1.5" stroke-linecap="round"/>
+      <text x="22" y="12" font-size="13" font-weight="600" fill="#1d1d1f">Assignment Status</text>
+    </g>
+    <!-- Doughnut chart -->
+    <circle cx="120" cy="120" r="52" fill="none" stroke="#34c759" stroke-width="16" stroke-dasharray="234.6 92.1" stroke-dashoffset="81.7" transform="rotate(-90 120 120)"/>
+    <circle cx="120" cy="120" r="52" fill="none" stroke="#ff3b30" stroke-width="16" stroke-dasharray="22.8 303.9" stroke-dashoffset="-152.9" transform="rotate(-90 120 120)"/>
+    <circle cx="120" cy="120" r="52" fill="none" stroke="#ff9500" stroke-width="16" stroke-dasharray="29.4 297.3" stroke-dashoffset="-175.7" transform="rotate(-90 120 120)"/>
+    <circle cx="120" cy="120" r="52" fill="none" stroke="#0071e3" stroke-width="16" stroke-dasharray="39.9 286.8" stroke-dashoffset="-205.1" transform="rotate(-90 120 120)"/>
+    <!-- Center text -->
+    <text x="120" y="117" text-anchor="middle" font-size="18" font-weight="700" fill="#1d1d1f">186</text>
+    <text x="120" y="132" text-anchor="middle" font-size="9" fill="#86868b">total</text>
+    <!-- Legend -->
+    <circle cx="210" cy="75" r="4" fill="#34c759"/>
+    <text x="220" y="79" font-size="11" fill="#1d1d1f"><tspan font-weight="600">132</tspan> Completed</text>
+    <circle cx="210" cy="100" r="4" fill="#ff3b30"/>
+    <text x="220" y="104" font-size="11" fill="#1d1d1f"><tspan font-weight="600">7</tspan> Missing</text>
+    <circle cx="210" cy="125" r="4" fill="#ff9500"/>
+    <text x="220" y="129" font-size="11" fill="#1d1d1f"><tspan font-weight="600">9</tspan> Late</text>
+    <circle cx="210" cy="150" r="4" fill="#0071e3"/>
+    <text x="220" y="154" font-size="11" fill="#1d1d1f"><tspan font-weight="600">38</tspan> Pending</text>
+  </g>
+
+  <!-- Chart 4: GPA by Student (bar) -->
+  <g transform="translate(402, 510)">
+    <rect width="382" height="200" rx="14" fill="white" filter="url(#shadow)"/>
+    <g transform="translate(16, 16)">
+      <path d="M14 8v4M2 8l6-3 6 3-6 3z" fill="none" stroke="#6e3de8" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M4 9v3c2 2 6 2 8 0V9" fill="none" stroke="#6e3de8" stroke-width="1.5" stroke-linecap="round"/>
+      <text x="22" y="12" font-size="13" font-weight="600" fill="#1d1d1f">GPA by Student</text>
+    </g>
+    <!-- Y-axis -->
+    <text x="28" y="56" font-size="9" fill="#86868b">4.0</text>
+    <text x="28" y="86" font-size="9" fill="#86868b">3.0</text>
+    <text x="28" y="116" font-size="9" fill="#86868b">2.0</text>
+    <text x="28" y="146" font-size="9" fill="#86868b">1.0</text>
+    <line x1="50" y1="52" x2="362" y2="52" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+    <line x1="50" y1="82" x2="362" y2="82" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+    <line x1="50" y1="112" x2="362" y2="112" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+    <line x1="50" y1="142" x2="362" y2="142" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+    <line x1="50" y1="172" x2="362" y2="172" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+    <!-- Alex bar: GPA 3.52 -->
+    <rect x="110" y="57" width="60" height="115" rx="6" fill="#34c759"/>
+    <text x="140" y="51" text-anchor="middle" font-size="10" font-weight="700" fill="#34c759">3.52</text>
+    <text x="140" y="185" text-anchor="middle" font-size="11" font-weight="500" fill="#1d1d1f">Alex</text>
+    <!-- Maya bar: GPA 3.15 -->
+    <rect x="230" y="68" width="60" height="104" rx="6" fill="#0071e3"/>
+    <text x="260" y="62" text-anchor="middle" font-size="10" font-weight="700" fill="#0071e3">3.15</text>
+    <text x="260" y="185" text-anchor="middle" font-size="11" font-weight="500" fill="#1d1d1f">Maya</text>
+  </g>
+
+  <!-- Recent Assignments (truncated) -->
+  <g transform="translate(16, 722)">
+    <rect width="768" height="46" rx="14" fill="white" filter="url(#shadow)"/>
     <text x="20" y="28" font-size="13" font-weight="600" fill="#1d1d1f">Recent Assignments</text>
-
-    <!-- Table Header -->
-    <text x="20" y="52" font-size="9" font-weight="600" fill="#86868b" letter-spacing="0.5">STUDENT</text>
-    <text x="120" y="52" font-size="9" font-weight="600" fill="#86868b" letter-spacing="0.5">ASSIGNMENT</text>
-    <text x="380" y="52" font-size="9" font-weight="600" fill="#86868b" letter-spacing="0.5">COURSE</text>
-    <text x="540" y="52" font-size="9" font-weight="600" fill="#86868b" letter-spacing="0.5">DUE</text>
-    <text x="620" y="52" font-size="9" font-weight="600" fill="#86868b" letter-spacing="0.5">SCORE</text>
-    <text x="700" y="52" font-size="9" font-weight="600" fill="#86868b" letter-spacing="0.5">STATUS</text>
-    <line x1="20" y1="58" x2="748" y2="58" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
-
-    <!-- Row 1 -->
-    <text x="20" y="78" font-size="12" fill="#1d1d1f">Alex</text>
-    <text x="120" y="78" font-size="12" fill="#1d1d1f">Chapter 5 Quiz</text>
-    <text x="380" y="78" font-size="12" fill="#1d1d1f">ELA 7</text>
-    <text x="540" y="78" font-size="12" fill="#1d1d1f">Mar 12</text>
-    <text x="620" y="78" font-size="12" fill="#1d1d1f">45/50 (90%)</text>
-    <rect x="700" y="67" width="44" height="16" rx="8" fill="rgba(0,113,227,0.08)"/>
-    <text x="722" y="79" text-anchor="middle" font-size="9" font-weight="600" fill="#0071e3">Graded</text>
-    <line x1="20" y1="88" x2="748" y2="88" stroke="rgba(0,0,0,0.03)" stroke-width="0.5"/>
-
-    <!-- Row 2 -->
-    <text x="20" y="108" font-size="12" fill="#1d1d1f">Maya</text>
-    <text x="120" y="108" font-size="12" fill="#1d1d1f">Photosynthesis Lab Report</text>
-    <text x="380" y="108" font-size="12" fill="#1d1d1f">Science 7</text>
-    <text x="540" y="108" font-size="12" fill="#1d1d1f">Mar 13</text>
-    <text x="620" y="108" font-size="12" fill="#1d1d1f">-</text>
-    <rect x="700" y="97" width="56" height="16" rx="8" fill="rgba(52,199,89,0.1)"/>
-    <text x="728" y="109" text-anchor="middle" font-size="9" font-weight="600" fill="#248a3d">Turned In</text>
-    <line x1="20" y1="118" x2="748" y2="118" stroke="rgba(0,0,0,0.03)" stroke-width="0.5"/>
-
-    <!-- Row 3 -->
-    <text x="20" y="138" font-size="12" fill="#1d1d1f">Alex</text>
-    <text x="120" y="138" font-size="12" fill="#1d1d1f">Linear Equations Practice</text>
-    <text x="380" y="138" font-size="12" fill="#1d1d1f">7/8 Math</text>
-    <text x="540" y="138" font-size="12" fill="#1d1d1f">Mar 11</text>
-    <text x="620" y="138" font-size="12" fill="#1d1d1f">G</text>
-    <rect x="700" y="127" width="44" height="16" rx="8" fill="rgba(0,113,227,0.08)"/>
-    <text x="722" y="139" text-anchor="middle" font-size="9" font-weight="600" fill="#0071e3">Graded</text>
-    <line x1="20" y1="148" x2="748" y2="148" stroke="rgba(0,0,0,0.03)" stroke-width="0.5"/>
-
-    <!-- Row 4 -->
-    <text x="20" y="168" font-size="12" fill="#1d1d1f">Maya</text>
-    <text x="120" y="168" font-size="12" fill="#1d1d1f">American Revolution Essay</text>
-    <text x="380" y="168" font-size="12" fill="#1d1d1f">History 5</text>
-    <text x="540" y="168" font-size="12" fill="#1d1d1f">Mar 10</text>
-    <text x="620" y="168" font-size="12" fill="#1d1d1f">-</text>
-    <rect x="700" y="157" width="50" height="16" rx="8" fill="rgba(255,59,48,0.1)"/>
-    <text x="725" y="169" text-anchor="middle" font-size="9" font-weight="600" fill="#d70015">Missing</text>
-    <line x1="20" y1="178" x2="748" y2="178" stroke="rgba(0,0,0,0.03)" stroke-width="0.5"/>
-
-    <!-- Row 5 -->
-    <text x="20" y="198" font-size="12" fill="#1d1d1f">Alex</text>
-    <text x="120" y="198" font-size="12" fill="#1d1d1f">Vocabulary Unit 8</text>
-    <text x="380" y="198" font-size="12" fill="#1d1d1f">ELA 7</text>
-    <text x="540" y="198" font-size="12" fill="#1d1d1f">Mar 9</text>
-    <text x="620" y="198" font-size="12" fill="#1d1d1f">38/40 (95%)</text>
-    <rect x="700" y="187" width="44" height="16" rx="8" fill="rgba(0,113,227,0.08)"/>
-    <text x="722" y="199" text-anchor="middle" font-size="9" font-weight="600" fill="#0071e3">Graded</text>
+    <text x="748" y="28" text-anchor="end" font-size="11" fill="#86868b">5 rows ▾</text>
   </g>
 </svg>

@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
-from aiohttp import web
+from aiohttp import web, ClientSession
 
 from infinite_campus_api import InfiniteCampusAPI
 from whatsapp_notify import WhatsAppNotifier
@@ -63,6 +63,10 @@ class ICWebServer:
         self.app.router.add_post("/api/stop", self.handle_stop)
         self.app.router.add_post("/api/test-whatsapp", self.handle_test_whatsapp)
         self.app.router.add_post("/api/test-summary", self.handle_test_summary)
+        self.app.router.add_get("/api/gemini-config", self.handle_get_gemini_config)
+        self.app.router.add_post("/api/gemini-config", self.handle_save_gemini_config)
+        self.app.router.add_post("/api/ai/insights", self.handle_ai_insights)
+        self.app.router.add_post("/api/ai/test", self.handle_ai_test)
         self.app.router.add_static("/static", STATIC_DIR)
 
     async def handle_index(self, request: web.Request) -> web.Response:
@@ -222,6 +226,123 @@ class ICWebServer:
             return web.json_response({"success": True, "message": "Daily summary sent"})
         except Exception as e:
             return web.json_response({"success": False, "error": str(e)}, status=500)
+
+    # ── Gemini config (stored separately from HA options) ──
+    GEMINI_CONFIG_FILE = DATA_DIR / "gemini_config.json"
+
+    def _load_gemini_config(self) -> dict:
+        """Load Gemini API key from persistent file."""
+        if self.GEMINI_CONFIG_FILE.exists():
+            try:
+                with open(self.GEMINI_CONFIG_FILE) as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        return {}
+
+    def _save_gemini_config(self, data: dict) -> None:
+        """Save Gemini API key to persistent file."""
+        with open(self.GEMINI_CONFIG_FILE, "w") as f:
+            json.dump(data, f)
+
+    async def handle_get_gemini_config(self, request: web.Request) -> web.Response:
+        """Return Gemini config (key masked)."""
+        cfg = self._load_gemini_config()
+        key = cfg.get("gemini_api_key", "")
+        return web.json_response({
+            "gemini_configured": bool(key),
+            "gemini_api_key": ("••••" + key[-4:]) if key else "",
+        })
+
+    async def handle_save_gemini_config(self, request: web.Request) -> web.Response:
+        """Save Gemini API key."""
+        try:
+            data = await request.json()
+            key = data.get("gemini_api_key", "").strip()
+            if not key:
+                return web.json_response({"error": "No key provided"}, status=400)
+            self._save_gemini_config({"gemini_api_key": key})
+            return web.json_response({"success": True})
+        except Exception as e:
+            return web.json_response({"error": str(e)}, status=500)
+
+    @staticmethod
+    def _should_retry_gemini(status: int, error_msg: str) -> bool:
+        """Check if we should try the next Gemini model."""
+        msg = error_msg.lower()
+        if status == 429:
+            return True
+        if status == 404:
+            return True
+        retry_keywords = ["quota", "rate", "not available", "deprecated", "not found",
+                          "no longer available", "decommissioned", "does not exist"]
+        return any(kw in msg for kw in retry_keywords)
+
+    GEMINI_FREE_MODELS = [
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-2.5-pro",
+    ]
+
+    async def handle_ai_insights(self, request: web.Request) -> web.Response:
+        """Proxy Gemini API calls — key never reaches the browser."""
+        gemini_key = self._load_gemini_config().get("gemini_api_key", "")
+        if not gemini_key:
+            return web.json_response({"error": "Gemini API key not configured. Add it in Settings."}, status=400)
+        try:
+            data = await request.json()
+            prompt = data.get("prompt", "")
+            if not prompt:
+                return web.json_response({"error": "No prompt provided"}, status=400)
+
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.7, "maxOutputTokens": 8192}
+            }
+            last_error = "All Gemini models exhausted"
+            async with ClientSession() as session:
+                for model in self.GEMINI_FREE_MODELS:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
+                    async with session.post(url, json=payload) as resp:
+                        result = await resp.json()
+                        if resp.status == 200:
+                            text = result.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                            return web.json_response({"text": text, "model": model})
+                        error_msg = result.get("error", {}).get("message", "")
+                        if self._should_retry_gemini(resp.status, error_msg):
+                            logger.warning(f"Gemini {model} unavailable ({resp.status}: {error_msg[:80]}), trying next...")
+                            last_error = error_msg
+                            continue
+                        return web.json_response({"error": error_msg or f"Gemini API error {resp.status}"}, status=resp.status)
+
+            return web.json_response({"error": f"All free Gemini models unavailable. Try again in a minute. ({last_error})"}, status=429)
+        except Exception as e:
+            return web.json_response({"error": str(e)}, status=500)
+
+    async def handle_ai_test(self, request: web.Request) -> web.Response:
+        """Quick test that the Gemini API key works."""
+        gemini_key = self._load_gemini_config().get("gemini_api_key", "")
+        if not gemini_key:
+            return web.json_response({"ok": False, "error": "No API key configured"}, status=400)
+        payload = {
+            "contents": [{"parts": [{"text": "Reply with just the word: OK"}]}],
+            "generationConfig": {"temperature": 0, "maxOutputTokens": 10}
+        }
+        try:
+            async with ClientSession() as session:
+                for model in self.GEMINI_FREE_MODELS:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
+                    async with session.post(url, json=payload) as resp:
+                        result = await resp.json()
+                        if resp.status == 200:
+                            return web.json_response({"ok": True, "model": model})
+                        error_msg = result.get("error", {}).get("message", "")
+                        if self._should_retry_gemini(resp.status, error_msg):
+                            continue
+                        return web.json_response({"ok": False, "error": error_msg or f"Error {resp.status}"}, status=resp.status)
+            return web.json_response({"ok": False, "error": "All models unavailable. Key may be valid — try again later."}, status=429)
+        except Exception as e:
+            return web.json_response({"ok": False, "error": str(e)}, status=500)
 
     async def _init_services(self) -> None:
         """Initialize API client, notifier, and scheduler from HA config."""

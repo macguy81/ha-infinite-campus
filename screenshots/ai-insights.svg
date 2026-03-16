@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="680" viewBox="0 0 800 680">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="106%">
+      <feDropShadow dx="0" dy="1" stdDeviation="3" flood-color="#000" flood-opacity="0.06"/>
+    </filter>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#34c759"/>
+      <stop offset="100%" stop-color="#30d158"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0071e3"/>
+      <stop offset="100%" stop-color="#0a84ff"/>
+    </linearGradient>
+    <linearGradient id="orangeGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff9500"/>
+      <stop offset="100%" stop-color="#ffcc00"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5856d6"/>
+      <stop offset="100%" stop-color="#af52de"/>
+    </linearGradient>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="800" height="680" fill="#f5f5f7" rx="12"/>
+
+  <!-- Header -->
+  <rect width="800" height="48" fill="rgba(255,255,255,0.85)" rx="12"/>
+  <text x="24" y="31" font-size="16" font-weight="600" fill="#1d1d1f">Infinite Campus</text>
+  <rect x="680" y="14" width="96" height="22" rx="11" fill="rgba(52,199,89,0.12)"/>
+  <circle cx="694" cy="25" r="3.5" fill="#34c759"/>
+  <text x="703" y="29" font-size="11" font-weight="500" fill="#248a3d">Running</text>
+
+  <!-- Tab bar -->
+  <rect x="16" y="60" width="768" height="36" rx="10" fill="rgba(118,118,128,0.12)"/>
+  <rect x="475" y="62" width="105" height="32" rx="8" fill="white" filter="url(#shadow)"/>
+  <text x="80" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Dashboard</text>
+  <text x="200" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Students</text>
+  <text x="310" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Grades</text>
+  <text x="428" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Assignments</text>
+  <text x="527" y="83" text-anchor="middle" font-size="12" font-weight="600" fill="#1d1d1f">AI Insights</text>
+  <text x="670" y="83" text-anchor="middle" font-size="12" font-weight="500" fill="#1d1d1f">Settings</text>
+
+  <!-- AI Insights Header Card -->
+  <g transform="translate(16, 110)">
+    <rect width="768" height="56" rx="14" fill="white" filter="url(#shadow)" stroke="rgba(0,113,227,0.12)" stroke-width="1"/>
+    <!-- AI Icon -->
+    <rect x="16" y="10" width="36" height="36" rx="10" fill="url(#blueGrad)" opacity="0.12"/>
+    <circle cx="34" cy="22" r="3" fill="none" stroke="#0071e3" stroke-width="1.5"/>
+    <line x1="34" y1="26" x2="34" y2="35" stroke="#0071e3" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="62" y="25" font-size="14" font-weight="600" fill="#1d1d1f">AI-Powered Insights</text>
+    <text x="62" y="40" font-size="10" fill="#86868b">Powered by Google Gemini</text>
+    <!-- Generate button -->
+    <rect x="646" y="14" width="104" height="28" rx="14" fill="#0071e3"/>
+    <text x="698" y="32" text-anchor="middle" font-size="11" font-weight="500" fill="white">&#9889; Generate</text>
+  </g>
+
+  <!-- Insight Card 1: Parent Summary -->
+  <g transform="translate(16, 180)">
+    <rect width="768" height="100" rx="14" fill="white" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="3" height="100" rx="1.5" fill="#34c759"/>
+    <rect x="18" y="16" width="28" height="28" rx="7" fill="url(#greenGrad)"/>
+    <text x="32" y="34" text-anchor="middle" font-size="12" fill="white">&#128100;</text>
+    <text x="56" y="34" font-size="13" font-weight="600" fill="#1d1d1f">Parent Summary</text>
+    <text x="18" y="58" font-size="11" fill="#1d1d1f">Alex is maintaining a <tspan font-weight="600" fill="#0071e3">3.52 GPA</tspan> with an average of 87.2%. They excel in</text>
+    <text x="18" y="74" font-size="11" fill="#1d1d1f">Algebra (97%), Computer Science (95%), and ELA (93%). Spanish has dropped</text>
+    <text x="18" y="90" font-size="11" fill="#1d1d1f">to 72% and needs attention &#8212; consider reaching out to the teacher.</text>
+  </g>
+
+  <!-- Insight Card 2: Study Tips -->
+  <g transform="translate(16, 292)">
+    <rect width="768" height="110" rx="14" fill="white" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="3" height="110" rx="1.5" fill="#0071e3"/>
+    <rect x="18" y="16" width="28" height="28" rx="7" fill="url(#blueGrad)"/>
+    <text x="32" y="34" text-anchor="middle" font-size="12" fill="white">&#128214;</text>
+    <text x="56" y="34" font-size="13" font-weight="600" fill="#1d1d1f">Study Tips by Subject</text>
+    <text x="28" y="58" font-size="11" fill="#ff3b30" font-weight="600">Spanish (72% - C) &#8212; Needs Focus:</text>
+    <text x="28" y="74" font-size="11" fill="#1d1d1f">&#8594; Practice 15 min daily with Duolingo or flashcards. Focus on vocabulary.</text>
+    <text x="28" y="94" font-size="11" fill="#34c759" font-weight="600">Algebra (97% - A) &#8212; Excellent:</text>
+    <text x="28" y="108" font-size="11" fill="#1d1d1f" font-style="normal">&#8594; Encourage exploring advanced topics or helping peers.</text>
+  </g>
+
+  <!-- Insight Card 3: Assignment Priorities -->
+  <g transform="translate(16, 414)">
+    <rect width="768" height="90" rx="14" fill="white" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="3" height="90" rx="1.5" fill="#ff9500"/>
+    <rect x="18" y="16" width="28" height="28" rx="7" fill="url(#orangeGrad)"/>
+    <text x="32" y="35" text-anchor="middle" font-size="13" fill="white">&#9889;</text>
+    <text x="56" y="34" font-size="13" font-weight="600" fill="#1d1d1f">Assignment Priorities</text>
+    <text x="28" y="58" font-size="11" fill="#ff3b30" font-weight="600">URGENT:</text>
+    <text x="82" y="58" font-size="11" fill="#1d1d1f">Maya: "American Revolution Essay" in History 5 &#8212; due Mar 20</text>
+    <text x="28" y="78" font-size="11" fill="#ff9500" font-weight="600">IMPORTANT:</text>
+    <text x="108" y="78" font-size="11" fill="#1d1d1f">Alex: "Lab Report" in Science 7 &#8212; due Mar 25</text>
+  </g>
+
+  <!-- Insight Card 4: Grade Predictions -->
+  <g transform="translate(16, 516)">
+    <rect width="768" height="90" rx="14" fill="white" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="3" height="90" rx="1.5" fill="#5856d6"/>
+    <rect x="18" y="16" width="28" height="28" rx="7" fill="url(#purpleGrad)"/>
+    <text x="32" y="35" text-anchor="middle" font-size="13" fill="white">&#128200;</text>
+    <text x="56" y="34" font-size="13" font-weight="600" fill="#1d1d1f">Grade Predictions &amp; Trends</text>
+    <text x="28" y="58" font-size="11" fill="#1d1d1f"><tspan font-weight="600">ELA 7:</tspan> M1=82% &#8594; M4=93% [UP +11%] &#8212; Predicted: <tspan font-weight="600" fill="#34c759">A</tspan></text>
+    <text x="28" y="78" font-size="11" fill="#1d1d1f"><tspan font-weight="600">Spanish:</tspan> M1=84% &#8594; M4=72% [DOWN -12%] &#8212; Predicted: <tspan font-weight="600" fill="#ff3b30">C &#8212; At Risk</tspan></text>
+  </g>
+
+  <!-- Insight Card 5: Action Plan -->
+  <g transform="translate(16, 618)">
+    <rect width="768" height="50" rx="14" fill="white" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="3" height="50" rx="1.5" fill="#34c759"/>
+    <rect x="18" y="12" width="28" height="28" rx="7" fill="url(#greenGrad)"/>
+    <text x="32" y="30" text-anchor="middle" font-size="12" fill="white">&#10003;</text>
+    <text x="56" y="30" font-size="13" font-weight="600" fill="#1d1d1f">This Week's Action Plan</text>
+    <text x="56" y="44" font-size="10" fill="#86868b">5 specific steps for this week...</text>
+  </g>
+
+  <!-- Model footer -->
+  <text x="400" y="676" text-anchor="middle" font-size="9" fill="#86868b" opacity="0.6">Powered by gemini-2.5-flash</text>
+</svg>

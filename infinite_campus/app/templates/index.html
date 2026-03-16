@@ -294,6 +294,57 @@
             padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem;
         }
 
+        /* Chart styles */
+        .chart-card-wrap { position: relative; }
+        .chart-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .chart-wrap { position: relative; height: 220px; }
+        .chart-empty { display: flex; align-items: center; justify-content: center; height: 160px; }
+        .chart-empty span { font-size: 0.82rem; color: var(--text-secondary); background: rgba(0,0,0,0.03); padding: 8px 18px; border-radius: 10px; }
+
+        /* AI Insights */
+        .ai-icon-wrap {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: linear-gradient(135deg, rgba(0,113,227,0.1), rgba(110,61,232,0.1));
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .ai-empty-state { text-align: center; padding: 40px 20px; }
+        .ai-empty-icon {
+            width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 16px;
+            background: linear-gradient(135deg, rgba(0,113,227,0.08), rgba(110,61,232,0.08));
+            display: flex; align-items: center; justify-content: center;
+        }
+        .insight-card {
+            background: var(--card); border-radius: var(--radius);
+            padding: 20px; margin-bottom: 12px; box-shadow: var(--shadow);
+            border-left: 3px solid var(--accent);
+        }
+        .insight-card h3 {
+            font-size: 0.92rem; font-weight: 600; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .insight-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .insight-content { font-size: 0.86rem; line-height: 1.7; color: var(--text); }
+        .insight-content ul { margin: 8px 0 8px 18px; list-style-type: none; }
+        .insight-content li { margin-bottom: 6px; position: relative; padding-left: 4px; }
+        .insight-content li::before { content: "→"; position: absolute; left: -14px; color: var(--accent); }
+        .insight-content strong { color: var(--accent); }
+        .insight-loading { text-align: center; padding: 32px; color: var(--text-secondary); }
+        .insight-loading .spinner { width: 28px; height: 28px; }
+        .gemini-key-setup {
+            background: linear-gradient(135deg, rgba(0,113,227,0.06), rgba(110,61,232,0.06));
+            border-radius: 14px; padding: 20px; font-size: 0.84rem; margin-bottom: 16px;
+            border: 1px solid rgba(0,113,227,0.12);
+        }
+        .gemini-key-setup input {
+            width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+            border-radius: 10px; font-size: 0.88rem; background: var(--bg); color: var(--text);
+            margin-top: 10px; outline: none;
+        }
+        .gemini-key-setup input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
+
         .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
         .spinner {
             display: inline-block; width: 24px; height: 24px;
@@ -338,6 +389,7 @@
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="header">
@@ -354,6 +406,7 @@
             <button class="tab" onclick="switchTab('students', this)">Students</button>
             <button class="tab" onclick="switchTab('grades', this)">Grades</button>
             <button class="tab" onclick="switchTab('assignments', this)">Assignments</button>
+            <button class="tab" onclick="switchTab('insights', this)">AI Insights</button>
             <button class="tab" onclick="switchTab('config', this)">Settings</button>
         </div>
 
@@ -377,6 +430,52 @@
                     <button class="btn btn-red" onclick="stopService()">Stop Service</button>
                 </div>
             </div>
+            <div id="dashStudentFilter" class="filter-bar" style="margin-bottom:12px"></div>
+
+            <!-- Dashboard Charts -->
+            <div id="dashCharts" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px">
+                <div class="card chart-card-wrap" style="margin-bottom:0">
+                    <div class="chart-header">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        <h2 style="margin-bottom:0">Grade Trends</h2>
+                    </div>
+                    <div class="chart-wrap"><canvas id="chartGradeTrend"></canvas></div>
+                    <div id="chartGradeTrendEmpty" class="chart-empty" style="display:none">
+                        <span>No grade history yet</span>
+                    </div>
+                </div>
+                <div class="card chart-card-wrap" style="margin-bottom:0">
+                    <div class="chart-header">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                        <h2 style="margin-bottom:0">Course Performance</h2>
+                    </div>
+                    <div class="chart-wrap"><canvas id="chartCoursePerf"></canvas></div>
+                    <div id="chartCoursePerfEmpty" class="chart-empty" style="display:none">
+                        <span>No course data yet</span>
+                    </div>
+                </div>
+                <div class="card chart-card-wrap" style="margin-bottom:0">
+                    <div class="chart-header">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        <h2 style="margin-bottom:0">Assignment Status</h2>
+                    </div>
+                    <div class="chart-wrap"><canvas id="chartAssignStatus"></canvas></div>
+                    <div id="chartAssignStatusEmpty" class="chart-empty" style="display:none">
+                        <span>No assignments yet</span>
+                    </div>
+                </div>
+                <div class="card chart-card-wrap" style="margin-bottom:0">
+                    <div class="chart-header">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6e3de8" stroke-width="2" stroke-linecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                        <h2 style="margin-bottom:0">GPA by Student</h2>
+                    </div>
+                    <div class="chart-wrap"><canvas id="chartGPA"></canvas></div>
+                    <div id="chartGPAEmpty" class="chart-empty" style="display:none">
+                        <span>No GPA data yet</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <h2>Recent Assignments</h2>
                 <div id="recentActivity" class="loading"><div class="spinner"></div><p style="margin-top:8px;font-size:0.82rem">Loading...</p></div>
@@ -407,6 +506,38 @@
             <div id="assignmentsFilter" class="filter-bar"></div>
             <div id="assignmentsContainer" class="loading"><div class="spinner"></div></div>
         </div>
+
+        <!-- AI Insights -->
+        <div id="tab-insights" class="tab-content">
+            <div id="insightsStudentFilter" class="filter-bar" style="margin-bottom:12px"></div>
+            <div class="card" style="border:1px solid rgba(0,113,227,0.12)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div class="ai-icon-wrap">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-2 3-2 5h-4c0-2-2-3.05-2-5a4 4 0 0 1 4-4z"/><path d="M10 17v1a2 2 0 1 0 4 0v-1"/><line x1="10" y1="11" x2="14" y2="11"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+                        </div>
+                        <div>
+                            <h2 style="margin-bottom:0;font-size:1rem">AI-Powered Insights</h2>
+                            <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:2px">Powered by Google Gemini</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateInsights()" id="btnInsights" style="border-radius:100px;gap:6px">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        Generate
+                    </button>
+                </div>
+                <div id="insightsContainer">
+                    <div class="ai-empty-state">
+                        <div class="ai-empty-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                        </div>
+                        <p style="font-weight:600;font-size:0.9rem;margin-bottom:4px">Ready to analyze</p>
+                        <p style="font-size:0.82rem;color:var(--text-secondary);max-width:360px">Click Generate to get personalized study tips, assignment priorities, grade predictions, and a parent summary.</p>
+                    </div>
+                </div>
+            </div>
+            <div id="insightsCards"></div>
+        </div><!-- /tab-insights -->
 
         <!-- Settings -->
         <div id="tab-config" class="tab-content">
@@ -441,6 +572,22 @@
                     <span id="testWAResult" style="font-size:0.84rem"></span>
                 </div>
             </div>
+            <div class="card">
+                <h2>AI Insights (Google Gemini)</h2>
+                <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:12px">Get AI-powered analysis of your children's grades and assignments. Free — Google offers ~15 requests per minute at no cost.</p>
+                <div style="margin-bottom:12px">
+                    <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:4px">Gemini API Key</label>
+                    <input type="password" id="cfgGeminiKey" placeholder="AIzaSy... (paste your key here)" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:0.88rem;background:var(--bg);color:var(--text);outline:none">
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button class="btn btn-primary" onclick="saveGeminiKeyFromSettings()">Save Gemini Key</button>
+                    <button class="btn" onclick="testGeminiKey()" id="btnTestGemini">Test Key</button>
+                    <span id="geminiStatus" style="font-size:0.82rem;display:flex;align-items:center"></span>
+                </div>
+                <div style="margin-top:12px">
+                    <a href="https://aistudio.google.com/apikey" target="_blank" style="font-size:0.82rem;color:var(--accent)">Get a free Gemini API key from Google AI Studio →</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -463,6 +610,7 @@ function switchTab(tab, btn) {
     if (tab === 'students') renderStudents();
     if (tab === 'grades') renderGrades();
     if (tab === 'assignments') renderAssignments();
+    if (tab === 'insights') showInsightsState();
 }
 
 function showAlert(msg, type='info') {
@@ -502,6 +650,14 @@ function letterGrade(pct) {
     if(p>=67) return 'D+'; if(p>=60) return 'D'; return 'F';
 }
 
+function gradePoint(pct) {
+    const p=parseFloat(pct); if(isNaN(p)) return NaN;
+    if(p>=93) return 4.0; if(p>=90) return 3.7;
+    if(p>=87) return 3.3; if(p>=83) return 3.0; if(p>=80) return 2.7;
+    if(p>=77) return 2.3; if(p>=73) return 2.0; if(p>=70) return 1.7;
+    if(p>=67) return 1.3; if(p>=60) return 1.0; return 0.0;
+}
+
 function gradeClass(l) {
     if(!l) return '';
     const u=l.toUpperCase();
@@ -531,21 +687,30 @@ function getScore(g) {
 }
 
 function isStandardsBased(g) {
-    // Check if this grade entry uses standards-based marks (non-numeric score, no percentage)
     const score = getScore(g);
     const pct = getPct(g);
     if(!isNaN(pct)) return false;
     if(!score) return false;
-    // Non-numeric score = standards-based
-    return isNaN(parseFloat(score));
+    const num = parseFloat(score);
+    if(isNaN(num)) return true;
+    if(num >= 1 && num <= 4) return true;
+    return false;
 }
 
 function markColor(mark) {
     const u = (mark||'').toUpperCase().trim();
+    const n = parseFloat(u);
+    if(!isNaN(n)) {
+        if(n >= 4) return '#1a7a2e';
+        if(n >= 3) return 'var(--green)';
+        if(n >= 2) return 'var(--orange)';
+        return 'var(--red)';
+    }
     if(u==='G'||u==='GOT IT'||u==='MET') return 'var(--green)';
     if(u==='E'||u==='EXCEEDS'||u==='EXEMPLARY'||u==='EX') return '#1a7a2e';
     if(u==='NY'||u==='NOT YET'||u==='NM') return 'var(--orange)';
     if(u==='U'||u==='UNSATISFACTORY') return 'var(--red)';
+    if(u==='NA'||u==='UA') return 'var(--text-secondary)';
     return 'var(--accent)';
 }
 
@@ -635,6 +800,25 @@ async function loadData() {
             document.getElementById('statAssignments').textContent=(data.assignments||[]).length;
             document.getElementById('statGrades').textContent=(data.grades||[]).length;
             renderRecent(data);
+            renderDashboardCharts();
+        }
+    } catch(e){}
+}
+
+async function loadGeminiConfig() {
+    try {
+        const r = await fetch('api/gemini-config');
+        if(r.ok) {
+            const data = await r.json();
+            if(data.gemini_configured) {
+                geminiKey = 'configured';
+                document.getElementById('cfgGeminiKey').value = data.gemini_api_key || '';
+                const st = document.getElementById('geminiStatus');
+                if(st) st.innerHTML = '<span style="color:var(--green)">&#10003; Connected</span>';
+            } else {
+                const st = document.getElementById('geminiStatus');
+                if(st) st.innerHTML = '<span style="color:var(--text-secondary)">Not configured</span>';
+            }
         }
     } catch(e){}
 }
@@ -1167,10 +1351,600 @@ async function testSummary() {
 }
 
 // ══════════════════════════════════
+// DASHBOARD CHARTS (Chart.js)
+// ══════════════════════════════════
+let chartInstances = {};
+let dashSid = '';
+
+function setDashStudent(v) { dashSid = v; renderDashboardCharts(); renderRecent(currentData); }
+
+function destroyChart(key) {
+    if(chartInstances[key]) { chartInstances[key].destroy(); delete chartInstances[key]; }
+}
+
+function toggleChartEmpty(chartId, emptyId, hasData) {
+    const canvas = document.getElementById(chartId);
+    const empty = document.getElementById(emptyId);
+    if(!canvas || !empty) return;
+    canvas.style.display = hasData ? 'block' : 'none';
+    empty.style.display = hasData ? 'none' : 'flex';
+}
+
+function renderDashboardCharts() {
+    if(typeof Chart === 'undefined') return; // Chart.js not loaded yet
+    let grades = currentData.grades || [];
+    let assignments = currentData.assignments || [];
+    const students = currentData.students || [];
+
+    renderStudentFilter('dashStudentFilter', setDashStudent);
+
+    if(dashSid) {
+        grades = grades.filter(g => String(g.studentID||'') === dashSid);
+        assignments = assignments.filter(a => String(a.studentID||a.personID||'') === dashSid);
+    }
+
+    const gridClr = 'rgba(0,0,0,0.06)';
+    const txtClr = '#86868b';
+    Chart.defaults.color = txtClr;
+
+    // 1. Grade Trends (line chart)
+    const termAvg = {};
+    grades.forEach(g => {
+        const t = g.termName || 'Current';
+        const p = getPct(g);
+        if(!isNaN(p)) {
+            if(!termAvg[t]) termAvg[t] = { sum:0, count:0 };
+            termAvg[t].sum += p; termAvg[t].count++;
+        }
+    });
+    const termLabels = Object.keys(termAvg).sort();
+    const termData = termLabels.map(t => +(termAvg[t].sum / termAvg[t].count).toFixed(1));
+    const hasTrend = termLabels.length > 0;
+    toggleChartEmpty('chartGradeTrend', 'chartGradeTrendEmpty', hasTrend);
+
+    if(hasTrend) {
+        destroyChart('trend');
+        const isSingle = termLabels.length === 1;
+        chartInstances['trend'] = new Chart(document.getElementById('chartGradeTrend'), {
+            type: 'line',
+            data: {
+                labels: termLabels,
+                datasets: [{
+                    label: 'Average Grade %',
+                    data: termData,
+                    borderColor: '#0071e3',
+                    backgroundColor: 'rgba(0,113,227,0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: isSingle ? 8 : 4,
+                    pointBackgroundColor: '#0071e3'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: true } },
+                scales: {
+                    y: { min: Math.max(0, Math.min(...termData) - 10), max: 100, grid: { color: gridClr } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // 2. Course Performance (horizontal bar)
+    const courseGrades = {};
+    grades.forEach(g => {
+        const name = g.courseName || 'Unknown';
+        const p = getPct(g);
+        if(!isNaN(p)) {
+            if(!courseGrades[name]) courseGrades[name] = { sum:0, count:0 };
+            courseGrades[name].sum += p; courseGrades[name].count++;
+        }
+    });
+    const courseNames = Object.keys(courseGrades).slice(0, 10);
+    const courseData = courseNames.map(n => +(courseGrades[n].sum / courseGrades[n].count).toFixed(1));
+    const courseColors = courseData.map(v => v >= 90 ? '#34c759' : v >= 80 ? '#0071e3' : v >= 70 ? '#ff9500' : '#ff3b30');
+    const hasCourse = courseNames.length > 0;
+    toggleChartEmpty('chartCoursePerf', 'chartCoursePerfEmpty', hasCourse);
+
+    if(hasCourse) {
+        destroyChart('course');
+        chartInstances['course'] = new Chart(document.getElementById('chartCoursePerf'), {
+            type: 'bar',
+            data: {
+                labels: courseNames.map(n => n.length > 20 ? n.slice(0,18)+'...' : n),
+                datasets: [{
+                    data: courseData,
+                    backgroundColor: courseColors,
+                    borderRadius: 6,
+                    barThickness: Math.min(18, Math.max(8, Math.floor(180 / courseNames.length)))
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { min: 0, max: 100, grid: { color: gridClr } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // 3. Assignment Status (doughnut)
+    let completed=0, missing=0, late=0, pending=0;
+    assignments.forEach(a => {
+        if(a.missing) missing++;
+        else if(a.late) late++;
+        else if(a.score != null && a.score !== '') completed++;
+        else pending++;
+    });
+    const hasAssign = assignments.length > 0;
+    toggleChartEmpty('chartAssignStatus', 'chartAssignStatusEmpty', hasAssign);
+
+    if(hasAssign) {
+        destroyChart('assign');
+        const doughnutData = [completed, missing, late, pending];
+        const doughnutLabels = ['Completed', 'Missing', 'Late', 'Pending'];
+        const doughnutColors = ['#34c759', '#ff3b30', '#ff9500', '#0071e3'];
+        const filtered = doughnutLabels.reduce((acc, l, i) => {
+            if(doughnutData[i] > 0) { acc.labels.push(l); acc.data.push(doughnutData[i]); acc.colors.push(doughnutColors[i]); }
+            return acc;
+        }, { labels:[], data:[], colors:[] });
+
+        chartInstances['assign'] = new Chart(document.getElementById('chartAssignStatus'), {
+            type: 'doughnut',
+            data: {
+                labels: filtered.labels,
+                datasets: [{ data: filtered.data, backgroundColor: filtered.colors, borderWidth: 0 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: { legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } } }
+            }
+        });
+    }
+
+    // 4. GPA by Student (bar)
+    if(dashSid) {
+        const emptyEl = document.getElementById('chartGPAEmpty');
+        if(emptyEl) emptyEl.innerHTML = "Select 'All' to see GPA comparison";
+        toggleChartEmpty('chartGPA', 'chartGPAEmpty', false);
+    } else {
+        const studentGPA = {};
+        const allGrades = currentData.grades || [];
+        allGrades.forEach(g => {
+            const sid = g.studentID || '';
+            const p = getPct(g);
+            if(!isNaN(p)) {
+                if(!studentGPA[sid]) studentGPA[sid] = { sum:0, count:0, name: getName(sid) };
+                studentGPA[sid].sum += gradePoint(p); studentGPA[sid].count++;
+            }
+        });
+        const gpaArr = Object.values(studentGPA).filter(s => s.count > 0);
+        const hasGPA = gpaArr.length > 0;
+        toggleChartEmpty('chartGPA', 'chartGPAEmpty', hasGPA);
+
+        if(hasGPA) {
+            destroyChart('gpa');
+            chartInstances['gpa'] = new Chart(document.getElementById('chartGPA'), {
+                type: 'bar',
+                data: {
+                    labels: gpaArr.map(s => s.name.split(' ')[0]),
+                    datasets: [{
+                        label: 'GPA',
+                        data: gpaArr.map(s => +(s.sum / s.count).toFixed(2)),
+                        backgroundColor: gpaArr.map(s => {
+                            const g = s.sum / s.count;
+                            return g >= 3.5 ? '#34c759' : g >= 3.0 ? '#0071e3' : g >= 2.0 ? '#ff9500' : '#ff3b30';
+                        }),
+                        borderRadius: 6,
+                        barThickness: Math.min(28, Math.max(12, Math.floor(180 / gpaArr.length)))
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { min: 0, max: 4.0, grid: { color: gridClr }, ticks: { stepSize: 0.5 } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+    }
+}
+
+// ══════════════════════════════════
+// AI INSIGHTS (Google Gemini)
+// ══════════════════════════════════
+let geminiKey = '';
+let insightSid = '';
+function setInsightStudent(v) { insightSid = v; }
+
+function getInsightsContainer() { return document.getElementById('insightsContainer'); }
+function getInsightsCards() { return document.getElementById('insightsCards'); }
+
+function showInsightsState() {
+    const container = getInsightsContainer();
+    const btn = document.getElementById('btnInsights');
+    if (geminiKey) return;
+    container.innerHTML = `
+        <div class="ai-empty-state">
+            <div class="ai-empty-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                </svg>
+            </div>
+            <p style="font-weight:600;font-size:0.95rem;margin-bottom:6px">Gemini API Key Required</p>
+            <p style="font-size:0.82rem;color:var(--text-secondary);max-width:420px;margin:0 auto 16px">To use AI Insights, configure your Google Gemini API key in the <strong>Settings</strong> tab under <em>AI Insights (Google Gemini)</em>. It's free — Google offers ~15 requests per minute at no cost.</p>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                <button class="btn btn-primary" onclick="switchTab('config'); document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active')); document.querySelector('.tabs .tab:last-child').classList.add('active');" style="border-radius:100px;gap:6px">Go to Settings</button>
+                <a href="https://aistudio.google.com/apikey" target="_blank" class="btn" style="border-radius:100px;border:1px solid var(--border);text-decoration:none;color:var(--text-secondary);gap:6px">Get Free API Key</a>
+            </div>
+        </div>`;
+    if (btn) btn.style.display = 'none';
+}
+
+function buildGeminiPrompt() {
+    let grades = currentData.grades || [];
+    let assignments = currentData.assignments || [];
+    const students = currentData.students || [];
+    if(insightSid) {
+        grades = grades.filter(g => String(g.studentID || '') === insightSid);
+        assignments = assignments.filter(a => String(a.studentID || a.personID || '') === insightSid);
+    }
+
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    let summary = '';
+    const studentGrades = {};
+    const studentStandards = {};
+
+    grades.forEach(g => {
+        const sid = g.studentID || '';
+        const name = getName(sid);
+        const course = g.courseName || 'Unknown';
+        const term = g.termName || '';
+        const p = getPct(g);
+        const score = getScore(g);
+
+        if(!isNaN(p)) {
+            if(!studentGrades[sid]) studentGrades[sid] = { name, courses: [] };
+            studentGrades[sid].courses.push({ course, pct: p, letter: letterGrade(p), term });
+        } else if(score && !isNaN(parseFloat(score))) {
+            if(!studentStandards[sid]) studentStandards[sid] = { name, courses: [] };
+            studentStandards[sid].courses.push({ course, score: parseFloat(score), term });
+        } else if(score) {
+            if(!studentStandards[sid]) studentStandards[sid] = { name, courses: [] };
+            studentStandards[sid].courses.push({ course, mark: score, term });
+        }
+    });
+
+    for(const sid of Object.keys(studentGrades)) {
+        const s = studentGrades[sid];
+        const avg = s.courses.reduce((a,c) => a+c.pct, 0) / s.courses.length;
+        const gpa = s.courses.reduce((a,c) => a+gradePoint(c.pct), 0) / s.courses.length;
+        summary += `\nStudent: ${s.name} | GPA: ${gpa.toFixed(2)} | Avg: ${avg.toFixed(1)}% | Grading: Percentage-based\n`;
+        s.courses.forEach(c => { summary += `  - ${c.course} (${c.term}): ${c.pct}% (${c.letter})\n`; });
+    }
+
+    for(const sid of Object.keys(studentStandards)) {
+        const s = studentStandards[sid];
+        if(studentGrades[sid]) continue;
+        summary += `\nStudent: ${s.name} | Grading: Standards-Based (1-4 scale)\n`;
+        const byCourse = {};
+        s.courses.forEach(c => { if(!byCourse[c.course]) byCourse[c.course] = []; byCourse[c.course].push(c); });
+        for(const [course, entries] of Object.entries(byCourse)) {
+            const scoreStr = entries.map(e => { const val = e.score != null ? e.score : e.mark; return e.term ? `${e.term}=${val}` : `${val}`; }).join(', ');
+            summary += `  - ${course}: ${scoreStr}\n`;
+        }
+    }
+
+    const hasStandardsOnly = Object.keys(studentStandards).length > 0 && Object.keys(studentGrades).length === 0;
+
+    let assignSummary = '';
+    let missingList = [], upcomingList = [];
+    const tenDaysOut = new Date(today.getTime() + 10 * 86400000);
+    assignments.forEach(a => {
+        const name = a.assignmentName || '';
+        const course = a.courseName || '';
+        const due = a.dueDate || '';
+        const student = getName(String(a.studentID || a.personID || ''));
+        const dueDate = due ? new Date(due) : null;
+        if(a.missing) missingList.push(`${student}: "${name}" in ${course} (due ${due})`);
+        else if(!a.score && a.score !== 0) {
+            if(!dueDate || dueDate <= tenDaysOut) upcomingList.push(`${student}: "${name}" in ${course} (due ${due})`);
+        }
+    });
+    if(missingList.length) assignSummary += `\nMissing assignments:\n${missingList.slice(0,10).join('\n')}\n`;
+    if(upcomingList.length) assignSummary += `\nUpcoming assignments (next 10 days):\n${upcomingList.slice(0,10).join('\n')}\n`;
+
+    let trendSummary = '';
+    const termProgression = {};
+    grades.forEach(g => {
+        const key = (g.studentID||'') + '|' + (g.courseName||'');
+        const p = getPct(g);
+        if(!isNaN(p) && g.termName) {
+            if(!termProgression[key]) termProgression[key] = { course: g.courseName, student: getName(g.studentID||''), terms: [] };
+            termProgression[key].terms.push({ term: g.termName, pct: p });
+        }
+    });
+    for(const prog of Object.values(termProgression)) {
+        if(prog.terms.length >= 2) {
+            prog.terms.sort((a,b) => a.term.localeCompare(b.term));
+            const first = prog.terms[0].pct, last = prog.terms[prog.terms.length-1].pct;
+            const diff = last - first;
+            const direction = diff > 2 ? 'UP' : diff < -2 ? 'DOWN' : 'STABLE';
+            trendSummary += `  ${prog.student} - ${prog.course}: ${prog.terms.map(t => t.term+'='+t.pct+'%').join(' → ')} [${direction} ${diff>0?'+':''}${diff.toFixed(0)}%]\n`;
+        }
+    }
+
+    return `You are an educational AI assistant helping parents understand their children's school performance.
+TODAY'S DATE: ${todayStr}
+IMPORTANT: Only flag assignments as urgent if their due date is TODAY or in the FUTURE.
+
+Analyze this data and provide a COMPLETE response with ALL 5 sections below.
+
+## 1. Parent Summary
+Write a warm 3-4 sentence overview for each student. Mention strongest subjects, GPA, and areas needing attention.
+
+## 2. Study Tips by Subject
+For EVERY subject listed, provide a specific tip:
+- Below 80%: Flag as "Needs Focus" with a concrete study strategy
+- 80-89%: Targeted improvement tip
+- 90%+: Encouragement and how to maintain excellence
+
+## 3. Assignment Priorities
+- URGENT: Missing assignments (only if due date is today or future)
+- IMPORTANT: Upcoming ungraded assignments due within 10 days
+- If no missing work, celebrate this
+
+## 4. Grade Predictions & Trends
+Analyze term-over-term trajectory and predict likely end-of-term grade.
+${trendSummary ? '\nTrends:\n' + trendSummary : ''}
+
+## 5. This Week's Action Plan
+5 specific, actionable steps the parent should take THIS WEEK.
+
+STUDENT DATA:
+${summary}
+${assignSummary}
+
+Write ALL 5 sections completely. Use bullet points. Keep tone friendly and supportive.`;
+}
+
+function formatInsightMd(md) {
+    return md
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/^### (.*)/gm, '<h4 style="font-size:0.86rem;font-weight:600;margin:12px 0 6px">$1</h4>')
+        .replace(/^## (.*)/gm, '<h4 style="font-size:0.88rem;font-weight:600;margin:12px 0 6px">$1</h4>')
+        .replace(/^(\d+)\.\s+(.*)/gm, '<div style="display:flex;gap:8px;margin:6px 0"><span style="color:var(--accent);font-weight:700;flex-shrink:0">$1.</span><span>$2</span></div>')
+        .replace(/^[-•]\s+(.*)/gm, '<li>$1</li>')
+        .replace(/((?:<li>.*<\/li>\n?)+)/gs, '<ul style="margin:6px 0 6px 18px;list-style:none">$1</ul>')
+        .replace(/\n{2,}/g, '<br><br>')
+        .replace(/\n/g, '<br>');
+}
+
+async function generateInsights() {
+    renderStudentFilter('insightsStudentFilter', setInsightStudent);
+    if(!geminiKey) {
+        const container = getInsightsContainer();
+        container.innerHTML = `
+            <div class="gemini-key-setup">
+                <strong>Set up Gemini AI (free)</strong>
+                <p style="margin:6px 0;color:var(--text-secondary)">Get a free API key from <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">Google AI Studio</a> — it's free with 15 requests/minute.</p>
+                <input type="password" id="geminiKeyInput" placeholder="Paste your Gemini API key here...">
+                <button class="btn btn-primary" style="margin-top:10px" onclick="saveGeminiKey()">Save & Generate</button>
+            </div>`;
+        return;
+    }
+
+    const btn = document.getElementById('btnInsights');
+    const container = getInsightsContainer();
+    const cards = getInsightsCards();
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"></span>Analyzing...';
+    container.innerHTML = `<div class="insight-loading">
+        <div class="spinner"></div>
+        <p style="margin-top:12px;font-weight:500">Gemini is analyzing grades & assignments...</p>
+        <p style="margin-top:4px;font-size:0.78rem;color:var(--text-secondary)">Trying multiple free AI models for best results</p>
+    </div>`;
+    cards.innerHTML = '';
+
+    try {
+        const prompt = buildGeminiPrompt();
+        const r = await fetch('api/ai/insights', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+        });
+
+        const data = await r.json();
+        if(!r.ok) {
+            const errMsg = data.error || `Server error ${r.status}`;
+            const isQuota = errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate') || r.status === 429;
+            const isKeyError = errMsg.toLowerCase().includes('api key') || r.status === 400;
+
+            if(isQuota) {
+                container.innerHTML = `<div class="insight-card" style="border-left-color:var(--orange)">
+                    <div class="insight-content">
+                        <h3 style="display:flex;align-items:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Rate Limit Reached</h3>
+                        <p style="margin:8px 0">Google's free Gemini API has usage limits. Try again in 1-2 minutes.</p>
+                        <button class="btn btn-primary" style="margin-top:14px" onclick="generateInsights()">Try Again</button>
+                    </div></div>`;
+            } else if(isKeyError) {
+                container.innerHTML = `<div class="insight-card" style="border-left-color:var(--red)">
+                    <div class="insight-content">
+                        <h3 style="display:flex;align-items:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>API Key Issue</h3>
+                        <p style="margin:8px 0">Your Gemini API key may be invalid. Get a new one from <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">Google AI Studio</a> and update it in Settings.</p>
+                    </div></div>`;
+            } else {
+                container.innerHTML = `<div class="insight-card" style="border-left-color:var(--red)">
+                    <div class="insight-content">
+                        <h3>Something went wrong</h3>
+                        <p style="margin:8px 0;color:var(--text-secondary);font-size:0.82rem">${esc(errMsg)}</p>
+                        <button class="btn btn-primary" style="margin-top:10px" onclick="generateInsights()">Try Again</button>
+                    </div></div>`;
+            }
+            btn.disabled = false; btn.textContent = 'Generate';
+            return;
+        }
+
+        const text = data.text || 'No response generated.';
+        const model = data.model || '';
+
+        container.innerHTML = '';
+        const sectionIcons = [
+            {title:'Parent Summary', bg:'linear-gradient(135deg,#34c759,#30d158)', border:'#34c759',
+             svg:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>'},
+            {title:'Study Tips', bg:'linear-gradient(135deg,#0071e3,#0a84ff)', border:'#0071e3',
+             svg:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>'},
+            {title:'Assignment Priorities', bg:'linear-gradient(135deg,#ff9500,#ffcc00)', border:'#ff9500',
+             svg:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'},
+            {title:'Grade Predictions', bg:'linear-gradient(135deg,#5856d6,#af52de)', border:'#5856d6',
+             svg:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>'},
+            {title:'Action Plan', bg:'linear-gradient(135deg,#34c759,#30d158)', border:'#34c759',
+             svg:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'}
+        ];
+
+        const sections = text.split(/\n(?=#{1,3}\s+\d|#{1,3}\s+[A-Z]|---(?:\s*\n)|\n\d+\.\s+\*\*(?:Parent|Study|Assignment|Grade|Prediction|Action|Progress|Learning|Tips|Priorities|Trends|Week|Summary))/i);
+
+        let sectionIdx = 0;
+        sections.forEach((section) => {
+            const trimmed = section.trim();
+            if(!trimmed || trimmed === '---') return;
+
+            const hasHeader = /^(#{1,3}\s|\d+\.\s*\*\*)/.test(trimmed);
+            if(!hasHeader && sectionIdx === 0 && trimmed.length < 300) {
+                if(trimmed.length > 20) {
+                    const intro = document.createElement('div');
+                    intro.className = 'insight-card';
+                    intro.style.borderLeftColor = 'var(--accent)';
+                    intro.innerHTML = '<div class="insight-content">' + formatInsightMd(trimmed) + '</div>';
+                    cards.appendChild(intro);
+                }
+                return;
+            }
+
+            const icon = sectionIcons[Math.min(sectionIdx, sectionIcons.length - 1)];
+            const card = document.createElement('div');
+            card.className = 'insight-card';
+            card.style.borderLeftColor = icon.border;
+
+            let body = trimmed;
+            let title = icon.title;
+            const headerMatch = body.match(/^(?:#{1,3}\s+(?:\d+\.\s*)?|(\d+)\.\s*\*\*)(.*?)(?:\*\*)?$/m);
+            if(headerMatch) {
+                title = headerMatch[2].replace(/\*\*/g, '').replace(/^[\s:.\-]+|[\s:.\-]+$/g, '').trim() || title;
+                body = body.replace(/^.*\n/, '');
+            }
+
+            const headerHtml = `<h3 style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <span class="insight-icon" style="background:${icon.bg}">${icon.svg}</span>${esc(title)}</h3>`;
+
+            card.innerHTML = '<div class="insight-content">' + headerHtml + formatInsightMd(body) + '</div>';
+            cards.appendChild(card);
+            sectionIdx++;
+        });
+
+        if(!cards.children.length) {
+            const card = document.createElement('div');
+            card.className = 'insight-card';
+            card.innerHTML = '<div class="insight-content">' + formatInsightMd(text) + '</div>';
+            cards.appendChild(card);
+        }
+
+        if(model) {
+            const footer = document.createElement('p');
+            footer.style.cssText = 'text-align:center;font-size:0.72rem;color:var(--text-secondary);margin-top:8px;opacity:0.7';
+            footer.textContent = 'Powered by ' + model;
+            cards.appendChild(footer);
+        }
+
+    } catch(e) {
+        container.innerHTML = `<div class="insight-card" style="border-left-color:var(--red)">
+            <div class="insight-content">
+                <h3>Connection Error</h3>
+                <p style="margin:8px 0">Could not reach the AI service. Check your internet connection.</p>
+                <p style="font-size:0.78rem;color:var(--text-secondary)">${esc(e.message)}</p>
+                <button class="btn btn-primary" style="margin-top:10px" onclick="generateInsights()">Try Again</button>
+            </div></div>`;
+    }
+    btn.disabled = false; btn.textContent = 'Generate';
+}
+
+async function saveGeminiKeyToServer(key) {
+    try {
+        await fetch('api/gemini-config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gemini_api_key: key })
+        });
+    } catch(e) {}
+}
+
+async function saveGeminiKey() {
+    const input = document.getElementById('geminiKeyInput');
+    const key = (input?.value || '').trim();
+    if(!key) return;
+    await saveGeminiKeyToServer(key);
+    geminiKey = 'configured';
+    const btn = document.getElementById('btnInsights');
+    if (btn) btn.style.display = '';
+    generateInsights();
+}
+
+async function testGeminiKey() {
+    const btn = document.getElementById('btnTestGemini');
+    const st = document.getElementById('geminiStatus');
+    btn.disabled = true; btn.textContent = 'Testing...';
+    st.innerHTML = '<span style="color:var(--text-secondary)">Checking...</span>';
+    try {
+        const r = await fetch('api/ai/test', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const data = await r.json();
+        if(r.ok && data.ok) {
+            st.innerHTML = '<span style="color:var(--green)">&#10003; Working! ('+esc(data.model)+')</span>';
+        } else {
+            const msg = data.error || 'Test failed';
+            const isQuota = msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('rate');
+            if(isQuota) {
+                st.innerHTML = '<span style="color:var(--orange)">Key is valid but rate-limited. Try later.</span>';
+            } else {
+                st.innerHTML = '<span style="color:var(--red)">&#10007; ' + esc(msg) + '</span>';
+            }
+        }
+    } catch(e) {
+        st.innerHTML = '<span style="color:var(--red)">Connection error</span>';
+    }
+    btn.disabled = false; btn.textContent = 'Test Key';
+}
+
+async function saveGeminiKeyFromSettings() {
+    const input = document.getElementById('cfgGeminiKey');
+    const key = (input?.value || '').trim();
+    if(!key || key.startsWith('••••')) { showAlert('Paste a new Gemini API key', 'error'); return; }
+    await saveGeminiKeyToServer(key);
+    geminiKey = 'configured';
+    input.value = '••••' + key.slice(-4);
+    const st = document.getElementById('geminiStatus');
+    if(st) st.innerHTML = '<span style="color:var(--green)">&#10003; Connected</span>';
+    showAlert('Gemini API key saved!', 'success');
+}
+
+// ══════════════════════════════════
 // INIT
 // ══════════════════════════════════
 async function init() {
-    await loadConfig(); await updateStatus(); await loadData();
+    await loadConfig(); await updateStatus(); await loadData(); await loadGeminiConfig();
     setInterval(updateStatus,30000);
     setInterval(loadData,60000);
 }
