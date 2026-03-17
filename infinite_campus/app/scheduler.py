@@ -56,7 +56,7 @@ class ChangeDetector:
             key_fields = [
                 "assignmentID", "objectSectionID", "courseID", "studentID",
                 "personID", "termID", "attendanceID", "notificationID", "id",
-                "assignmentName", "courseName", "date", "sectionID",
+                "assignmentName", "courseName", "termName", "date", "sectionID",
             ]
             parts = []
             for field in key_fields:
@@ -276,53 +276,124 @@ class ICScheduler:
                 )
                 await self._send_notification(msg)
 
+    @staticmethod
+    def _letter_grade(pct_val: float) -> str:
+        """Convert percentage to letter grade."""
+        if pct_val >= 93: return "A"
+        elif pct_val >= 90: return "A-"
+        elif pct_val >= 87: return "B+"
+        elif pct_val >= 83: return "B"
+        elif pct_val >= 80: return "B-"
+        elif pct_val >= 77: return "C+"
+        elif pct_val >= 73: return "C"
+        elif pct_val >= 70: return "C-"
+        elif pct_val >= 67: return "D+"
+        elif pct_val >= 60: return "D"
+        else: return "F"
+
     async def _notify_grade_changes(self, added: list, modified: list) -> None:
         """Send notifications for grade changes."""
-        for item in added + [m["new"] for m in modified if isinstance(m, dict) and "new" in m]:
-            sid = str(item.get("studentID", ""))
+        # New grades
+        for item in added:
+            msg = self._format_grade_msg(item)
+            if msg:
+                await self._send_notification(msg)
+
+        # Modified grades — show old → new comparison
+        for change in modified:
+            if not isinstance(change, dict) or "new" not in change:
+                continue
+            new_item = change["new"]
+            old_item = change.get("old", {})
+
+            # Check if the percentage or score actually changed
+            old_pct = old_item.get("progressPercent") or old_item.get("percent") or ""
+            new_pct = new_item.get("progressPercent") or new_item.get("percent") or ""
+            old_score = old_item.get("progressScore") or old_item.get("score") or ""
+            new_score = new_item.get("progressScore") or new_item.get("score") or ""
+
+            # Skip if nothing meaningful changed
+            if str(old_pct) == str(new_pct) and str(old_score) == str(new_score):
+                continue
+
+            sid = str(new_item.get("studentID", ""))
             name = self._student_names.get(sid, f"Student {sid}")
-            pct = item.get("progressPercent") or item.get("percent") or ""
-            score = item.get("progressScore") or item.get("score") or ""
-            total = str(item.get("progressTotalPoints") or item.get("totalPoints") or "")
-            earned = str(item.get("progressPointsEarned") or item.get("pointsEarned") or "")
+            course = new_item.get("courseName", "Unknown Course")
 
-            # Derive letter grade
-            letter = ""
-            if pct:
+            # Build change description
+            change_parts = []
+            if new_pct:
                 try:
-                    p = float(pct)
-                    if p >= 93: letter = "A"
-                    elif p >= 90: letter = "A-"
-                    elif p >= 87: letter = "B+"
-                    elif p >= 83: letter = "B"
-                    elif p >= 80: letter = "B-"
-                    elif p >= 77: letter = "C+"
-                    elif p >= 73: letter = "C"
-                    elif p >= 70: letter = "C-"
-                    elif p >= 67: letter = "D+"
-                    elif p >= 60: letter = "D"
-                    else: letter = "F"
+                    new_p = float(new_pct)
+                    new_letter = self._letter_grade(new_p)
+                    if old_pct:
+                        try:
+                            old_p = float(old_pct)
+                            old_letter = self._letter_grade(old_p)
+                            diff = new_p - old_p
+                            arrow = "📈" if diff > 0 else "📉"
+                            change_parts.append(f"{arrow} *{old_letter} ({old_p:.1f}%) → {new_letter} ({new_p:.1f}%)*")
+                        except (ValueError, TypeError):
+                            change_parts.append(f"📊 Grade: *{new_letter} ({new_p:.1f}%)*")
+                    else:
+                        change_parts.append(f"📊 Grade: *{new_letter} ({new_p:.1f}%)*")
                 except (ValueError, TypeError):
-                    pass
+                    if new_pct:
+                        change_parts.append(f"📊 Score: *{new_pct}*")
+            elif new_score and new_score != old_score:
+                if old_score:
+                    change_parts.append(f"📊 *{old_score} → {new_score}*")
+                else:
+                    change_parts.append(f"📊 Score: *{new_score}*")
 
-            score_str = earned + "/" + total if earned and total else score or "N/A"
-            try:
-                pct_str = f" ({float(pct):.1f}%)" if pct else ""
-            except (ValueError, TypeError):
-                pct_str = ""
+            if not change_parts:
+                continue
 
             msg = (
-                f"📚 *Grade Update*\n\n"
+                f"📚 *Grade Changed*\n\n"
                 f"👤 *{name}*\n"
-                f"📖 {item.get('courseName', 'Unknown Course')}\n"
-                f"📊 Score: *{score_str}{pct_str}*"
+                f"📖 {course}\n"
+                + "\n".join(change_parts)
             )
-            if letter:
-                msg += f" — *{letter}*"
-            if item.get("termName"):
-                msg += f"\n📅 Term: {item['termName']}"
+            if new_item.get("termName"):
+                msg += f"\n📅 Term: {new_item['termName']}"
             msg += f"\n\n🕐 {datetime.now().strftime('%b %d, %I:%M %p')}"
             await self._send_notification(msg)
+
+    def _format_grade_msg(self, item: dict) -> str:
+        """Format a grade notification message for a new/added grade."""
+        sid = str(item.get("studentID", ""))
+        name = self._student_names.get(sid, f"Student {sid}")
+        pct = item.get("progressPercent") or item.get("percent") or ""
+        score = item.get("progressScore") or item.get("score") or ""
+        total = str(item.get("progressTotalPoints") or item.get("totalPoints") or "")
+        earned = str(item.get("progressPointsEarned") or item.get("pointsEarned") or "")
+
+        letter = ""
+        if pct:
+            try:
+                letter = self._letter_grade(float(pct))
+            except (ValueError, TypeError):
+                pass
+
+        score_str = earned + "/" + total if earned and total else score or "N/A"
+        try:
+            pct_str = f" ({float(pct):.1f}%)" if pct else ""
+        except (ValueError, TypeError):
+            pct_str = ""
+
+        msg = (
+            f"📚 *Grade Update*\n\n"
+            f"👤 *{name}*\n"
+            f"📖 {item.get('courseName', 'Unknown Course')}\n"
+            f"📊 Score: *{score_str}{pct_str}*"
+        )
+        if letter:
+            msg += f" — *{letter}*"
+        if item.get("termName"):
+            msg += f"\n📅 Term: {item['termName']}"
+        msg += f"\n\n🕐 {datetime.now().strftime('%b %d, %I:%M %p')}"
+        return msg
 
     async def _notify_assignment_changes(self, added: list, modified: list) -> None:
         """Send notifications for assignment changes."""
